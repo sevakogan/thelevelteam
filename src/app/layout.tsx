@@ -17,8 +17,23 @@ export const metadata: Metadata = {
   title: "TheLevelTeam | Marketing & Software Company",
   description:
     "We build premium digital products and marketing solutions. Explore our portfolio of innovative software projects.",
+  metadataBase: new URL("https://thelevelteam.com"),
   icons: {
-    icon: "/icon.svg",
+    icon: "/icon.png",
+    apple: "/apple-icon.png",
+  },
+  openGraph: {
+    title: "TheLevelTeam",
+    description: "We build software that moves industries forward.",
+    url: "https://thelevelteam.com",
+    siteName: "TheLevelTeam",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "TheLevelTeam",
+    description: "We build software that moves industries forward.",
   },
 };
 
