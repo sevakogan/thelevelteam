@@ -8,8 +8,11 @@ interface Star {
   radius: number;
   baseOpacity: number;
   twinkleSpeed: number;
+  twinkleSpeed2: number; // second frequency for organic feel
   twinkleOffset: number;
-  color: [number, number, number]; // RGB
+  twinkleOffset2: number;
+  color: [number, number, number];
+  sparkleChance: number; // probability of a random bright flash per frame
 }
 
 export default function Starfield({ starCount = 180 }: { starCount?: number }) {
@@ -37,35 +40,33 @@ export default function Starfield({ starCount = 180 }: { starCount?: number }) {
     function generateStars(w: number, h: number) {
       const stars: Star[] = [];
       for (let i = 0; i < starCount; i++) {
-        // Mix of white, blue-white, and faint blue/purple tinted stars
         const colorRoll = Math.random();
         let color: [number, number, number];
         if (colorRoll < 0.55) {
-          // Pure white
           color = [255, 255, 255];
         } else if (colorRoll < 0.75) {
-          // Warm white
           color = [255, 245, 230];
         } else if (colorRoll < 0.9) {
-          // Blue-white (like the brand blue)
           color = [147, 197, 253];
         } else {
-          // Faint purple tint
           color = [196, 181, 253];
         }
 
         stars.push({
           x: Math.random() * w,
           y: Math.random() * h,
-          radius: Math.random() * 1.2 + 0.3, // 0.3 - 1.5px
-          baseOpacity: Math.random() * 0.5 + 0.15, // 0.15 - 0.65
-          twinkleSpeed: Math.random() * 0.8 + 0.3, // Different twinkle rates
-          twinkleOffset: Math.random() * Math.PI * 2, // Random phase
+          radius: Math.random() * 1.2 + 0.3,
+          baseOpacity: Math.random() * 0.6 + 0.2, // 0.2 - 0.8 (brighter base)
+          twinkleSpeed: Math.random() * 2.5 + 0.8, // 0.8 - 3.3 (much faster)
+          twinkleSpeed2: Math.random() * 1.2 + 0.3, // second harmonic
+          twinkleOffset: Math.random() * Math.PI * 2,
+          twinkleOffset2: Math.random() * Math.PI * 2,
           color,
+          sparkleChance: Math.random() * 0.003, // random flash probability
         });
       }
-      // Add a few brighter "hero" stars
-      for (let i = 0; i < 12; i++) {
+      // Brighter hero stars — twinkle even more dramatically
+      for (let i = 0; i < 18; i++) {
         const colorRoll = Math.random();
         const color: [number, number, number] = colorRoll < 0.5
           ? [255, 255, 255]
@@ -76,11 +77,14 @@ export default function Starfield({ starCount = 180 }: { starCount?: number }) {
         stars.push({
           x: Math.random() * w,
           y: Math.random() * h,
-          radius: Math.random() * 0.8 + 1.5, // 1.5 - 2.3px (brighter dots)
-          baseOpacity: Math.random() * 0.3 + 0.5, // 0.5 - 0.8
-          twinkleSpeed: Math.random() * 0.4 + 0.15, // Slower, more majestic
+          radius: Math.random() * 0.8 + 1.5,
+          baseOpacity: Math.random() * 0.3 + 0.6, // 0.6 - 0.9
+          twinkleSpeed: Math.random() * 1.5 + 0.5,
+          twinkleSpeed2: Math.random() * 0.8 + 0.2,
           twinkleOffset: Math.random() * Math.PI * 2,
+          twinkleOffset2: Math.random() * Math.PI * 2,
           color,
+          sparkleChance: 0.005, // higher sparkle chance
         });
       }
       starsRef.current = stars;
@@ -91,30 +95,63 @@ export default function Starfield({ starCount = 180 }: { starCount?: number }) {
       const rect = canvas.getBoundingClientRect();
       ctx.clearRect(0, 0, rect.width, rect.height);
 
-      const t = time / 1000; // seconds
+      const t = time / 1000;
 
       for (const star of starsRef.current) {
-        // Smooth twinkle using sine wave
-        const twinkle = Math.sin(t * star.twinkleSpeed + star.twinkleOffset);
-        // Map from [-1, 1] to [0.3, 1] range for opacity multiplier
-        const opacityMul = 0.3 + (twinkle + 1) * 0.35;
-        const opacity = star.baseOpacity * opacityMul;
+        // Dual-frequency sine for organic twinkle (not just a smooth pulse)
+        const wave1 = Math.sin(t * star.twinkleSpeed + star.twinkleOffset);
+        const wave2 = Math.sin(t * star.twinkleSpeed2 + star.twinkleOffset2);
+        // Combined wave: ranges from -1 to 1, weighted
+        const combined = wave1 * 0.6 + wave2 * 0.4;
 
-        // Slight size pulse for larger stars
-        const sizeMul = star.radius > 1.2 ? 1 + twinkle * 0.15 : 1;
+        // Map to opacity: goes from near-zero (0.05) to full (1.0) — dramatic fade in/out
+        const opacityMul = 0.05 + (combined + 1) * 0.475; // 0.05 to 1.0
+        let opacity = star.baseOpacity * opacityMul;
+
+        // Random sparkle burst — momentary bright flash
+        const isSparkle = Math.random() < star.sparkleChance;
+        if (isSparkle) {
+          opacity = Math.min(1, star.baseOpacity * 1.8);
+        }
+
+        // Size pulse — stars grow when bright, shrink when dim
+        const sizeMul = star.radius > 1.2
+          ? 1 + combined * 0.25 + (isSparkle ? 0.5 : 0)
+          : 1 + combined * 0.1 + (isSparkle ? 0.3 : 0);
         const r = star.radius * sizeMul;
 
+        // Draw star core
         ctx.beginPath();
-        ctx.arc(star.x, star.y, r, 0, Math.PI * 2);
+        ctx.arc(star.x, star.y, Math.max(0.2, r), 0, Math.PI * 2);
         ctx.fillStyle = `rgba(${star.color[0]}, ${star.color[1]}, ${star.color[2]}, ${opacity})`;
         ctx.fill();
 
-        // Add glow for brighter stars
-        if (star.radius > 1.2 && opacity > 0.4) {
+        // Glow halo for bright moments
+        if (opacity > 0.45 || isSparkle) {
+          const glowRadius = isSparkle ? r * 4 : r * 2.5;
+          const glowOpacity = isSparkle ? opacity * 0.3 : opacity * 0.15;
           ctx.beginPath();
-          ctx.arc(star.x, star.y, r * 2.5, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(${star.color[0]}, ${star.color[1]}, ${star.color[2]}, ${opacity * 0.15})`;
+          ctx.arc(star.x, star.y, glowRadius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${star.color[0]}, ${star.color[1]}, ${star.color[2]}, ${glowOpacity})`;
           ctx.fill();
+        }
+
+        // Cross-sparkle rays for bright stars during sparkle
+        if (isSparkle && star.radius > 1.0) {
+          const rayLen = r * 5;
+          const rayOpacity = opacity * 0.2;
+          ctx.strokeStyle = `rgba(${star.color[0]}, ${star.color[1]}, ${star.color[2]}, ${rayOpacity})`;
+          ctx.lineWidth = 0.5;
+          // Horizontal ray
+          ctx.beginPath();
+          ctx.moveTo(star.x - rayLen, star.y);
+          ctx.lineTo(star.x + rayLen, star.y);
+          ctx.stroke();
+          // Vertical ray
+          ctx.beginPath();
+          ctx.moveTo(star.x, star.y - rayLen);
+          ctx.lineTo(star.x, star.y + rayLen);
+          ctx.stroke();
         }
       }
 
@@ -135,7 +172,6 @@ export default function Starfield({ starCount = 180 }: { starCount?: number }) {
     <canvas
       ref={canvasRef}
       className="absolute inset-0 w-full h-full pointer-events-none"
-      style={{ opacity: 0.9 }}
     />
   );
 }
