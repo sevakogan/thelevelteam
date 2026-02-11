@@ -1,9 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { staggerContainer, fadeInUp } from "@/lib/animations";
+import { fadeInUp } from "@/lib/animations";
 import CompanyCard from "@/components/ui/CompanyCard";
-import GlowEffect from "@/components/ui/GlowEffect";
 import type { Company } from "@/lib/types";
 
 interface PortfolioSectionProps {
@@ -12,51 +11,47 @@ interface PortfolioSectionProps {
 
 export default function PortfolioSection({ companies }: PortfolioSectionProps) {
   return (
-    <section id="portfolio" className="relative py-16 md:py-24">
-      <GlowEffect color="rgba(139, 92, 246, 0.08)" size="500px" position="top-left" />
-
-      <div className="max-w-6xl mx-auto px-6">
+    <section id="portfolio" className="relative py-12 md:py-20">
+      <div className="max-w-5xl mx-auto px-6">
         {/* Section header */}
         <motion.div
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: "-100px" }}
-          variants={staggerContainer}
-          className="text-center mb-16"
+          viewport={{ once: true, margin: "-50px" }}
+          className="mb-12"
         >
-          <motion.span
+          <motion.div
             variants={fadeInUp}
-            className="text-accent-blue text-sm font-medium uppercase tracking-widest"
+            className="flex items-center gap-3 mb-4"
           >
-            Our Portfolio
-          </motion.span>
+            <motion.div
+              initial={{ width: 0 }}
+              whileInView={{ width: 48 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="h-[1px] bg-gradient-to-r from-accent-blue to-transparent"
+            />
+            <span className="text-accent-blue text-sm font-medium uppercase tracking-widest">
+              Portfolio
+            </span>
+          </motion.div>
           <motion.h2
-            variants={fadeInUp}
-            className="text-3xl md:text-5xl font-bold text-white mt-3 mb-4"
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="text-3xl md:text-4xl font-bold text-white"
           >
-            Products We&apos;ve Built
+            What we&apos;ve shipped
           </motion.h2>
-          <motion.p
-            variants={fadeInUp}
-            className="text-brand-muted max-w-xl mx-auto"
-          >
-            Each project is crafted with precision, built on modern technology,
-            and designed to deliver real results.
-          </motion.p>
         </motion.div>
 
-        {/* Cards grid */}
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          variants={staggerContainer}
-          className="grid md:grid-cols-2 gap-6"
-        >
-          {companies.map((company) => (
-            <CompanyCard key={company.id} company={company} />
+        {/* Stacked cards — each animates independently */}
+        <div className="flex flex-col gap-6">
+          {companies.map((company, index) => (
+            <CompanyCard key={company.id} company={company} index={index} />
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

@@ -1,3 +1,4 @@
+import Header from "@/components/ui/Header";
 import HeroSection from "@/components/sections/HeroSection";
 import PortfolioSection from "@/components/sections/PortfolioSection";
 import AboutSection from "@/components/sections/AboutSection";
@@ -101,6 +102,7 @@ export default async function Home() {
 
   return (
     <main className="bg-brand-dark min-h-screen">
+      <Header />
       <HeroSection />
       <PortfolioSection companies={companies} />
       <AboutSection />
