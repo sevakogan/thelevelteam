@@ -20,16 +20,19 @@ export default function CompanyIcon({ slug, colorPrimary, colorSecondary, size =
         </svg>
       );
 
-    // RevenuFlow - Chart / analytics icon
+    // RevenuFlow - Line chart with arrow (matches actual site logo)
     case "revenuflow":
       return (
         <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect width="40" height="40" rx="10" fill={`${colorPrimary}15`} />
-          <rect x="10" y="22" width="4" height="8" rx="1" fill={colorSecondary} />
-          <rect x="16" y="18" width="4" height="12" rx="1" fill={colorPrimary} opacity="0.7" />
-          <rect x="22" y="14" width="4" height="16" rx="1" fill={colorPrimary} />
-          <rect x="28" y="10" width="4" height="20" rx="1" fill={colorSecondary} />
-          <path d="M10 20l6-4 6-2 6-4" stroke={colorPrimary} strokeWidth="1.5" strokeLinecap="round" strokeDasharray="2 2" />
+          <defs>
+            <linearGradient id="rf-gradient" x1="0" y1="0" x2="40" y2="40">
+              <stop stopColor="#3B82F6" />
+              <stop offset="1" stopColor="#8B5CF6" />
+            </linearGradient>
+          </defs>
+          <rect width="40" height="40" rx="10" fill="url(#rf-gradient)" />
+          <path d="M10 27.5L16.25 17.5L21.25 22.5L30 12.5" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M25 12.5H30V17.5" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       );
 
