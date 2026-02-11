@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { fadeInUp } from "@/lib/animations";
+import CompanyIcon from "@/components/ui/CompanyIcon";
 import type { Company } from "@/lib/types";
 
 interface CompanyCardProps {
@@ -36,13 +37,21 @@ export default function CompanyCard({ company }: CompanyCardProps) {
       />
 
       <div className="p-6 md:p-8">
-        {/* Company name + icon */}
+        {/* Icon + Company name row */}
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-xl md:text-2xl font-bold text-white group-hover:text-accent-blue transition-colors">
-            {company.name}
-          </h3>
+          <div className="flex items-center gap-3">
+            <CompanyIcon
+              slug={company.slug}
+              colorPrimary={company.color_primary}
+              colorSecondary={company.color_secondary}
+              size={40}
+            />
+            <h3 className="text-xl md:text-2xl font-bold text-white group-hover:text-accent-blue transition-colors">
+              {company.name}
+            </h3>
+          </div>
           <svg
-            className="w-5 h-5 text-brand-muted group-hover:text-accent-blue group-hover:translate-x-1 group-hover:-translate-y-1 transition-all"
+            className="w-5 h-5 text-brand-muted group-hover:text-accent-blue group-hover:translate-x-1 group-hover:-translate-y-1 transition-all flex-shrink-0"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
