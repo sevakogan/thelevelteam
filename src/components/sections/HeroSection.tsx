@@ -5,6 +5,7 @@ import { fadeInUp, staggerContainer } from "@/lib/animations";
 import AnimatedCounter from "@/components/ui/AnimatedCounter";
 import GridPattern from "@/components/ui/GridPattern";
 import GlowEffect from "@/components/ui/GlowEffect";
+import Logo from "@/components/ui/Logo";
 
 export default function HeroSection() {
   return (
@@ -19,6 +20,11 @@ export default function HeroSection() {
         animate="visible"
         className="relative z-10 max-w-5xl mx-auto px-6 text-center"
       >
+        {/* Logo */}
+        <motion.div variants={fadeInUp} className="mb-6">
+          <Logo size={56} />
+        </motion.div>
+
         {/* Badge */}
         <motion.div variants={fadeInUp} className="mb-8">
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-brand-border bg-brand-card/50 text-sm text-brand-muted">

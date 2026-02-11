@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Company } from "@/lib/types";
+import Logo from "@/components/ui/Logo";
 
 const EMPTY_FORM = {
   name: "",
@@ -141,7 +142,10 @@ export default function AdminPage() {
           onSubmit={handleLogin}
           className="w-full max-w-sm p-8 rounded-2xl border border-brand-border bg-brand-card/50 backdrop-blur-sm"
         >
-          <h1 className="text-2xl font-bold text-white mb-6">Admin Access</h1>
+          <div className="flex items-center gap-3 mb-6">
+            <Logo size={32} />
+            <h1 className="text-2xl font-bold text-white">Admin Access</h1>
+          </div>
           <input
             type="password"
             value={password}
@@ -165,9 +169,12 @@ export default function AdminPage() {
       <div className="max-w-5xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-white">Portfolio Admin</h1>
-            <p className="text-brand-muted text-sm mt-1">Manage your portfolio companies</p>
+          <div className="flex items-center gap-3">
+            <Logo size={36} />
+            <div>
+              <h1 className="text-3xl font-bold text-white">Portfolio Admin</h1>
+              <p className="text-brand-muted text-sm mt-1">Manage your portfolio companies</p>
+            </div>
           </div>
           <div className="flex gap-3">
             <a

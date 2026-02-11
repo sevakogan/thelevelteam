@@ -17,6 +17,9 @@ export const metadata: Metadata = {
   title: "TheLevelTeam | Marketing & Software Company",
   description:
     "We build premium digital products and marketing solutions. Explore our portfolio of innovative software projects.",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
