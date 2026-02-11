@@ -1,101 +1,110 @@
-import Image from "next/image";
+import HeroSection from "@/components/sections/HeroSection";
+import PortfolioSection from "@/components/sections/PortfolioSection";
+import AboutSection from "@/components/sections/AboutSection";
+import CTASection from "@/components/sections/CTASection";
+import { createClient } from "@supabase/supabase-js";
+import type { Company } from "@/lib/types";
 
-export default function Home() {
+const FALLBACK_COMPANIES: Company[] = [
+  {
+    id: "1",
+    name: "CrownVault",
+    slug: "crownvault",
+    tagline:
+      "Exclusive, invite-only marketplace for premium watch dealers. Verified dealers trading authenticated luxury timepieces.",
+    description: "",
+    image_url: "",
+    live_url: "https://crownvault.vercel.app",
+    color_primary: "#3B82F6",
+    color_secondary: "#EC4899",
+    tech_stack: ["Next.js", "TypeScript", "Supabase", "Tailwind CSS", "Framer Motion"],
+    display_order: 1,
+    is_featured: true,
+    created_at: "",
+    updated_at: "",
+  },
+  {
+    id: "2",
+    name: "RevenuFlow",
+    slug: "revenuflow",
+    tagline:
+      "AI-powered revenue management for short-term rentals. Dynamic pricing, market analytics, and demand forecasting.",
+    description: "",
+    image_url: "",
+    live_url: "https://revenuflow.vercel.app",
+    color_primary: "#8B5CF6",
+    color_secondary: "#06B6D4",
+    tech_stack: ["Next.js", "TypeScript", "Supabase", "Tailwind CSS", "AI/ML"],
+    display_order: 2,
+    is_featured: true,
+    created_at: "",
+    updated_at: "",
+  },
+  {
+    id: "3",
+    name: "WeCare Drive",
+    slug: "wecare-drive",
+    tagline:
+      "Medical supply driver logistics platform. Calendar-based delivery tracking, expense management, and reporting.",
+    description: "",
+    image_url: "",
+    live_url: "https://wecare-drive.vercel.app",
+    color_primary: "#1E40AF",
+    color_secondary: "#3B82F6",
+    tech_stack: ["Next.js", "TypeScript", "Supabase", "NextAuth", "Google APIs"],
+    display_order: 3,
+    is_featured: true,
+    created_at: "",
+    updated_at: "",
+  },
+  {
+    id: "4",
+    name: "GeniusTestBoost",
+    slug: "geniustestboost",
+    tagline:
+      "1-on-1 expert tutoring for SAT, ACT, and GRE standardized tests. Diagnostic testing, custom study plans, and live sessions.",
+    description: "",
+    image_url: "",
+    live_url: "https://geniustestboost.vercel.app",
+    color_primary: "#C9A84C",
+    color_secondary: "#7C6CF0",
+    tech_stack: ["Express.js", "Supabase", "Vanilla JS", "HTML/CSS"],
+    display_order: 4,
+    is_featured: true,
+    created_at: "",
+    updated_at: "",
+  },
+];
+
+async function getCompanies(): Promise<Company[]> {
+  try {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!url || !key) return FALLBACK_COMPANIES;
+
+    const supabase = createClient(url, key);
+    const { data, error } = await supabase
+      .from("companies")
+      .select("*")
+      .eq("is_featured", true)
+      .order("display_order", { ascending: true });
+
+    if (error || !data || data.length === 0) return FALLBACK_COMPANIES;
+    return data as Company[];
+  } catch {
+    return FALLBACK_COMPANIES;
+  }
+}
+
+export default async function Home() {
+  const companies = await getCompanies();
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+    <main className="bg-brand-dark min-h-screen">
+      <HeroSection />
+      <PortfolioSection companies={companies} />
+      <AboutSection />
+      <CTASection />
+    </main>
   );
 }
