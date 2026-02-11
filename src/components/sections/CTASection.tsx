@@ -8,7 +8,7 @@ import Logo from "@/components/ui/Logo";
 
 export default function CTASection() {
   return (
-    <section id="contact" className="relative py-24 md:py-32">
+    <section id="contact" className="relative py-16 md:py-24">
       <GridPattern />
       <GlowEffect color="rgba(59, 130, 246, 0.1)" size="600px" position="center" />
 

@@ -46,7 +46,7 @@ const services = [
 
 export default function AboutSection() {
   return (
-    <section id="about" className="relative py-24 md:py-32">
+    <section id="about" className="relative py-16 md:py-24">
       <GlowEffect color="rgba(6, 182, 212, 0.06)" size="500px" position="top-right" />
 
       <div className="max-w-6xl mx-auto px-6">

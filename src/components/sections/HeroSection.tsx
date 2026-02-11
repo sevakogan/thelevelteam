@@ -21,7 +21,7 @@ export default function HeroSection() {
         className="relative z-10 max-w-5xl mx-auto px-6 text-center"
       >
         {/* Logo */}
-        <motion.div variants={fadeInUp} className="mb-6">
+        <motion.div variants={fadeInUp} className="mb-6 flex justify-center">
           <Logo size={56} />
         </motion.div>
 
@@ -54,7 +54,7 @@ export default function HeroSection() {
         </motion.p>
 
         {/* CTA Buttons */}
-        <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center mb-20">
+        <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
           <a
             href="#portfolio"
             className="px-8 py-3.5 rounded-full bg-gradient-to-r from-accent-blue to-accent-purple text-white font-medium hover:shadow-glow transition-shadow"

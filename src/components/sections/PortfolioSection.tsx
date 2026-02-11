@@ -12,7 +12,7 @@ interface PortfolioSectionProps {
 
 export default function PortfolioSection({ companies }: PortfolioSectionProps) {
   return (
-    <section id="portfolio" className="relative py-24 md:py-32">
+    <section id="portfolio" className="relative py-16 md:py-24">
       <GlowEffect color="rgba(139, 92, 246, 0.08)" size="500px" position="top-left" />
 
       <div className="max-w-6xl mx-auto px-6">
