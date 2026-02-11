@@ -2,6 +2,7 @@
 
 import { motion, useScroll, useTransform } from "framer-motion";
 import Logo from "@/components/ui/Logo";
+import Starfield from "@/components/ui/Starfield";
 
 export default function HeroSection() {
   const { scrollY } = useScroll();
@@ -13,7 +14,10 @@ export default function HeroSection() {
 
   return (
     <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden pt-16">
-      {/* Parallax background orbs */}
+      {/* Starlight ceiling — Rolls Royce style twinkling dots */}
+      <Starfield starCount={200} />
+
+      {/* Parallax background orbs (subtle color wash behind stars) */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
           style={{ y: bgOrb1Y, scale: bgOrb1Scale }}
@@ -22,40 +26,6 @@ export default function HeroSection() {
         <motion.div
           style={{ y: bgOrb2Y }}
           className="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] bg-accent-purple/[0.05] rounded-full blur-[100px]"
-        />
-        {/* Floating particles */}
-        <motion.div
-          animate={{
-            y: [0, -20, 0],
-            opacity: [0.3, 0.6, 0.3],
-          }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[30%] left-[15%] w-1 h-1 bg-accent-blue/40 rounded-full"
-        />
-        <motion.div
-          animate={{
-            y: [0, 15, 0],
-            opacity: [0.2, 0.5, 0.2],
-          }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-          className="absolute top-[20%] right-[20%] w-1.5 h-1.5 bg-accent-purple/30 rounded-full"
-        />
-        <motion.div
-          animate={{
-            y: [0, -12, 0],
-            x: [0, 8, 0],
-            opacity: [0.2, 0.4, 0.2],
-          }}
-          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-          className="absolute top-[60%] right-[30%] w-1 h-1 bg-accent-cyan/30 rounded-full"
-        />
-        <motion.div
-          animate={{
-            y: [0, 18, 0],
-            opacity: [0.15, 0.35, 0.15],
-          }}
-          transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 3 }}
-          className="absolute top-[45%] left-[25%] w-2 h-2 bg-accent-blue/20 rounded-full"
         />
       </div>
 
