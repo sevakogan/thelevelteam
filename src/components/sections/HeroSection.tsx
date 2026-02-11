@@ -32,7 +32,7 @@ export default function HeroSection() {
           variants={fadeInUp}
           className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight mb-6"
         >
-          <span className="text-white">The Level</span>{" "}
+          <span className="text-white">TheLevel</span>
           <span className="bg-gradient-to-r from-accent-blue to-accent-purple bg-clip-text text-transparent">
             Team
           </span>

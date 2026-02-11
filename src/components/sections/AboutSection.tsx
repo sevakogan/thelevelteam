@@ -79,7 +79,7 @@ export default function AboutSection() {
               variants={fadeInUp}
               className="text-brand-muted leading-relaxed mb-4"
             >
-              The Level Team is a marketing and software company specializing in
+              TheLevelTeam is a marketing and software company specializing in
               building premium digital products. We take projects from concept to
               production with a focus on quality, performance, and modern design.
             </motion.p>

@@ -55,7 +55,7 @@ export default function CTASection() {
       {/* Footer */}
       <div className="max-w-6xl mx-auto px-6 mt-24 pt-8 border-t border-brand-border">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-brand-muted">
-          <p>&copy; {new Date().getFullYear()} The Level Team. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} TheLevelTeam. All rights reserved.</p>
           <div className="flex items-center gap-6">
             <a href="#portfolio" className="hover:text-white transition-colors">
               Portfolio

@@ -14,7 +14,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "The Level Team | Marketing & Software Company",
+  title: "TheLevelTeam | Marketing & Software Company",
   description:
     "We build premium digital products and marketing solutions. Explore our portfolio of innovative software projects.",
 };
