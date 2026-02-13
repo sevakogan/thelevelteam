@@ -32,7 +32,7 @@ describe("Header", () => {
     expect(screen.getByText("Hire Us")).toBeInTheDocument();
     expect(screen.getByText("Hire Us").closest("a")).toHaveAttribute(
       "href",
-      "mailto:contact@thelevelteam.com"
+      "mailto:info@thelevelteam.com"
     );
   });
 });

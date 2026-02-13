@@ -95,6 +95,7 @@ describe("POST /api/companies", () => {
       body: JSON.stringify(newCompany),
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response = await POST(req as any);
     const data = await response.json();
 
@@ -109,6 +110,7 @@ describe("POST /api/companies", () => {
       body: JSON.stringify({ name: "TestCo" }),
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response = await POST(req as any);
     const data = await response.json();
 
@@ -126,6 +128,7 @@ describe("POST /api/companies", () => {
       body: JSON.stringify({ name: "TestCo" }),
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response = await POST(req as any);
     const data = await response.json();
 

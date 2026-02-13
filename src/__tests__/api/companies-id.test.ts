@@ -39,6 +39,7 @@ describe("PUT /api/companies/:id", () => {
       body: JSON.stringify(updated),
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response = await PUT(req as any, { params: { id: "1" } });
     const data = await response.json();
 
@@ -58,6 +59,7 @@ describe("PUT /api/companies/:id", () => {
       body: JSON.stringify({ name: "Hack" }),
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response = await PUT(req as any, { params: { id: "1" } });
     const data = await response.json();
 
@@ -80,6 +82,7 @@ describe("PUT /api/companies/:id", () => {
       body: JSON.stringify({ name: "Test" }),
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response = await PUT(req as any, { params: { id: "1" } });
     const data = await response.json();
 
@@ -102,6 +105,7 @@ describe("DELETE /api/companies/:id", () => {
       headers: { "x-admin-password": "test-password" },
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response = await DELETE(req as any, { params: { id: "1" } });
     const data = await response.json();
 
@@ -115,6 +119,7 @@ describe("DELETE /api/companies/:id", () => {
       method: "DELETE",
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response = await DELETE(req as any, { params: { id: "1" } });
     const data = await response.json();
 
@@ -131,6 +136,7 @@ describe("DELETE /api/companies/:id", () => {
       headers: { "x-admin-password": "test-password" },
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const response = await DELETE(req as any, { params: { id: "1" } });
     const data = await response.json();
 

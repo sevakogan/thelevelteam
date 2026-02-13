@@ -14,9 +14,9 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "TheLevelTeam | Marketing & Software Company",
+  title: "TheLevelTeam | Boutique Digital Agency",
   description:
-    "We build premium digital products and marketing solutions. Explore our portfolio of innovative software projects.",
+    "Boutique digital agency serving businesses across the United States. Paid advertising, website development, cold calling, social media, SEO, and customer service.",
   metadataBase: new URL("https://thelevelteam.com"),
   icons: {
     icon: "/icon.png",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "TheLevelTeam",
-    description: "We build software that moves industries forward.",
+    description: "Boutique digital agency — advertising, development, and growth strategy for businesses across the US.",
     url: "https://thelevelteam.com",
     siteName: "TheLevelTeam",
     locale: "en_US",
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "TheLevelTeam",
-    description: "We build software that moves industries forward.",
+    description: "Boutique digital agency — advertising, development, and growth strategy for businesses across the US.",
   },
 };
 

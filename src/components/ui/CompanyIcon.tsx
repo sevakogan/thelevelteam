@@ -61,6 +61,21 @@ export default function CompanyIcon({ slug, colorPrimary, colorSecondary, size =
         </svg>
       );
 
+    // KarbonAgency - Hexagonal K icon
+    case "karbonagency":
+      return (
+        <svg width={size} height={size} viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="ka-gradient" x1="0" y1="0" x2="40" y2="40">
+              <stop stopColor={colorPrimary} />
+              <stop offset="1" stopColor={colorSecondary} />
+            </linearGradient>
+          </defs>
+          <rect width="40" height="40" rx="10" fill="url(#ka-gradient)" />
+          <path d="M15 12v16M15 20l8-8M15 20l8 8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      );
+
     // Default - generic icon
     default:
       return (

@@ -14,3 +14,27 @@ export interface Company {
   created_at: string;
   updated_at: string;
 }
+
+export interface ProjectFeature {
+  title: string;
+  description: string;
+  icon: string;
+}
+
+export interface ProjectScreenshot {
+  src: string;
+  alt: string;
+  caption?: string;
+}
+
+export interface ProjectDetail {
+  slug: string;
+  headline: string;
+  longDescription: string;
+  features: ProjectFeature[];
+  screenshots: ProjectScreenshot[];
+  outcomes: string[];
+  usesGHL: boolean;
+  ghlDetails?: string;
+  clientIndustry: string;
+}

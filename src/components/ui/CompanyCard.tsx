@@ -2,6 +2,7 @@
 
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
+import Link from "next/link";
 import CompanyIcon from "@/components/ui/CompanyIcon";
 import type { Company } from "@/lib/types";
 
@@ -26,16 +27,14 @@ export default function CompanyCard({ company, index }: CompanyCardProps) {
 
   return (
     <motion.div ref={cardRef} style={{ y: cardY }}>
-      <motion.a
-        href={company.live_url}
-        target="_blank"
-        rel="noopener noreferrer"
+      <Link href={`/projects/${company.slug}`} className="block">
+      <motion.div
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-80px" }}
         transition={{ duration: 0.7, delay: index * 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
         whileHover={{ scale: 1.015 }}
-        className="group relative block rounded-3xl overflow-hidden"
+        className="group relative rounded-3xl overflow-hidden"
         style={{
           background: `linear-gradient(135deg, ${company.color_primary}08, ${company.color_secondary}05)`,
         }}
@@ -93,9 +92,9 @@ export default function CompanyCard({ company, index }: CompanyCardProps) {
                 {company.name}
               </h3>
               <motion.svg
-                initial={{ opacity: 0, x: -5, y: 5 }}
+                initial={{ opacity: 0, x: -5 }}
                 whileInView={{ opacity: 0 }}
-                className="w-5 h-5 group-hover:opacity-100 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-300"
+                className="w-5 h-5 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300"
                 style={{ color: company.color_primary }}
                 fill="none"
                 viewBox="0 0 24 24"
@@ -105,7 +104,7 @@ export default function CompanyCard({ company, index }: CompanyCardProps) {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M7 17L17 7M17 7H7M17 7v10"
+                  d="M9 5l7 7-7 7"
                 />
               </motion.svg>
             </div>
@@ -145,7 +144,8 @@ export default function CompanyCard({ company, index }: CompanyCardProps) {
             background: `linear-gradient(90deg, transparent, ${company.color_primary}, ${company.color_secondary}, transparent)`,
           }}
         />
-      </motion.a>
+      </motion.div>
+      </Link>
     </motion.div>
   );
 }

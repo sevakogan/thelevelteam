@@ -42,7 +42,7 @@ export default function PortfolioSection({ companies }: PortfolioSectionProps) {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="text-3xl md:text-4xl font-bold text-white"
           >
-            What we&apos;ve shipped
+            Selected Projects
           </motion.h2>
         </motion.div>
 

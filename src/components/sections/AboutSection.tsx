@@ -3,11 +3,23 @@
 import { motion } from "framer-motion";
 import { staggerContainer, fadeInUp } from "@/lib/animations";
 
-const capabilities = [
-  { label: "Full-Stack Development", detail: "Next.js, React, Node.js" },
-  { label: "Cloud Infrastructure", detail: "Supabase, Vercel, AWS" },
-  { label: "UI/UX Design", detail: "Tailwind, Framer Motion" },
-  { label: "AI & Automation", detail: "ML Models, Data Pipelines" },
+const values = [
+  {
+    label: "Quality Over Quantity",
+    detail: "We work with a select number of clients to ensure each one gets our best.",
+  },
+  {
+    label: "US-Wide Service",
+    detail: "Serving businesses across the United States with a personalized, hands-on approach.",
+  },
+  {
+    label: "Full-Service Team",
+    detail: "Advertising, development, outreach, and support — all under one roof.",
+  },
+  {
+    label: "Results-Driven",
+    detail: "Every strategy is measured, optimized, and accountable to real business outcomes.",
+  },
 ];
 
 export default function AboutSection() {
@@ -27,20 +39,20 @@ export default function AboutSection() {
             {/* Left — statement */}
             <motion.div variants={fadeInUp}>
               <p className="text-2xl md:text-3xl font-light text-white leading-snug">
-                We take ideas from{" "}
+                We&apos;re not a factory. Every business that works with us gets the{" "}
                 <span className="bg-gradient-to-r from-accent-blue to-accent-purple bg-clip-text text-transparent font-medium">
-                  concept to production
+                  senior-level attention
                 </span>
-                {" "}with speed and precision.
+                {" "}and hands-on strategy that large agencies reserve for their biggest accounts.
               </p>
             </motion.div>
 
-            {/* Right — capabilities */}
+            {/* Right — values */}
             <motion.div variants={staggerContainer} className="grid grid-cols-2 gap-6">
-              {capabilities.map((cap) => (
-                <motion.div key={cap.label} variants={fadeInUp}>
-                  <h3 className="text-white font-semibold text-sm mb-1">{cap.label}</h3>
-                  <p className="text-brand-muted text-xs">{cap.detail}</p>
+              {values.map((val) => (
+                <motion.div key={val.label} variants={fadeInUp}>
+                  <h3 className="text-white font-semibold text-sm mb-1">{val.label}</h3>
+                  <p className="text-brand-muted text-xs">{val.detail}</p>
                 </motion.div>
               ))}
             </motion.div>

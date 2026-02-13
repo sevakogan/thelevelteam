@@ -65,10 +65,30 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
-          className="text-xl md:text-2xl text-brand-muted max-w-2xl mx-auto mb-12 leading-relaxed font-light"
+          className="text-lg md:text-xl text-brand-muted max-w-2xl mx-auto mb-10 leading-relaxed font-light"
         >
-          We build software that moves industries forward.
+          Boutique digital agency helping businesses across the United States grow through advertising, technology, and strategy.
         </motion.p>
+
+        {/* CTA Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.8 }}
+          className="flex justify-center mb-14"
+        >
+          <motion.a
+            href="#services"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.97 }}
+            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-gradient-to-r from-accent-blue to-accent-purple text-white font-medium text-sm shadow-glow"
+          >
+            See Our Services
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </motion.a>
+        </motion.div>
 
         {/* Animated scroll indicator */}
         <motion.div
@@ -77,8 +97,8 @@ export default function HeroSection() {
           transition={{ delay: 1.2, duration: 0.8 }}
           className="flex justify-center"
         >
-          <a href="#portfolio" className="group flex flex-col items-center gap-3 text-brand-muted hover:text-white transition-colors">
-            <span className="text-xs tracking-[0.2em] uppercase">See our work</span>
+          <a href="#services" className="group flex flex-col items-center gap-3 text-brand-muted hover:text-white transition-colors">
+            <span className="text-xs tracking-[0.2em] uppercase">Explore</span>
             <motion.div
               animate={{ y: [0, 8, 0] }}
               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
