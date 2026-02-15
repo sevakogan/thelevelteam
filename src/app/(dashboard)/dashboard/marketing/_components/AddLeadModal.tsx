@@ -87,6 +87,7 @@ export function AddLeadModal({ open, onClose, onAdd }: AddLeadModalProps) {
       status: "incoming" as LeadStatus,
       sms_consent: draft.sms_consent,
       email_consent: draft.email_consent,
+      assigned_campaigns: [],
       created_at: now,
       updated_at: now,
     };

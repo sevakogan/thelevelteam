@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import type { Lead } from "@/lib/marketing/types";
 import { LEAD_STATUS_CONFIG } from "@/lib/marketing/types";
-import { SmsIcon, EmailIcon, PencilIcon } from "./icons";
+import { SmsIcon, EmailIcon, PencilIcon, MegaphoneIcon } from "./icons";
 
 interface LeadsListProps {
   readonly leads: readonly Lead[];
@@ -11,6 +11,7 @@ interface LeadsListProps {
   readonly onToggle: (id: string) => void;
   readonly onToggleAll: () => void;
   readonly onUpdateLead: (lead: Lead) => void;
+  readonly campaignNames: ReadonlyMap<string, string>;
 }
 
 export function LeadsList({
@@ -19,6 +20,7 @@ export function LeadsList({
   onToggle,
   onToggleAll,
   onUpdateLead,
+  campaignNames,
 }: LeadsListProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -62,6 +64,7 @@ export function LeadsList({
               onToggle={() => onToggle(lead.id)}
               onExpand={() => toggleExpand(lead.id)}
               onUpdate={onUpdateLead}
+              campaignNames={campaignNames}
             />
           ))}
         </div>
@@ -79,6 +82,7 @@ function LeadRow({
   onToggle,
   onExpand,
   onUpdate,
+  campaignNames,
 }: {
   readonly lead: Lead;
   readonly selected: boolean;
@@ -86,7 +90,12 @@ function LeadRow({
   readonly onToggle: () => void;
   readonly onExpand: () => void;
   readonly onUpdate: (lead: Lead) => void;
+  readonly campaignNames: ReadonlyMap<string, string>;
 }) {
+  const assignedNames = lead.assigned_campaigns
+    .map((id) => campaignNames.get(id))
+    .filter(Boolean);
+
   return (
     <div>
       {/* Summary row */}
@@ -112,6 +121,12 @@ function LeadRow({
             <div className="flex items-center gap-3 mt-0.5">
               {lead.phone && <span className="text-xs text-brand-muted truncate">{lead.phone}</span>}
               {lead.email && <span className="text-xs text-brand-muted truncate hidden sm:inline">{lead.email}</span>}
+              {assignedNames.length > 0 && (
+                <span className="hidden sm:inline-flex items-center gap-1 text-[10px] text-purple-400">
+                  <MegaphoneIcon className="w-2.5 h-2.5" />
+                  {assignedNames.length} campaign{assignedNames.length !== 1 ? "s" : ""}
+                </span>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-2 shrink-0">
@@ -131,7 +146,7 @@ function LeadRow({
 
       {/* Expanded detail */}
       {expanded && (
-        <LeadDetail lead={lead} onUpdate={onUpdate} />
+        <LeadDetail lead={lead} onUpdate={onUpdate} campaignNames={campaignNames} />
       )}
     </div>
   );
@@ -142,9 +157,11 @@ function LeadRow({
 function LeadDetail({
   lead,
   onUpdate,
+  campaignNames,
 }: {
   readonly lead: Lead;
   readonly onUpdate: (lead: Lead) => void;
+  readonly campaignNames: ReadonlyMap<string, string>;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(lead);
@@ -260,6 +277,47 @@ function LeadDetail({
             })}
           </div>
         </div>
+
+        {/* Assigned Campaigns */}
+        {lead.assigned_campaigns.length > 0 && (
+          <div className="mt-3">
+            <label className="text-[10px] font-medium text-brand-muted uppercase tracking-wider">
+              Assigned Campaigns
+            </label>
+            <div className="flex flex-wrap gap-1.5 mt-1.5">
+              {lead.assigned_campaigns.map((cid) => {
+                const name = campaignNames.get(cid);
+                if (!name) return null;
+                return (
+                  <span
+                    key={cid}
+                    className="inline-flex items-center gap-1.5 text-[10px] px-2 py-0.5 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-400 font-medium"
+                  >
+                    <MegaphoneIcon className="w-2.5 h-2.5" />
+                    {name}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const updated: Lead = {
+                          ...lead,
+                          assigned_campaigns: lead.assigned_campaigns.filter((id) => id !== cid),
+                          updated_at: new Date().toISOString(),
+                        };
+                        onUpdate(updated);
+                      }}
+                      className="ml-0.5 hover:text-red-400 transition-colors"
+                      title="Remove campaign"
+                    >
+                      <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Meta */}
         <div className="flex items-center gap-4 mt-3 pt-3 border-t border-brand-border/30">

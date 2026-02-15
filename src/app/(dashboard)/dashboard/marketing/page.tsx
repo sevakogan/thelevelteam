@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import type { Lead, LeadStatus } from "@/lib/marketing/types";
 import type { Campaign } from "./_components/types";
 import { createCampaign, createStep } from "./_components/types";
@@ -11,6 +11,7 @@ import { LeadsList } from "./_components/LeadsList";
 import { LeadKanban, getDefaultColumns } from "./_components/LeadKanban";
 import type { KanbanColumn } from "./_components/LeadKanban";
 import { AddLeadModal } from "./_components/AddLeadModal";
+import { AssignCampaignBar } from "./_components/AssignCampaignBar";
 import { ComplianceNotice } from "./_components/ComplianceNotice";
 import { PlusIcon } from "./_components/icons";
 
@@ -117,6 +118,37 @@ export default function MarketingPage() {
     );
   }, []);
 
+  // ─── Campaign names map ──────────────────────────────
+  const campaignNames = useMemo(
+    () => new Map(campaigns.map((c) => [c.id, c.name])),
+    [campaigns]
+  );
+
+  // ─── Assign campaigns to selected leads ─────────────
+  const assignCampaigns = useCallback(
+    (campaignIds: readonly string[]) => {
+      setLeads((prev) =>
+        prev.map((lead) => {
+          if (!selectedLeadIds.has(lead.id)) return lead;
+          const existing = new Set(lead.assigned_campaigns);
+          for (const cid of campaignIds) {
+            existing.add(cid);
+          }
+          return {
+            ...lead,
+            assigned_campaigns: Array.from(existing),
+            updated_at: new Date().toISOString(),
+          };
+        })
+      );
+    },
+    [selectedLeadIds]
+  );
+
+  const clearSelection = useCallback(() => {
+    setSelectedLeadIds(new Set());
+  }, []);
+
   const activeCampaign = campaigns.find((c) => c.id === activeCampaignId) ?? null;
 
   if (loading) {
@@ -162,6 +194,15 @@ export default function MarketingPage() {
         onToggle={toggleLead}
         onToggleAll={toggleAll}
         onUpdateLead={updateLead}
+        campaignNames={campaignNames}
+      />
+
+      {/* Assign campaign bar (visible when leads selected) */}
+      <AssignCampaignBar
+        selectedCount={selectedLeadIds.size}
+        campaigns={campaigns}
+        onAssign={assignCampaigns}
+        onClear={clearSelection}
       />
 
       {/* Kanban pipeline */}
