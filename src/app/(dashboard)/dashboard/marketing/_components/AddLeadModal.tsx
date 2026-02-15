@@ -93,8 +93,16 @@ export function AddLeadModal({ open, onClose, onAdd }: AddLeadModalProps) {
       });
 
       if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: "Unknown error" }));
-        throw new Error(err.error || "Failed to create lead");
+        const errBody = await res.json().catch(() => ({ error: "Unknown error" }));
+        // Extract field-specific errors if available
+        const details = errBody.details;
+        if (details && typeof details === "object") {
+          const fieldMessages = Object.entries(details)
+            .map(([key, msgs]) => `${key}: ${(msgs as string[]).join(", ")}`)
+            .join("; ");
+          throw new Error(fieldMessages || errBody.error || "Validation failed");
+        }
+        throw new Error(errBody.error || "Failed to create lead");
       }
 
       // Signal parent to refetch leads from API
