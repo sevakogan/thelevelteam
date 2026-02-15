@@ -11,6 +11,7 @@ import { LeadsList } from "./_components/LeadsList";
 import { LeadKanban, getDefaultPipelines } from "./_components/LeadKanban";
 import type { Pipeline } from "./_components/LeadKanban";
 import { AddLeadModal } from "./_components/AddLeadModal";
+import { EditLeadModal } from "./_components/EditLeadModal";
 import { AssignCampaignBar } from "./_components/AssignCampaignBar";
 import { AssignPipelineBar } from "./_components/AssignPipelineBar";
 import { ComplianceNotice } from "./_components/ComplianceNotice";
@@ -38,6 +39,7 @@ export default function MarketingPage() {
     DEFAULT_CAMPAIGNS[0]?.id ?? null
   );
   const [showAddLead, setShowAddLead] = useState(false);
+  const [editingLead, setEditingLead] = useState<Lead | null>(null);
   const [pipelines, setPipelines] = useState<readonly Pipeline[]>(getDefaultPipelines);
   const [activePipelineId, setActivePipelineId] = useState<string>("");
   const [messageLogs, setMessageLogs] = useState<readonly MessageLog[]>([]);
@@ -356,7 +358,7 @@ export default function MarketingPage() {
           <LeadKanban
             leads={leads}
             onUpdateStatus={updateLeadStatus}
-            onEditLead={(lead) => updateLead(lead)}
+            onEditLead={(lead) => setEditingLead(lead)}
             onFocusLead={focusLead}
             pipelines={pipelines}
             activePipelineId={activePipelineId || pipelines[0]?.id || ""}
@@ -385,6 +387,7 @@ export default function MarketingPage() {
                 onFocus={focusLead}
                 onUpdateLead={updateLead}
                 onDeleteLead={deleteLead}
+                onEditLead={(lead) => setEditingLead(lead)}
                 campaignNames={campaignNames}
                 messageLogs={messageLogs}
                 pipelines={pipelines}
@@ -463,6 +466,16 @@ export default function MarketingPage() {
         open={showAddLead}
         onClose={() => setShowAddLead(false)}
         onAdd={onLeadAdded}
+      />
+
+      {/* Edit Lead modal */}
+      <EditLeadModal
+        lead={editingLead}
+        pipelines={pipelines}
+        campaignNames={campaignNames}
+        onClose={() => setEditingLead(null)}
+        onSave={updateLead}
+        onDelete={deleteLead}
       />
     </div>
   );

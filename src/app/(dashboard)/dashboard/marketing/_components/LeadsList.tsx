@@ -15,6 +15,7 @@ interface LeadsListProps {
   readonly onFocus: (id: string) => void;
   readonly onUpdateLead: (lead: Lead) => void;
   readonly onDeleteLead: (id: string) => void;
+  readonly onEditLead: (lead: Lead) => void;
   readonly campaignNames: ReadonlyMap<string, string>;
   readonly messageLogs: readonly MessageLog[];
   readonly pipelines: readonly Pipeline[];
@@ -29,6 +30,7 @@ export function LeadsList({
   onFocus,
   onUpdateLead,
   onDeleteLead,
+  onEditLead,
   campaignNames,
   messageLogs,
   pipelines,
@@ -78,6 +80,7 @@ export function LeadsList({
               onExpand={() => toggleExpand(lead.id)}
               onUpdate={onUpdateLead}
               onDelete={onDeleteLead}
+              onEdit={() => onEditLead(lead)}
               campaignNames={campaignNames}
               messageLogs={messageLogs.filter((m) => m.lead_id === lead.id)}
               pipelines={pipelines}
@@ -101,6 +104,7 @@ function LeadRow({
   onExpand,
   onUpdate,
   onDelete,
+  onEdit,
   campaignNames,
   messageLogs,
   pipelines,
@@ -114,12 +118,17 @@ function LeadRow({
   readonly onExpand: () => void;
   readonly onUpdate: (lead: Lead) => void;
   readonly onDelete: (id: string) => void;
+  readonly onEdit: () => void;
   readonly campaignNames: ReadonlyMap<string, string>;
   readonly messageLogs: readonly MessageLog[];
   readonly pipelines: readonly Pipeline[];
 }) {
   const assignedNames = lead.assigned_campaigns
     .map((id) => campaignNames.get(id))
+    .filter(Boolean);
+
+  const assignedPipelineNames = lead.assigned_pipelines
+    .map((id) => pipelines.find((p) => p.id === id)?.name)
     .filter(Boolean);
 
   return (
@@ -148,7 +157,7 @@ function LeadRow({
               )}
               <StatusBadge status={lead.status} />
             </div>
-            <div className="flex items-center gap-3 mt-0.5">
+            <div className="flex items-center gap-2 mt-0.5 flex-wrap">
               {lead.phone && <span className="text-xs text-brand-muted truncate">{lead.phone}</span>}
               {lead.email && <span className="text-xs text-brand-muted truncate hidden sm:inline">{lead.email}</span>}
               {assignedNames.length > 0 && (
@@ -157,8 +166,24 @@ function LeadRow({
                   {assignedNames.length} campaign{assignedNames.length !== 1 ? "s" : ""}
                 </span>
               )}
+              {assignedPipelineNames.length > 0 && (
+                <span className="hidden sm:inline-flex items-center gap-1 text-[10px] text-cyan-400">
+                  <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 4.5v15m6-15v15m-10.875 0h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H4.125C3.504 4.5 3 5.004 3 5.625v12.75c0 .621.504 1.125 1.125 1.125z" />
+                  </svg>
+                  {assignedPipelineNames.join(", ")}
+                </span>
+              )}
             </div>
           </div>
+        </button>
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onEdit(); }}
+          className="shrink-0 p-1.5 hover:bg-accent-blue/10 rounded-lg transition-colors group/edit"
+          title="Edit lead"
+        >
+          <PencilIcon className="w-3.5 h-3.5 text-brand-muted/60 group-hover/edit:text-accent-blue transition-colors" />
         </button>
         <button
           type="button"
