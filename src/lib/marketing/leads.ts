@@ -1,6 +1,25 @@
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import type { Lead, LeadInput, LeadStatus } from "./types";
 
+/** Normalize a DB row to ensure all UI-expected fields are present */
+function normalizeLead(row: Record<string, unknown>): Lead {
+  // Map legacy DB status values to current LeadStatus enum
+  const rawStatus = row.status as string;
+  const status = rawStatus === "new" ? "incoming"
+    : rawStatus === "contacted" ? "followed_up"
+    : rawStatus === "converted" ? "won"
+    : rawStatus;
+
+  return {
+    ...row,
+    status,
+    address: row.address ?? null,
+    company: row.company ?? null,
+    notes: row.notes ?? row.message ?? null,
+    assigned_campaigns: (row.assigned_campaigns as string[] | null) ?? [],
+  } as unknown as Lead;
+}
+
 export async function createLead(input: LeadInput): Promise<Lead> {
   const supabase = getSupabaseAdmin();
   const { data, error } = await supabase
@@ -22,7 +41,7 @@ export async function createLead(input: LeadInput): Promise<Lead> {
     throw new Error(`Failed to create lead: ${error.message}`);
   }
 
-  return data as Lead;
+  return normalizeLead(data);
 }
 
 export async function getLeads(): Promise<readonly Lead[]> {
@@ -36,7 +55,7 @@ export async function getLeads(): Promise<readonly Lead[]> {
     throw new Error(`Failed to fetch leads: ${error.message}`);
   }
 
-  return data as Lead[];
+  return (data ?? []).map(normalizeLead);
 }
 
 export async function updateLead(
@@ -55,7 +74,7 @@ export async function updateLead(
     throw new Error(`Failed to update lead: ${error.message}`);
   }
 
-  return data as Lead;
+  return normalizeLead(data);
 }
 
 export async function deleteLead(id: string): Promise<void> {
@@ -86,7 +105,7 @@ export async function updateLeadStatus(
     throw new Error(`Failed to update lead: ${error.message}`);
   }
 
-  return data as Lead;
+  return normalizeLead(data);
 }
 
 export async function unsubscribeLead(
