@@ -1,17 +1,11 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import type { Lead, LeadStatus } from "@/lib/marketing/types";
 import { LEAD_STATUS_CONFIG } from "@/lib/marketing/types";
 import { PlusIcon, PencilIcon } from "./icons";
 
-interface LeadKanbanProps {
-  readonly leads: readonly Lead[];
-  readonly onUpdateStatus: (leadId: string, status: LeadStatus) => void;
-  readonly onEditLead: (lead: Lead) => void;
-  readonly columns: readonly KanbanColumn[];
-  readonly onUpdateColumns: (columns: readonly KanbanColumn[]) => void;
-}
+// ─── Types ──────────────────────────────────────────────────────────────────
 
 export interface KanbanColumn {
   readonly id: string;
@@ -19,6 +13,24 @@ export interface KanbanColumn {
   readonly label: string;
   readonly color: string;
 }
+
+export interface Pipeline {
+  readonly id: string;
+  readonly name: string;
+  readonly columns: readonly KanbanColumn[];
+}
+
+interface LeadKanbanProps {
+  readonly leads: readonly Lead[];
+  readonly onUpdateStatus: (leadId: string, status: LeadStatus) => void;
+  readonly onEditLead: (lead: Lead) => void;
+  readonly pipelines: readonly Pipeline[];
+  readonly activePipelineId: string;
+  readonly onUpdatePipelines: (pipelines: readonly Pipeline[]) => void;
+  readonly onSelectPipeline: (id: string) => void;
+}
+
+// ─── Defaults ────────────────────────────────────────────────────────────────
 
 const STATUS_COLORS: Record<string, { bg: string; border: string; text: string; dot: string }> = {
   blue: { bg: "bg-blue-500/10", border: "border-blue-500/30", text: "text-blue-400", dot: "bg-blue-400" },
@@ -31,7 +43,7 @@ const STATUS_COLORS: Record<string, { bg: string; border: string; text: string; 
   gray: { bg: "bg-gray-500/10", border: "border-gray-500/30", text: "text-gray-400", dot: "bg-gray-400" },
 };
 
-export function getDefaultColumns(): readonly KanbanColumn[] {
+function makeDefaultColumns(): readonly KanbanColumn[] {
   return LEAD_STATUS_CONFIG.map((s) => ({
     id: crypto.randomUUID(),
     status: s.value,
@@ -40,13 +52,29 @@ export function getDefaultColumns(): readonly KanbanColumn[] {
   }));
 }
 
+export function getDefaultPipelines(): readonly Pipeline[] {
+  return [
+    { id: crypto.randomUUID(), name: "Sales Pipeline", columns: makeDefaultColumns() },
+  ];
+}
+
+// ─── Main Component ──────────────────────────────────────────────────────────
+
 export function LeadKanban({
   leads,
   onUpdateStatus,
   onEditLead,
-  columns,
-  onUpdateColumns,
+  pipelines,
+  activePipelineId,
+  onUpdatePipelines,
+  onSelectPipeline,
 }: LeadKanbanProps) {
+  const activePipeline = pipelines.find((p) => p.id === activePipelineId) ?? pipelines[0];
+  const columns = useMemo(
+    () => activePipeline?.columns ?? [],
+    [activePipeline]
+  );
+
   const [dragLeadId, setDragLeadId] = useState<string | null>(null);
   const [dragOverCol, setDragOverCol] = useState<string | null>(null);
   const [editingColumnId, setEditingColumnId] = useState<string | null>(null);
@@ -54,9 +82,31 @@ export function LeadKanban({
   const [newColLabel, setNewColLabel] = useState("");
   const newColRef = useRef<HTMLInputElement>(null);
 
+  // Pipeline management state
+  const [addingPipeline, setAddingPipeline] = useState(false);
+  const [newPipelineName, setNewPipelineName] = useState("");
+  const [editingPipelineId, setEditingPipelineId] = useState<string | null>(null);
+  const newPipelineRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     if (addingColumn) newColRef.current?.focus();
   }, [addingColumn]);
+
+  useEffect(() => {
+    if (addingPipeline) newPipelineRef.current?.focus();
+  }, [addingPipeline]);
+
+  // ─── Helper: update columns for the active pipeline ──────
+  const updateColumns = useCallback(
+    (newColumns: readonly KanbanColumn[]) => {
+      onUpdatePipelines(
+        pipelines.map((p) =>
+          p.id === activePipelineId ? { ...p, columns: newColumns } : p
+        )
+      );
+    },
+    [pipelines, activePipelineId, onUpdatePipelines]
+  );
 
   // ─── Drag lead between columns ──────────────────────────
   const handleLeadDragStart = useCallback((leadId: string) => {
@@ -97,26 +147,24 @@ export function LeadKanban({
       label: newColLabel.trim(),
       color: "blue",
     };
-    onUpdateColumns([...columns, newCol]);
+    updateColumns([...columns, newCol]);
     setNewColLabel("");
     setAddingColumn(false);
-  }, [newColLabel, columns, onUpdateColumns]);
+  }, [newColLabel, columns, updateColumns]);
 
   const deleteColumn = useCallback(
     (colId: string) => {
       if (columns.length <= 2) return;
-      onUpdateColumns(columns.filter((c) => c.id !== colId));
+      updateColumns(columns.filter((c) => c.id !== colId));
     },
-    [columns, onUpdateColumns]
+    [columns, updateColumns]
   );
 
   const updateColumnLabel = useCallback(
     (colId: string, label: string) => {
-      onUpdateColumns(
-        columns.map((c) => (c.id === colId ? { ...c, label } : c))
-      );
+      updateColumns(columns.map((c) => (c.id === colId ? { ...c, label } : c)));
     },
-    [columns, onUpdateColumns]
+    [columns, updateColumns]
   );
 
   const cycleColumnColor = useCallback(
@@ -126,32 +174,153 @@ export function LeadKanban({
       if (!col) return;
       const idx = colorKeys.indexOf(col.color);
       const nextColor = colorKeys[(idx + 1) % colorKeys.length];
-      onUpdateColumns(
-        columns.map((c) => (c.id === colId ? { ...c, color: nextColor } : c))
-      );
+      updateColumns(columns.map((c) => (c.id === colId ? { ...c, color: nextColor } : c)));
     },
-    [columns, onUpdateColumns]
+    [columns, updateColumns]
+  );
+
+  // ─── Pipeline management ──────────────────────────────────
+  const addPipeline = useCallback(() => {
+    if (!newPipelineName.trim()) return;
+    const newPipeline: Pipeline = {
+      id: crypto.randomUUID(),
+      name: newPipelineName.trim(),
+      columns: makeDefaultColumns(),
+    };
+    onUpdatePipelines([...pipelines, newPipeline]);
+    onSelectPipeline(newPipeline.id);
+    setNewPipelineName("");
+    setAddingPipeline(false);
+  }, [newPipelineName, pipelines, onUpdatePipelines, onSelectPipeline]);
+
+  const deletePipeline = useCallback(
+    (pipelineId: string) => {
+      if (pipelines.length <= 1) return;
+      const filtered = pipelines.filter((p) => p.id !== pipelineId);
+      onUpdatePipelines(filtered);
+      if (activePipelineId === pipelineId) {
+        onSelectPipeline(filtered[0].id);
+      }
+    },
+    [pipelines, activePipelineId, onUpdatePipelines, onSelectPipeline]
+  );
+
+  const renamePipeline = useCallback(
+    (pipelineId: string, name: string) => {
+      onUpdatePipelines(
+        pipelines.map((p) => (p.id === pipelineId ? { ...p, name } : p))
+      );
+      setEditingPipelineId(null);
+    },
+    [pipelines, onUpdatePipelines]
   );
 
   return (
     <div className="border border-brand-border rounded-xl overflow-hidden">
-      {/* Header */}
-      <div className="px-4 py-3 border-b border-brand-border bg-brand-border/10 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <svg className="w-4 h-4 text-accent-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 4.5v15m6-15v15m-10.875 0h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H4.125C3.504 4.5 3 5.004 3 5.625v12.75c0 .621.504 1.125 1.125 1.125z" />
-          </svg>
-          <span className="text-sm text-white font-medium">Pipeline</span>
-          <span className="text-xs text-brand-muted">{leads.length} leads</span>
+      {/* Header with pipeline tabs */}
+      <div className="px-4 py-2.5 border-b border-brand-border bg-brand-border/10">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <svg className="w-4 h-4 text-accent-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 4.5v15m6-15v15m-10.875 0h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H4.125C3.504 4.5 3 5.004 3 5.625v12.75c0 .621.504 1.125 1.125 1.125z" />
+            </svg>
+            <span className="text-sm text-white font-medium">Pipeline</span>
+            <span className="text-xs text-brand-muted">{leads.length} leads</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setAddingColumn(true)}
+            className="flex items-center gap-1 text-xs font-medium text-accent-blue hover:text-accent-purple transition-colors"
+          >
+            <PlusIcon className="w-3.5 h-3.5" />
+            Add Stage
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => setAddingColumn(true)}
-          className="flex items-center gap-1 text-xs font-medium text-accent-blue hover:text-accent-purple transition-colors"
-        >
-          <PlusIcon className="w-3.5 h-3.5" />
-          Add Stage
-        </button>
+
+        {/* Pipeline tabs row */}
+        <div className="flex items-center gap-1 overflow-x-auto">
+          {pipelines.map((pipeline) => {
+            const isActive = pipeline.id === activePipelineId;
+            return (
+              <div key={pipeline.id} className="flex items-center group shrink-0">
+                {editingPipelineId === pipeline.id ? (
+                  <PipelineNameEditor
+                    value={pipeline.name}
+                    onSave={(name) => renamePipeline(pipeline.id, name)}
+                    onCancel={() => setEditingPipelineId(null)}
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => onSelectPipeline(pipeline.id)}
+                    onDoubleClick={() => setEditingPipelineId(pipeline.id)}
+                    className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${
+                      isActive
+                        ? "bg-accent-blue/15 text-accent-blue border border-accent-blue/30"
+                        : "text-brand-muted/60 hover:text-brand-muted border border-transparent hover:border-brand-border/40"
+                    }`}
+                    title="Double-click to rename"
+                  >
+                    {pipeline.name}
+                  </button>
+                )}
+                {pipelines.length > 1 && isActive && (
+                  <button
+                    type="button"
+                    onClick={() => deletePipeline(pipeline.id)}
+                    className="opacity-0 group-hover:opacity-100 text-brand-muted/30 hover:text-red-400 transition-all p-0.5 ml-0.5"
+                    title="Delete pipeline"
+                  >
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            );
+          })}
+
+          {/* Add pipeline */}
+          {addingPipeline ? (
+            <div className="flex items-center gap-1 shrink-0">
+              <input
+                ref={newPipelineRef}
+                type="text"
+                value={newPipelineName}
+                onChange={(e) => setNewPipelineName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") addPipeline();
+                  if (e.key === "Escape") { setAddingPipeline(false); setNewPipelineName(""); }
+                }}
+                placeholder="Pipeline name..."
+                className="text-xs text-white bg-transparent border border-accent-blue/30 rounded-lg px-2 py-1 outline-none w-28 placeholder:text-brand-muted/40"
+              />
+              <button
+                type="button"
+                onClick={addPipeline}
+                className="text-[10px] text-accent-blue hover:text-accent-purple transition-colors font-medium"
+              >
+                Add
+              </button>
+              <button
+                type="button"
+                onClick={() => { setAddingPipeline(false); setNewPipelineName(""); }}
+                className="text-[10px] text-brand-muted hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setAddingPipeline(true)}
+              className="flex items-center gap-1 text-[10px] text-brand-muted/40 hover:text-accent-blue transition-colors shrink-0 px-2 py-1.5"
+              title="Add a new pipeline"
+            >
+              <PlusIcon className="w-3 h-3" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Kanban columns */}
@@ -333,6 +502,37 @@ function LeadCard({
         </p>
       )}
     </div>
+  );
+}
+
+// ─── Pipeline name inline editor ─────────────────────────────────────────────
+
+function PipelineNameEditor({
+  value,
+  onSave,
+  onCancel,
+}: {
+  readonly value: string;
+  readonly onSave: (name: string) => void;
+  readonly onCancel: () => void;
+}) {
+  const [draft, setDraft] = useState(value);
+  const inputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => { inputRef.current?.focus(); }, []);
+
+  return (
+    <input
+      ref={inputRef}
+      type="text"
+      value={draft}
+      onChange={(e) => setDraft(e.target.value)}
+      onBlur={() => { if (draft.trim()) onSave(draft.trim()); else onCancel(); }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" && draft.trim()) onSave(draft.trim());
+        if (e.key === "Escape") onCancel();
+      }}
+      className="text-xs font-medium text-white bg-transparent border border-accent-blue/30 rounded-lg px-2 py-1 outline-none w-28"
+    />
   );
 }
 

@@ -8,8 +8,8 @@ import { DEFAULT_CAMPAIGNS } from "./_components/defaults";
 import { CampaignSidebar } from "./_components/CampaignSidebar";
 import { CampaignEditor } from "./_components/CampaignEditor";
 import { LeadsList } from "./_components/LeadsList";
-import { LeadKanban, getDefaultColumns } from "./_components/LeadKanban";
-import type { KanbanColumn } from "./_components/LeadKanban";
+import { LeadKanban, getDefaultPipelines } from "./_components/LeadKanban";
+import type { Pipeline } from "./_components/LeadKanban";
 import { AddLeadModal } from "./_components/AddLeadModal";
 import { AssignCampaignBar } from "./_components/AssignCampaignBar";
 import { ComplianceNotice } from "./_components/ComplianceNotice";
@@ -34,9 +34,8 @@ export default function MarketingPage() {
     DEFAULT_CAMPAIGNS[0]?.id ?? null
   );
   const [showAddLead, setShowAddLead] = useState(false);
-  const [kanbanColumns, setKanbanColumns] = useState<readonly KanbanColumn[]>(
-    getDefaultColumns
-  );
+  const [pipelines, setPipelines] = useState<readonly Pipeline[]>(getDefaultPipelines);
+  const [activePipelineId, setActivePipelineId] = useState<string>("");
   const [messageLogs, setMessageLogs] = useState<readonly MessageLog[]>([]);
   const [searchFilters, setSearchFilters] = useState<LeadSearchFilters>(EMPTY_FILTERS);
 
@@ -165,6 +164,10 @@ export default function MarketingPage() {
     );
   }, []);
 
+  const reorderCampaigns = useCallback((reordered: readonly Campaign[]) => {
+    setCampaigns(reordered);
+  }, []);
+
   // ─── Campaign names map ──────────────────────────────
   const campaignNames = useMemo(
     () => new Map(campaigns.map((c) => [c.id, c.name])),
@@ -283,8 +286,10 @@ export default function MarketingPage() {
             leads={leads}
             onUpdateStatus={updateLeadStatus}
             onEditLead={(lead) => updateLead(lead)}
-            columns={kanbanColumns}
-            onUpdateColumns={setKanbanColumns}
+            pipelines={pipelines}
+            activePipelineId={activePipelineId || pipelines[0]?.id || ""}
+            onUpdatePipelines={setPipelines}
+            onSelectPipeline={setActivePipelineId}
           />
 
           {/* Search bar */}
@@ -342,6 +347,7 @@ export default function MarketingPage() {
               onSelect={setActiveCampaignId}
               onAdd={addCampaign}
               onDelete={deleteCampaign}
+              onReorder={reorderCampaigns}
             />
 
             {activeCampaign ? (
