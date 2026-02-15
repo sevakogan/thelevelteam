@@ -8,6 +8,7 @@ import { DEFAULT_CAMPAIGNS } from "./_components/defaults";
 import { CampaignSidebar } from "./_components/CampaignSidebar";
 import { CampaignEditor } from "./_components/CampaignEditor";
 import { LeadsList } from "./_components/LeadsList";
+import { ComplianceNotice } from "./_components/ComplianceNotice";
 
 export default function MarketingPage() {
   const [leads, setLeads] = useState<readonly Lead[]>([]);
@@ -145,6 +146,9 @@ export default function MarketingPage() {
           </div>
         )}
       </div>
+
+      {/* Legal & Compliance */}
+      <ComplianceNotice />
     </div>
   );
 }

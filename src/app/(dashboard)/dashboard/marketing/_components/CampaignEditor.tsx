@@ -324,6 +324,12 @@ function FlowColumn({
 }: FlowColumnProps) {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [editingDelayId, setEditingDelayId] = useState<string | null>(null);
+  const delayInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editingDelayId) delayInputRef.current?.focus();
+  }, [editingDelayId]);
 
   const handleDragStart = useCallback((index: number) => setDragIndex(index), []);
 
@@ -352,6 +358,15 @@ function FlowColumn({
     setDragOverIndex(null);
   }, []);
 
+  const moveStep = useCallback(
+    (index: number, direction: "up" | "down") => {
+      const target = direction === "up" ? index - 1 : index + 1;
+      if (target < 0 || target >= steps.length) return;
+      onReorder(index, target);
+    },
+    [steps.length, onReorder]
+  );
+
   const dotBg = channel === "sms" ? "bg-green-400" : "bg-accent-blue";
   const dotRing = channel === "sms" ? "ring-green-400/20" : "ring-accent-blue/20";
   const lineBg = channel === "sms" ? "bg-green-400/20" : "bg-accent-blue/20";
@@ -378,6 +393,7 @@ function FlowColumn({
 
       <div className="relative">
         {steps.map((step, index) => {
+          const isFirst = index === 0;
           const isLast = index === steps.length - 1;
           const isDragging = dragIndex === index;
           const isDragOver = dragOverIndex === index;
@@ -390,15 +406,43 @@ function FlowColumn({
               onDragOver={(e) => handleDragOver(e, index)}
               onDrop={() => handleDrop(index)}
               onDragEnd={handleDragEnd}
-              className={`flex gap-3 transition-all ${isDragging ? "opacity-30" : ""} ${
+              className={`flex gap-3 transition-all ${isDragging ? "opacity-30 scale-95" : ""} ${
                 isDragOver ? "translate-y-1" : ""
               }`}
             >
-              {/* Drag handle + timeline */}
+              {/* Reorder arrows + timeline */}
               <div className="flex items-start gap-1 shrink-0">
                 {editingStepId !== step.id && (
-                  <div className="pt-0.5 cursor-grab active:cursor-grabbing">
-                    <GripIcon className="w-4 h-4 text-brand-muted/30 hover:text-brand-muted transition-colors" />
+                  <div className="flex flex-col items-center pt-0.5 gap-0.5">
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); moveStep(index, "up"); }}
+                      disabled={isFirst}
+                      className={`p-0 leading-none transition-colors ${
+                        isFirst ? "text-brand-muted/10 cursor-default" : "text-brand-muted/40 hover:text-white cursor-pointer"
+                      }`}
+                      title="Move up"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+                      </svg>
+                    </button>
+                    <div className="cursor-grab active:cursor-grabbing">
+                      <GripIcon className="w-4 h-4 text-brand-muted/30 hover:text-brand-muted transition-colors" />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); moveStep(index, "down"); }}
+                      disabled={isLast}
+                      className={`p-0 leading-none transition-colors ${
+                        isLast ? "text-brand-muted/10 cursor-default" : "text-brand-muted/40 hover:text-white cursor-pointer"
+                      }`}
+                      title="Move down"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </button>
                   </div>
                 )}
                 <div className="flex flex-col items-center">
@@ -423,20 +467,53 @@ function FlowColumn({
                     delayBg={delayBg}
                   />
                 ) : (
-                  <button
-                    type="button"
-                    onClick={() => onEditStep(step.id)}
+                  <div
                     className="w-full text-left group rounded-lg p-2 -m-2 hover:bg-brand-border/10 transition-colors"
                   >
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-sm text-white font-medium">{step.label}</span>
-                      <span className={`text-[10px] px-1.5 py-0 rounded-full border font-medium ${delayBg}`}>
-                        {step.delay}
-                      </span>
+                      <button
+                        type="button"
+                        onClick={() => onEditStep(step.id)}
+                        className="text-sm text-white font-medium hover:text-accent-blue transition-colors"
+                      >
+                        {step.label}
+                      </button>
+
+                      {/* Inline-editable delay badge */}
+                      {editingDelayId === step.id ? (
+                        <input
+                          ref={delayInputRef}
+                          type="text"
+                          value={step.delay}
+                          onChange={(e) => onUpdateStep(step.id, "delay", e.target.value)}
+                          onBlur={() => setEditingDelayId(null)}
+                          onKeyDown={(e) => e.key === "Enter" && setEditingDelayId(null)}
+                          className={`text-[10px] px-1.5 py-0.5 rounded-full border font-medium bg-transparent outline-none w-20 text-center ${delayBg}`}
+                          placeholder="Day ?"
+                        />
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); setEditingDelayId(step.id); }}
+                          className={`text-[10px] px-1.5 py-0 rounded-full border font-medium cursor-pointer hover:ring-1 hover:ring-offset-1 hover:ring-offset-transparent transition-all ${delayBg} ${
+                            channel === "sms" ? "hover:ring-green-400/40" : "hover:ring-accent-blue/40"
+                          }`}
+                          title="Click to edit timing"
+                        >
+                          {step.delay}
+                        </button>
+                      )}
+
                       <PencilIcon className="w-3 h-3 text-brand-muted opacity-0 group-hover:opacity-100 transition-opacity ml-auto" />
                     </div>
-                    <p className="text-xs text-brand-muted leading-relaxed">{step.description}</p>
-                  </button>
+                    <button
+                      type="button"
+                      onClick={() => onEditStep(step.id)}
+                      className="text-left"
+                    >
+                      <p className="text-xs text-brand-muted leading-relaxed">{step.description}</p>
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
