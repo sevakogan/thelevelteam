@@ -14,6 +14,8 @@ import { AddLeadModal } from "./_components/AddLeadModal";
 import { AssignCampaignBar } from "./_components/AssignCampaignBar";
 import { ComplianceNotice } from "./_components/ComplianceNotice";
 import { LeadConversation } from "./_components/LeadConversation";
+import { LeadSearch, EMPTY_FILTERS, filterLeads } from "./_components/LeadSearch";
+import type { LeadSearchFilters } from "./_components/LeadSearch";
 import { PlusIcon, MegaphoneIcon } from "./_components/icons";
 
 type MarketingTab = "leads" | "campaigns";
@@ -36,6 +38,7 @@ export default function MarketingPage() {
     getDefaultColumns
   );
   const [messageLogs, setMessageLogs] = useState<readonly MessageLog[]>([]);
+  const [searchFilters, setSearchFilters] = useState<LeadSearchFilters>(EMPTY_FILTERS);
 
   const fetchLeads = useCallback(async () => {
     try {
@@ -125,6 +128,11 @@ export default function MarketingPage() {
   const focusedLead = useMemo(
     () => leads.find((l) => l.id === focusedLeadId) ?? null,
     [leads, focusedLeadId]
+  );
+
+  const filteredLeads = useMemo(
+    () => filterLeads(leads, searchFilters),
+    [leads, searchFilters]
   );
 
   // ─── Campaign operations ──────────────────────────────
@@ -279,12 +287,20 @@ export default function MarketingPage() {
             onUpdateColumns={setKanbanColumns}
           />
 
+          {/* Search bar */}
+          <LeadSearch
+            filters={searchFilters}
+            onChange={setSearchFilters}
+            resultCount={filteredLeads.length}
+            totalCount={leads.length}
+          />
+
           {/* 2-column layout: Leads list (left) + Conversation (right) */}
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-4">
             {/* Left — leads list + assign bar */}
             <div className="space-y-4">
               <LeadsList
-                leads={leads}
+                leads={filteredLeads}
                 selectedIds={selectedLeadIds}
                 focusedId={focusedLeadId}
                 onToggle={toggleLead}
@@ -309,6 +325,8 @@ export default function MarketingPage() {
               lead={focusedLead}
               messageLogs={messageLogs}
               onSend={addMessageLogs}
+              campaigns={campaigns}
+              campaignNames={campaignNames}
             />
           </div>
         </div>

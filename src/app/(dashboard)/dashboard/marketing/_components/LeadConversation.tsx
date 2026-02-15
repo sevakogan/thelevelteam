@@ -2,18 +2,27 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import type { Lead, MessageLog } from "@/lib/marketing/types";
-import { SmsIcon, EmailIcon } from "./icons";
+import type { Campaign } from "./types";
+import { SmsIcon, EmailIcon, MegaphoneIcon } from "./icons";
 
 interface LeadConversationProps {
   readonly lead: Lead | null;
   readonly messageLogs: readonly MessageLog[];
   readonly onSend: (logs: readonly MessageLog[]) => void;
+  readonly campaigns: readonly Campaign[];
+  readonly campaignNames: ReadonlyMap<string, string>;
 }
 
-type ConvoTab = "sms" | "email";
+type PanelTab = "sms" | "email" | "campaigns";
 
-export function LeadConversation({ lead, messageLogs, onSend }: LeadConversationProps) {
-  const [activeTab, setActiveTab] = useState<ConvoTab>("sms");
+export function LeadConversation({
+  lead,
+  messageLogs,
+  onSend,
+  campaigns,
+  campaignNames,
+}: LeadConversationProps) {
+  const [activeTab, setActiveTab] = useState<PanelTab>("sms");
   const [smsText, setSmsText] = useState("");
   const [emailSubject, setEmailSubject] = useState("");
   const [emailBody, setEmailBody] = useState("");
@@ -26,29 +35,37 @@ export function LeadConversation({ lead, messageLogs, onSend }: LeadConversation
 
   const smsLogs = leadLogs.filter((m) => m.channel === "sms");
   const emailLogs = leadLogs.filter((m) => m.channel === "email");
-  const activeLogs = activeTab === "sms" ? smsLogs : emailLogs;
+  const activeLogs = activeTab === "sms" ? smsLogs : activeTab === "email" ? emailLogs : [];
 
   const sorted = [...activeLogs].sort(
     (a, b) => new Date(a.sent_at).getTime() - new Date(b.sent_at).getTime()
   );
+
+  const assignedCampaigns = lead
+    ? campaigns.filter((c) => lead.assigned_campaigns.includes(c.id))
+    : [];
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [sorted.length, activeTab]);
 
-  // Switch to SMS tab if lead has phone, else email
+  // Auto-select tab based on lead capabilities
   useEffect(() => {
     if (!lead) return;
     if (lead.phone && lead.sms_consent) {
       setActiveTab("sms");
     } else if (lead.email && lead.email_consent) {
       setActiveTab("email");
+    } else if (lead.assigned_campaigns.length > 0) {
+      setActiveTab("campaigns");
+    } else {
+      setActiveTab("sms");
     }
   }, [lead]);
 
-  const canSendSms = lead?.phone && lead.sms_consent;
-  const canSendEmail = lead?.email && lead.email_consent;
+  const canSendSms = Boolean(lead?.phone && lead.sms_consent);
+  const canSendEmail = Boolean(lead?.email && lead.email_consent);
 
   const handleSendSms = useCallback(() => {
     if (!lead || !smsText.trim() || !canSendSms) return;
@@ -64,13 +81,12 @@ export function LeadConversation({ lead, messageLogs, onSend }: LeadConversation
       sent_at: new Date().toISOString(),
     };
 
-    // Simulate send delay
     setTimeout(() => {
       onSend([log]);
       setSmsText("");
       setSending(false);
 
-      // Simulate incoming reply after 2s
+      // Simulate incoming reply
       setTimeout(() => {
         const reply: MessageLog = {
           id: crypto.randomUUID(),
@@ -125,7 +141,7 @@ export function LeadConversation({ lead, messageLogs, onSend }: LeadConversation
 
   return (
     <div className="border border-brand-border rounded-xl overflow-hidden flex flex-col h-full min-h-[400px]">
-      {/* Header — lead info + channel tabs */}
+      {/* Header — lead info + tab selector */}
       <div className="px-4 py-2.5 border-b border-brand-border bg-brand-border/10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 min-w-0">
@@ -137,76 +153,267 @@ export function LeadConversation({ lead, messageLogs, onSend }: LeadConversation
             <div className="min-w-0">
               <p className="text-sm text-white font-medium truncate">{lead.name}</p>
               <p className="text-[10px] text-brand-muted truncate">
-                {activeTab === "sms" ? lead.phone : lead.email}
+                {activeTab === "sms" ? lead.phone : activeTab === "email" ? lead.email : `${assignedCampaigns.length} campaigns`}
               </p>
             </div>
           </div>
+        </div>
 
-          {/* Channel tabs */}
-          <div className="flex items-center gap-1">
-            {canSendSms && (
-              <ChannelTab
-                channel="sms"
-                active={activeTab === "sms"}
-                count={smsLogs.length}
-                onClick={() => setActiveTab("sms")}
-              />
-            )}
-            {canSendEmail && (
-              <ChannelTab
-                channel="email"
-                active={activeTab === "email"}
-                count={emailLogs.length}
-                onClick={() => setActiveTab("email")}
-              />
-            )}
-          </div>
+        {/* Tab bar — mutually exclusive */}
+        <div className="flex items-center gap-1 mt-2">
+          <PanelTabButton
+            active={activeTab === "sms"}
+            onClick={() => setActiveTab("sms")}
+            icon={<SmsIcon className="w-3 h-3" />}
+            label="SMS"
+            count={smsLogs.length}
+            color="green"
+            disabled={!canSendSms}
+          />
+          <PanelTabButton
+            active={activeTab === "email"}
+            onClick={() => setActiveTab("email")}
+            icon={<EmailIcon className="w-3 h-3" />}
+            label="Email"
+            count={emailLogs.length}
+            color="blue"
+            disabled={!canSendEmail}
+          />
+          <PanelTabButton
+            active={activeTab === "campaigns"}
+            onClick={() => setActiveTab("campaigns")}
+            icon={<MegaphoneIcon className="w-3 h-3" />}
+            label="Campaigns"
+            count={assignedCampaigns.length}
+            color="purple"
+            disabled={false}
+          />
         </div>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2 bg-[#080a0f]">
-        {sorted.length === 0 && (
-          <div className="text-center py-10">
-            <p className="text-xs text-brand-muted/40">
-              No {activeTab === "sms" ? "SMS" : "email"} messages yet
-            </p>
-            <p className="text-[10px] text-brand-muted/30 mt-1">
-              Send the first message below
-            </p>
-          </div>
-        )}
-        {sorted.map((msg) => {
-          const isOutbound = msg.to !== "you";
-          return (
-            <MessageBubble key={msg.id} message={msg} outbound={isOutbound} />
-          );
-        })}
-        <div ref={messagesEndRef} />
-      </div>
+      {/* ─── SMS Tab ─────────────────────────────────────────── */}
+      {activeTab === "sms" && (
+        <>
+          <MessageThread sorted={sorted} messagesEndRef={messagesEndRef} label="SMS" />
+          <SmsCompose
+            value={smsText}
+            onChange={setSmsText}
+            onSend={handleSendSms}
+            sending={sending}
+            disabled={!canSendSms}
+          />
+        </>
+      )}
 
-      {/* Compose area */}
-      {activeTab === "sms" ? (
-        <SmsCompose
-          value={smsText}
-          onChange={setSmsText}
-          onSend={handleSendSms}
-          sending={sending}
-          disabled={!canSendSms}
-        />
-      ) : (
-        <EmailCompose
-          subject={emailSubject}
-          body={emailBody}
-          onSubjectChange={setEmailSubject}
-          onBodyChange={setEmailBody}
-          onSend={handleSendEmail}
-          sending={sending}
-          disabled={!canSendEmail}
+      {/* ─── Email Tab ───────────────────────────────────────── */}
+      {activeTab === "email" && (
+        <>
+          <MessageThread sorted={sorted} messagesEndRef={messagesEndRef} label="email" />
+          <EmailCompose
+            subject={emailSubject}
+            body={emailBody}
+            onSubjectChange={setEmailSubject}
+            onBodyChange={setEmailBody}
+            onSend={handleSendEmail}
+            sending={sending}
+            disabled={!canSendEmail}
+          />
+        </>
+      )}
+
+      {/* ─── Campaigns Tab ───────────────────────────────────── */}
+      {activeTab === "campaigns" && (
+        <CampaignsPanel
+          lead={lead}
+          assignedCampaigns={assignedCampaigns}
+          campaignNames={campaignNames}
         />
       )}
     </div>
   );
+}
+
+// ─── Message Thread (shared by SMS and Email) ────────────────────────────────
+
+function MessageThread({
+  sorted,
+  messagesEndRef,
+  label,
+}: {
+  readonly sorted: readonly MessageLog[];
+  readonly messagesEndRef: React.RefObject<HTMLDivElement>;
+  readonly label: string;
+}) {
+  return (
+    <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2 bg-[#080a0f]">
+      {sorted.length === 0 && (
+        <div className="text-center py-10">
+          <p className="text-xs text-brand-muted/40">
+            No {label} messages yet
+          </p>
+          <p className="text-[10px] text-brand-muted/30 mt-1">
+            Send the first message below
+          </p>
+        </div>
+      )}
+      {sorted.map((msg) => {
+        const isOutbound = msg.to !== "you";
+        return <MessageBubble key={msg.id} message={msg} outbound={isOutbound} />;
+      })}
+      <div ref={messagesEndRef} />
+    </div>
+  );
+}
+
+// ─── Campaigns Panel ────────────────────────────────────────────────────────
+
+function CampaignsPanel({
+  lead,
+  assignedCampaigns,
+  campaignNames,
+}: {
+  readonly lead: Lead;
+  readonly assignedCampaigns: readonly Campaign[];
+  readonly campaignNames: ReadonlyMap<string, string>;
+}) {
+  if (assignedCampaigns.length === 0) {
+    return (
+      <div className="flex-1 overflow-y-auto px-4 py-6 bg-[#080a0f]">
+        <div className="text-center py-8">
+          <div className="w-9 h-9 rounded-full bg-purple-500/10 flex items-center justify-center mx-auto mb-3">
+            <MegaphoneIcon className="w-4 h-4 text-purple-400/40" />
+          </div>
+          <p className="text-xs text-brand-muted/60">No campaigns assigned</p>
+          <p className="text-[10px] text-brand-muted/30 mt-1">
+            Select leads and assign campaigns below
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2 bg-[#080a0f]">
+      {assignedCampaigns.map((campaign) => (
+        <CampaignCard key={campaign.id} campaign={campaign} lead={lead} />
+      ))}
+
+      {/* Show any campaign IDs that don't match a known campaign */}
+      {lead.assigned_campaigns
+        .filter((cid) => !assignedCampaigns.some((c) => c.id === cid))
+        .map((cid) => {
+          const name = campaignNames.get(cid);
+          return (
+            <div
+              key={cid}
+              className="rounded-lg border border-brand-border/30 bg-brand-border/5 px-3 py-2.5"
+            >
+              <div className="flex items-center gap-2">
+                <MegaphoneIcon className="w-3.5 h-3.5 text-brand-muted/40" />
+                <span className="text-xs text-brand-muted">
+                  {name ?? "Unknown Campaign"}
+                </span>
+              </div>
+            </div>
+          );
+        })}
+    </div>
+  );
+}
+
+function CampaignCard({
+  campaign,
+  lead,
+}: {
+  readonly campaign: Campaign;
+  readonly lead: Lead;
+}) {
+  const channelLabel = campaign.channel === "both"
+    ? "SMS + Email"
+    : campaign.channel.toUpperCase();
+
+  const totalSteps = campaign.channel === "both"
+    ? campaign.smsSteps.length + campaign.emailSteps.length
+    : campaign.steps.length;
+
+  // Determine if this lead can actually receive messages from this campaign
+  const canReceiveSms = lead.sms_consent && Boolean(lead.phone);
+  const canReceiveEmail = lead.email_consent && Boolean(lead.email);
+  const channelMatch =
+    campaign.channel === "sms" ? canReceiveSms
+    : campaign.channel === "email" ? canReceiveEmail
+    : canReceiveSms || canReceiveEmail;
+
+  return (
+    <div className="rounded-lg border border-purple-500/20 bg-purple-500/5 px-3 py-3">
+      {/* Campaign header */}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <MegaphoneIcon className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+          <span className="text-xs font-medium text-white truncate">
+            {campaign.name}
+          </span>
+        </div>
+        <span className={`text-[9px] px-1.5 py-0.5 rounded-full border font-medium ${
+          channelMatch
+            ? "bg-green-500/10 text-green-400 border-green-500/20"
+            : "bg-red-500/10 text-red-400 border-red-500/20"
+        }`}>
+          {channelMatch ? "Active" : "Blocked"}
+        </span>
+      </div>
+
+      {/* Channel + step count */}
+      <div className="flex items-center gap-3 text-[10px] text-brand-muted mb-2">
+        <span className="flex items-center gap-1">
+          {campaign.channel === "sms" || campaign.channel === "both" ? (
+            <SmsIcon className="w-2.5 h-2.5 text-green-400/60" />
+          ) : null}
+          {campaign.channel === "email" || campaign.channel === "both" ? (
+            <EmailIcon className="w-2.5 h-2.5 text-accent-blue/60" />
+          ) : null}
+          {channelLabel}
+        </span>
+        <span>{totalSteps} step{totalSteps !== 1 ? "s" : ""}</span>
+      </div>
+
+      {/* Steps preview */}
+      <div className="space-y-1">
+        {getStepsPreview(campaign).map((step, idx) => (
+          <div
+            key={step.id}
+            className="flex items-center gap-2 text-[10px]"
+          >
+            <div className="w-4 h-4 rounded-full border border-purple-500/30 bg-purple-500/10 flex items-center justify-center shrink-0">
+              <span className="text-[8px] text-purple-400 font-bold">{idx + 1}</span>
+            </div>
+            <span className="text-brand-muted truncate">{step.label}</span>
+            <span className="text-brand-muted/30 ml-auto shrink-0">{step.delay}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Consent warning */}
+      {!channelMatch && (
+        <div className="mt-2 pt-2 border-t border-brand-border/20">
+          <p className="text-[9px] text-red-400/60">
+            {campaign.channel === "sms" && !canReceiveSms && "Lead has no SMS consent or phone number"}
+            {campaign.channel === "email" && !canReceiveEmail && "Lead has no email consent or email address"}
+            {campaign.channel === "both" && !canReceiveSms && !canReceiveEmail && "Lead has no consent for SMS or email"}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function getStepsPreview(campaign: Campaign): readonly { readonly id: string; readonly label: string; readonly delay: string }[] {
+  if (campaign.channel === "both") {
+    const sms = campaign.smsSteps.map((s) => ({ ...s, label: `📱 ${s.label}` }));
+    const email = campaign.emailSteps.map((s) => ({ ...s, label: `✉️ ${s.label}` }));
+    return [...sms, ...email].slice(0, 5);
+  }
+  return campaign.steps.slice(0, 5);
 }
 
 // ─── Message Bubble ──────────────────────────────────────────────────────────
@@ -233,9 +440,7 @@ function MessageBubble({
         }`}
       >
         {message.subject && (
-          <p className={`text-[11px] font-semibold mb-0.5 ${
-            outbound ? "text-white" : "text-white"
-          }`}>
+          <p className="text-[11px] font-semibold mb-0.5 text-white">
             {message.subject}
           </p>
         )}
@@ -248,9 +453,7 @@ function MessageBubble({
           outbound ? "justify-end" : "justify-start"
         }`}>
           <span className="text-[9px] text-brand-muted/40">{time}</span>
-          {outbound && (
-            <StatusDot status={message.status} />
-          )}
+          {outbound && <StatusDot status={message.status} />}
         </div>
       </div>
     </div>
@@ -367,34 +570,46 @@ function EmailCompose({
   );
 }
 
-// ─── Channel Tab ─────────────────────────────────────────────────────────────
+// ─── Panel Tab Button ─────────────────────────────────────────────────────────
 
-function ChannelTab({
-  channel,
+function PanelTabButton({
   active,
-  count,
   onClick,
+  icon,
+  label,
+  count,
+  color,
+  disabled,
 }: {
-  readonly channel: ConvoTab;
   readonly active: boolean;
-  readonly count: number;
   readonly onClick: () => void;
+  readonly icon: React.ReactNode;
+  readonly label: string;
+  readonly count: number;
+  readonly color: "green" | "blue" | "purple";
+  readonly disabled: boolean;
 }) {
-  const isSms = channel === "sms";
-  const activeStyle = isSms
-    ? "bg-green-500/15 text-green-400 border-green-500/30"
-    : "bg-accent-blue/15 text-accent-blue border-accent-blue/30";
+  const activeStyles: Record<string, string> = {
+    green: "bg-green-500/15 text-green-400 border-green-500/30",
+    blue: "bg-accent-blue/15 text-accent-blue border-accent-blue/30",
+    purple: "bg-purple-500/15 text-purple-400 border-purple-500/30",
+  };
 
   return (
     <button
       type="button"
       onClick={onClick}
+      disabled={disabled}
       className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg text-[10px] font-medium border transition-colors ${
-        active ? activeStyle : "text-brand-muted/50 border-brand-border/30 hover:border-brand-muted/40"
+        active
+          ? activeStyles[color]
+          : disabled
+            ? "text-brand-muted/20 border-brand-border/20 cursor-not-allowed"
+            : "text-brand-muted/50 border-brand-border/30 hover:border-brand-muted/40"
       }`}
     >
-      {isSms ? <SmsIcon className="w-3 h-3" /> : <EmailIcon className="w-3 h-3" />}
-      {isSms ? "SMS" : "Email"}
+      {icon}
+      {label}
       {count > 0 && <span className="ml-0.5">{count}</span>}
     </button>
   );
