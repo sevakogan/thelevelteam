@@ -134,10 +134,6 @@ function LeadRow({
               )}
             </div>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            {lead.sms_consent && <ConsentBadge channel="sms" />}
-            {lead.email_consent && <ConsentBadge channel="email" />}
-          </div>
           <svg
             className={`w-4 h-4 text-brand-muted/40 shrink-0 transition-transform ${expanded ? "rotate-180" : ""}`}
             fill="none"
@@ -147,6 +143,30 @@ function LeadRow({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         </button>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <ConsentToggle
+            channel="sms"
+            active={lead.sms_consent}
+            onToggle={() =>
+              onUpdate({
+                ...lead,
+                sms_consent: !lead.sms_consent,
+                updated_at: new Date().toISOString(),
+              })
+            }
+          />
+          <ConsentToggle
+            channel="email"
+            active={lead.email_consent}
+            onToggle={() =>
+              onUpdate({
+                ...lead,
+                email_consent: !lead.email_consent,
+                updated_at: new Date().toISOString(),
+              })
+            }
+          />
+        </div>
       </div>
 
       {/* Expanded detail */}
@@ -436,18 +456,37 @@ function StatusBadge({ status }: { readonly status: string }) {
   );
 }
 
-function ConsentBadge({ channel }: { readonly channel: "sms" | "email" }) {
+function ConsentToggle({
+  channel,
+  active,
+  onToggle,
+}: {
+  readonly channel: "sms" | "email";
+  readonly active: boolean;
+  readonly onToggle: () => void;
+}) {
+  const activeStyle =
+    channel === "sms"
+      ? "bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/20"
+      : "bg-accent-blue/10 text-accent-blue border-accent-blue/20 hover:bg-accent-blue/20";
+  const inactiveStyle =
+    "bg-transparent text-brand-muted/30 border-brand-border/30 hover:border-brand-muted/40 hover:text-brand-muted/50";
+
   return (
-    <span
-      className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium ${
-        channel === "sms"
-          ? "bg-green-500/10 text-green-400 border border-green-500/20"
-          : "bg-accent-blue/10 text-accent-blue border border-accent-blue/20"
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        onToggle();
+      }}
+      className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border transition-colors cursor-pointer ${
+        active ? activeStyle : inactiveStyle
       }`}
+      title={`${active ? "Disable" : "Enable"} ${channel.toUpperCase()} consent`}
     >
       {channel === "sms" ? <SmsIcon className="w-2.5 h-2.5" /> : <EmailIcon className="w-2.5 h-2.5" />}
       {channel.toUpperCase()}
-    </span>
+    </button>
   );
 }
 
