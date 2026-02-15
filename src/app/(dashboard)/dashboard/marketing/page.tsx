@@ -13,9 +13,12 @@ import type { KanbanColumn } from "./_components/LeadKanban";
 import { AddLeadModal } from "./_components/AddLeadModal";
 import { AssignCampaignBar } from "./_components/AssignCampaignBar";
 import { ComplianceNotice } from "./_components/ComplianceNotice";
-import { PlusIcon } from "./_components/icons";
+import { PlusIcon, MegaphoneIcon } from "./_components/icons";
+
+type MarketingTab = "leads" | "campaigns";
 
 export default function MarketingPage() {
+  const [activeTab, setActiveTab] = useState<MarketingTab>("leads");
   const [leads, setLeads] = useState<readonly Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -168,85 +171,175 @@ export default function MarketingPage() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Header + Add Lead button */}
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Marketing</h1>
-          <p className="text-brand-muted text-sm mt-1">
-            Manage clients, pipeline, campaigns, and automation flows
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => setShowAddLead(true)}
-          className="flex items-center gap-2 text-sm font-medium text-white bg-accent-blue hover:bg-accent-blue/80 px-5 py-2.5 rounded-xl transition-colors shadow-lg shadow-accent-blue/20"
-        >
-          <PlusIcon className="w-4 h-4" />
-          Add a Lead
-        </button>
+    <div className="space-y-6">
+      {/* ─── Top Header ──────────────────────────────────────── */}
+      <div>
+        <h1 className="text-2xl font-bold text-white">Marketing</h1>
+        <p className="text-brand-muted text-sm mt-1">
+          Manage leads, pipeline, campaigns, and automation flows
+        </p>
       </div>
 
-      {/* Clients list */}
-      <LeadsList
-        leads={leads}
-        selectedIds={selectedLeadIds}
-        onToggle={toggleLead}
-        onToggleAll={toggleAll}
-        onUpdateLead={updateLead}
-        campaignNames={campaignNames}
-      />
-
-      {/* Assign campaign bar (visible when leads selected) */}
-      <AssignCampaignBar
-        selectedCount={selectedLeadIds.size}
-        campaigns={campaigns}
-        onAssign={assignCampaigns}
-        onClear={clearSelection}
-      />
-
-      {/* Kanban pipeline */}
-      <LeadKanban
-        leads={leads}
-        onUpdateStatus={updateLeadStatus}
-        onEditLead={(lead) => updateLead(lead)}
-        columns={kanbanColumns}
-        onUpdateColumns={setKanbanColumns}
-      />
-
-      {/* Campaigns: sidebar + editor */}
-      <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4">
-        <CampaignSidebar
-          campaigns={campaigns}
-          activeCampaignId={activeCampaignId}
-          onSelect={setActiveCampaignId}
-          onAdd={addCampaign}
-          onDelete={deleteCampaign}
-        />
-
-        {activeCampaign ? (
-          <CampaignEditor
-            campaign={activeCampaign}
-            onUpdate={updateCampaign}
+      {/* ─── Tab Navigation ──────────────────────────────────── */}
+      <div className="flex items-center justify-between border-b border-brand-border">
+        <div className="flex items-center gap-0">
+          <TabButton
+            active={activeTab === "leads"}
+            onClick={() => setActiveTab("leads")}
+            icon={
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+              </svg>
+            }
+            label="Leads"
+            count={leads.length}
           />
-        ) : (
-          <div className="border border-brand-border rounded-xl flex items-center justify-center py-20">
-            <p className="text-brand-muted text-sm">
-              Select or create a campaign to get started
-            </p>
-          </div>
+          <TabButton
+            active={activeTab === "campaigns"}
+            onClick={() => setActiveTab("campaigns")}
+            icon={<MegaphoneIcon className="w-4 h-4" />}
+            label="Campaigns"
+            count={campaigns.length}
+          />
+        </div>
+
+        {/* Context-aware action button */}
+        {activeTab === "leads" && (
+          <button
+            type="button"
+            onClick={() => setShowAddLead(true)}
+            className="flex items-center gap-2 text-sm font-medium text-white bg-accent-blue hover:bg-accent-blue/80 px-4 py-2 rounded-xl transition-colors shadow-lg shadow-accent-blue/20 mb-2"
+          >
+            <PlusIcon className="w-4 h-4" />
+            Add a Lead
+          </button>
+        )}
+        {activeTab === "campaigns" && (
+          <button
+            type="button"
+            onClick={addCampaign}
+            className="flex items-center gap-2 text-sm font-medium text-white bg-accent-blue hover:bg-accent-blue/80 px-4 py-2 rounded-xl transition-colors shadow-lg shadow-accent-blue/20 mb-2"
+          >
+            <PlusIcon className="w-4 h-4" />
+            New Campaign
+          </button>
         )}
       </div>
 
-      {/* Legal & Compliance */}
-      <ComplianceNotice />
+      {/* ─── Leads Tab ───────────────────────────────────────── */}
+      {activeTab === "leads" && (
+        <div className="space-y-6">
+          {/* Clients list */}
+          <LeadsList
+            leads={leads}
+            selectedIds={selectedLeadIds}
+            onToggle={toggleLead}
+            onToggleAll={toggleAll}
+            onUpdateLead={updateLead}
+            campaignNames={campaignNames}
+          />
 
-      {/* Add Lead modal */}
+          {/* Assign campaign bar (visible when leads selected) */}
+          <AssignCampaignBar
+            selectedCount={selectedLeadIds.size}
+            campaigns={campaigns}
+            onAssign={assignCampaigns}
+            onClear={clearSelection}
+          />
+
+          {/* Kanban pipeline */}
+          <LeadKanban
+            leads={leads}
+            onUpdateStatus={updateLeadStatus}
+            onEditLead={(lead) => updateLead(lead)}
+            columns={kanbanColumns}
+            onUpdateColumns={setKanbanColumns}
+          />
+        </div>
+      )}
+
+      {/* ─── Campaigns Tab ───────────────────────────────────── */}
+      {activeTab === "campaigns" && (
+        <div className="space-y-6">
+          {/* Campaigns: sidebar + editor */}
+          <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4">
+            <CampaignSidebar
+              campaigns={campaigns}
+              activeCampaignId={activeCampaignId}
+              onSelect={setActiveCampaignId}
+              onAdd={addCampaign}
+              onDelete={deleteCampaign}
+            />
+
+            {activeCampaign ? (
+              <CampaignEditor
+                campaign={activeCampaign}
+                onUpdate={updateCampaign}
+              />
+            ) : (
+              <div className="border border-brand-border rounded-xl flex items-center justify-center py-20">
+                <p className="text-brand-muted text-sm">
+                  Select or create a campaign to get started
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Legal & Compliance */}
+          <ComplianceNotice />
+        </div>
+      )}
+
+      {/* Add Lead modal (always rendered for portal behavior) */}
       <AddLeadModal
         open={showAddLead}
         onClose={() => setShowAddLead(false)}
         onAdd={addLead}
       />
     </div>
+  );
+}
+
+// ─── Tab Button ────────────────────────────────────────────────────────────────
+
+function TabButton({
+  active,
+  onClick,
+  icon,
+  label,
+  count,
+}: {
+  readonly active: boolean;
+  readonly onClick: () => void;
+  readonly icon: React.ReactNode;
+  readonly label: string;
+  readonly count: number;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors relative ${
+        active
+          ? "text-white"
+          : "text-brand-muted hover:text-white"
+      }`}
+    >
+      {icon}
+      {label}
+      <span
+        className={`text-xs px-1.5 py-0.5 rounded-full ${
+          active
+            ? "bg-accent-blue/20 text-accent-blue"
+            : "bg-brand-border/50 text-brand-muted"
+        }`}
+      >
+        {count}
+      </span>
+      {/* Active indicator bar */}
+      {active && (
+        <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-accent-blue rounded-full" />
+      )}
+    </button>
   );
 }
