@@ -54,7 +54,7 @@ export default function MarketingPage() {
     fetchLeads();
   }, [fetchLeads]);
 
-  // ─── Lead operations ──────────────────────────────────
+  // ─── Lead operations (persisted via API) ─────────────
   const toggleLead = useCallback((id: string) => {
     setSelectedLeadIds((prev) => {
       const next = new Set(prev);
@@ -74,24 +74,51 @@ export default function MarketingPage() {
     });
   }, [leads]);
 
-  const addLead = useCallback((lead: Lead) => {
-    setLeads((prev) => [lead, ...prev]);
-  }, []);
+  const onLeadAdded = useCallback(() => {
+    fetchLeads();
+  }, [fetchLeads]);
 
   const updateLead = useCallback((updated: Lead) => {
+    // Optimistic local update
     setLeads((prev) =>
       prev.map((l) => (l.id === updated.id ? updated : l))
     );
+    // Persist to API (fire-and-forget with error log)
+    fetch("/api/marketing/leads", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(updated),
+    }).catch((err) => console.error("Failed to persist lead update:", err));
+  }, []);
+
+  const deleteLead = useCallback((id: string) => {
+    // Optimistic local removal
+    setLeads((prev) => prev.filter((l) => l.id !== id));
+    setSelectedLeadIds((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+    // Persist to API
+    fetch(`/api/marketing/leads?id=${id}`, { method: "DELETE" })
+      .catch((err) => console.error("Failed to delete lead:", err));
   }, []);
 
   const updateLeadStatus = useCallback((leadId: string, status: LeadStatus) => {
+    const now = new Date().toISOString();
     setLeads((prev) =>
       prev.map((l) =>
         l.id === leadId
-          ? { ...l, status, updated_at: new Date().toISOString() }
+          ? { ...l, status, updated_at: now }
           : l
       )
     );
+    // Persist to API
+    fetch("/api/marketing/leads", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: leadId, status, updated_at: now }),
+    }).catch((err) => console.error("Failed to persist status update:", err));
   }, []);
 
   // ─── Campaign operations ──────────────────────────────
@@ -268,6 +295,7 @@ export default function MarketingPage() {
             onToggle={toggleLead}
             onToggleAll={toggleAll}
             onUpdateLead={updateLead}
+            onDeleteLead={deleteLead}
             campaignNames={campaignNames}
             messageLogs={messageLogs}
           />
@@ -333,7 +361,7 @@ export default function MarketingPage() {
       <AddLeadModal
         open={showAddLead}
         onClose={() => setShowAddLead(false)}
-        onAdd={addLead}
+        onAdd={onLeadAdded}
       />
     </div>
   );

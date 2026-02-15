@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateLeadForm } from "@/lib/marketing/validation";
-import { createLead, getLeads } from "@/lib/marketing/leads";
+import { createLead, getLeads, updateLead, deleteLead } from "@/lib/marketing/leads";
 import { sendSMS } from "@/lib/marketing/twilio";
 import { sendEmail } from "@/lib/marketing/sendgrid";
 import { getWelcomeSMS, getWelcomeEmail } from "@/lib/marketing/templates";
@@ -73,22 +73,22 @@ export async function POST(req: NextRequest) {
   }
 }
 
+async function isAuthorized(req: NextRequest): Promise<boolean> {
+  const password = req.headers.get("x-admin-password");
+  if (password === process.env.ADMIN_PASSWORD) return true;
+
+  try {
+    const supabase = await createSupabaseServer();
+    const { data: { user } } = await supabase.auth.getUser();
+    return !!user;
+  } catch {
+    return false;
+  }
+}
+
 export async function GET(req: NextRequest) {
   try {
-    // Accept either session-based auth or admin password header
-    const password = req.headers.get("x-admin-password");
-    const hasPasswordAuth = password === process.env.ADMIN_PASSWORD;
-
-    let hasSessionAuth = false;
-    try {
-      const supabase = await createSupabaseServer();
-      const { data: { user } } = await supabase.auth.getUser();
-      hasSessionAuth = !!user;
-    } catch {
-      // No session — fall through to password check
-    }
-
-    if (!hasPasswordAuth && !hasSessionAuth) {
+    if (!(await isAuthorized(req))) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -98,6 +98,60 @@ export async function GET(req: NextRequest) {
     console.error("Failed to fetch leads:", err);
     return NextResponse.json(
       { error: "Failed to fetch leads" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PUT(req: NextRequest) {
+  try {
+    if (!(await isAuthorized(req))) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const { id, ...fields } = body;
+
+    if (!id || typeof id !== "string") {
+      return NextResponse.json(
+        { error: "Missing or invalid lead id" },
+        { status: 400 }
+      );
+    }
+
+    const updated = await updateLead(id, fields);
+    return NextResponse.json(updated);
+  } catch (err) {
+    console.error("Failed to update lead:", err);
+    return NextResponse.json(
+      { error: "Failed to update lead" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    if (!(await isAuthorized(req))) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json(
+        { error: "Missing lead id" },
+        { status: 400 }
+      );
+    }
+
+    await deleteLead(id);
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    console.error("Failed to delete lead:", err);
+    return NextResponse.json(
+      { error: "Failed to delete lead" },
       { status: 500 }
     );
   }

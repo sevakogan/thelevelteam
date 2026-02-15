@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import type { Lead, LeadStatus } from "@/lib/marketing/types";
 
 interface AddLeadModalProps {
   readonly open: boolean;
   readonly onClose: () => void;
-  readonly onAdd: (lead: Lead) => void;
+  readonly onAdd: () => void;
 }
 
 interface LeadDraft {
@@ -70,29 +69,42 @@ export function AddLeadModal({ open, onClose, onAdd }: AddLeadModalProps) {
     return Object.keys(next).length === 0;
   }, [draft]);
 
-  const handleSubmit = useCallback(() => {
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const handleSubmit = useCallback(async () => {
     if (!validate()) return;
-    const now = new Date().toISOString();
-    const lead: Lead = {
-      id: crypto.randomUUID(),
-      name: draft.name.trim(),
-      email: draft.email.trim(),
-      phone: draft.phone.trim(),
-      address: draft.address.trim() || null,
-      company: draft.company.trim() || null,
-      notes: draft.notes.trim() || null,
-      message: null,
-      project_interest: null,
-      source: "manual",
-      status: "incoming" as LeadStatus,
-      sms_consent: draft.sms_consent,
-      email_consent: draft.email_consent,
-      assigned_campaigns: [],
-      created_at: now,
-      updated_at: now,
-    };
-    onAdd(lead);
-    onClose();
+    setSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const res = await fetch("/api/marketing/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: draft.name.trim(),
+          email: draft.email.trim(),
+          phone: draft.phone.trim(),
+          smsConsent: draft.sms_consent,
+          emailConsent: draft.email_consent,
+          source: "manual",
+          message: draft.notes.trim() || undefined,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Unknown error" }));
+        throw new Error(err.error || "Failed to create lead");
+      }
+
+      // Signal parent to refetch leads from API
+      onAdd();
+      onClose();
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Failed to create lead");
+    } finally {
+      setSubmitting(false);
+    }
   }, [draft, validate, onAdd, onClose]);
 
   if (!open) return null;
@@ -201,21 +213,29 @@ export function AddLeadModal({ open, onClose, onAdd }: AddLeadModalProps) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-brand-border bg-brand-border/5">
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-sm text-brand-muted hover:text-white transition-colors px-4 py-2 rounded-lg border border-brand-border hover:border-brand-muted/50"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleSubmit}
-            className="text-sm font-medium text-white bg-accent-blue hover:bg-accent-blue/80 px-5 py-2 rounded-lg transition-colors"
-          >
-            Add Lead
-          </button>
+        <div className="flex items-center justify-between px-6 py-4 border-t border-brand-border bg-brand-border/5">
+          {submitError && (
+            <p className="text-xs text-red-400">{submitError}</p>
+          )}
+          {!submitError && <span />}
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={submitting}
+              className="text-sm text-brand-muted hover:text-white transition-colors px-4 py-2 rounded-lg border border-brand-border hover:border-brand-muted/50 disabled:opacity-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={submitting}
+              className="text-sm font-medium text-white bg-accent-blue hover:bg-accent-blue/80 px-5 py-2 rounded-lg transition-colors disabled:opacity-50"
+            >
+              {submitting ? "Saving..." : "Add Lead"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -11,6 +11,7 @@ interface LeadsListProps {
   readonly onToggle: (id: string) => void;
   readonly onToggleAll: () => void;
   readonly onUpdateLead: (lead: Lead) => void;
+  readonly onDeleteLead: (id: string) => void;
   readonly campaignNames: ReadonlyMap<string, string>;
   readonly messageLogs: readonly MessageLog[];
 }
@@ -21,6 +22,7 @@ export function LeadsList({
   onToggle,
   onToggleAll,
   onUpdateLead,
+  onDeleteLead,
   campaignNames,
   messageLogs,
 }: LeadsListProps) {
@@ -66,6 +68,7 @@ export function LeadsList({
               onToggle={() => onToggle(lead.id)}
               onExpand={() => toggleExpand(lead.id)}
               onUpdate={onUpdateLead}
+              onDelete={onDeleteLead}
               campaignNames={campaignNames}
               messageLogs={messageLogs.filter((m) => m.lead_id === lead.id)}
             />
@@ -85,6 +88,7 @@ function LeadRow({
   onToggle,
   onExpand,
   onUpdate,
+  onDelete,
   campaignNames,
   messageLogs,
 }: {
@@ -94,6 +98,7 @@ function LeadRow({
   readonly onToggle: () => void;
   readonly onExpand: () => void;
   readonly onUpdate: (lead: Lead) => void;
+  readonly onDelete: (id: string) => void;
   readonly campaignNames: ReadonlyMap<string, string>;
   readonly messageLogs: readonly MessageLog[];
 }) {
@@ -171,7 +176,7 @@ function LeadRow({
 
       {/* Expanded detail */}
       {expanded && (
-        <LeadDetail lead={lead} onUpdate={onUpdate} campaignNames={campaignNames} messageLogs={messageLogs} />
+        <LeadDetail lead={lead} onUpdate={onUpdate} onDelete={onDelete} campaignNames={campaignNames} messageLogs={messageLogs} />
       )}
     </div>
   );
@@ -182,11 +187,13 @@ function LeadRow({
 function LeadDetail({
   lead,
   onUpdate,
+  onDelete,
   campaignNames,
   messageLogs,
 }: {
   readonly lead: Lead;
   readonly onUpdate: (lead: Lead) => void;
+  readonly onDelete: (id: string) => void;
   readonly campaignNames: ReadonlyMap<string, string>;
   readonly messageLogs: readonly MessageLog[];
 }) {
@@ -211,155 +218,145 @@ function LeadDetail({
   }, [lead]);
 
   return (
-    <div className="px-4 pb-4 pt-0 ml-7">
-      <div className="rounded-lg border border-brand-border/50 bg-brand-border/5 p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h4 className="text-xs font-semibold text-white uppercase tracking-wider">
-            Client Details
-          </h4>
-          {!editing ? (
-            <button
-              type="button"
-              onClick={() => setEditing(true)}
-              className="flex items-center gap-1 text-[11px] text-accent-blue hover:text-accent-purple transition-colors"
-            >
-              <PencilIcon className="w-3 h-3" />
-              Edit
-            </button>
-          ) : (
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={cancel}
-                className="text-[11px] text-brand-muted hover:text-white transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={save}
-                className="text-[11px] font-medium text-accent-blue hover:text-accent-purple transition-colors px-2 py-0.5 rounded border border-brand-border hover:border-accent-blue/40"
-              >
-                Save
-              </button>
-            </div>
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <DetailField label="Name" value={draft.name} editing={editing} onChange={(v) => updateField("name", v)} />
-          <DetailField label="Company" value={draft.company ?? ""} editing={editing} onChange={(v) => updateField("company", v || null)} />
-          <DetailField label="Phone" value={draft.phone} editing={editing} onChange={(v) => updateField("phone", v)} />
-          <DetailField label="Email" value={draft.email} editing={editing} onChange={(v) => updateField("email", v)} />
-          <DetailField label="Address" value={draft.address ?? ""} editing={editing} onChange={(v) => updateField("address", v || null)} className="sm:col-span-2" />
-        </div>
-
-        {/* Notes */}
-        <div className="mt-3">
-          <label className="text-[10px] font-medium text-brand-muted uppercase tracking-wider">
-            Notes / Reason for Inquiry
-          </label>
-          {editing ? (
-            <textarea
-              value={draft.notes ?? ""}
-              onChange={(e) => updateField("notes", e.target.value || null)}
-              rows={2}
-              className="w-full text-xs text-brand-muted bg-transparent border border-brand-border rounded-md px-2 py-1.5 mt-1 focus:border-accent-blue outline-none resize-none"
-              placeholder="Add notes..."
-            />
-          ) : (
-            <p className="text-xs text-brand-muted mt-1 leading-relaxed">
-              {lead.notes || "—"}
-            </p>
-          )}
-        </div>
-
-        {/* Status picker */}
-        <div className="mt-3">
-          <label className="text-[10px] font-medium text-brand-muted uppercase tracking-wider">
-            Status
-          </label>
-          <div className="flex flex-wrap gap-1.5 mt-1.5">
-            {LEAD_STATUS_CONFIG.map((s) => {
-              const isActive = draft.status === s.value;
-              return (
+    <div className="px-4 pb-3 pt-0 ml-7">
+      <div className="rounded-lg border border-brand-border/50 bg-brand-border/5 px-3 py-2.5">
+        {/* Header row — title + actions */}
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] text-brand-muted/40">
+              {lead.source} · {new Date(lead.created_at).toLocaleDateString()}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            {!editing ? (
+              <>
                 <button
-                  key={s.value}
                   type="button"
-                  onClick={() => {
-                    updateField("status", s.value);
-                    if (!editing) {
-                      onUpdate({ ...lead, status: s.value, updated_at: new Date().toISOString() });
-                    }
-                  }}
-                  className={`text-[10px] px-2 py-0.5 rounded-full border font-medium transition-colors ${
-                    isActive
-                      ? getStatusActiveStyle(s.color)
-                      : "text-brand-muted/60 border-brand-border/40 hover:border-brand-muted/40"
-                  }`}
+                  onClick={() => setEditing(true)}
+                  className="flex items-center gap-1 text-[10px] text-accent-blue hover:text-accent-purple transition-colors"
                 >
-                  {s.label}
+                  <PencilIcon className="w-2.5 h-2.5" />
+                  Edit
                 </button>
-              );
-            })}
+                <button
+                  type="button"
+                  onClick={() => onDelete(lead.id)}
+                  className="flex items-center gap-1 text-[10px] text-red-400/60 hover:text-red-400 transition-colors"
+                  title="Delete lead"
+                >
+                  <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={cancel}
+                  className="text-[10px] text-brand-muted hover:text-white transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={save}
+                  className="text-[10px] font-medium text-accent-blue hover:text-accent-purple transition-colors px-1.5 py-0.5 rounded border border-brand-border hover:border-accent-blue/40"
+                >
+                  Save
+                </button>
+              </>
+            )}
           </div>
         </div>
 
-        {/* Assigned Campaigns */}
-        {lead.assigned_campaigns.length > 0 && (
-          <div className="mt-3">
-            <label className="text-[10px] font-medium text-brand-muted uppercase tracking-wider">
-              Assigned Campaigns
-            </label>
-            <div className="flex flex-wrap gap-1.5 mt-1.5">
-              {lead.assigned_campaigns.map((cid) => {
-                const name = campaignNames.get(cid);
-                if (!name) return null;
-                return (
-                  <span
-                    key={cid}
-                    className="inline-flex items-center gap-1.5 text-[10px] px-2 py-0.5 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-400 font-medium"
-                  >
-                    <MegaphoneIcon className="w-2.5 h-2.5" />
-                    {name}
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const updated: Lead = {
-                          ...lead,
-                          assigned_campaigns: lead.assigned_campaigns.filter((id) => id !== cid),
-                          updated_at: new Date().toISOString(),
-                        };
-                        onUpdate(updated);
-                      }}
-                      className="ml-0.5 hover:text-red-400 transition-colors"
-                      title="Remove campaign"
-                    >
-                      <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </span>
-                );
-              })}
-            </div>
+        {/* Compact fields grid — 3 columns on desktop */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-3 gap-y-1.5">
+          <CompactField label="Name" value={draft.name} editing={editing} onChange={(v) => updateField("name", v)} />
+          <CompactField label="Company" value={draft.company ?? ""} editing={editing} onChange={(v) => updateField("company", v || null)} />
+          <CompactField label="Phone" value={draft.phone} editing={editing} onChange={(v) => updateField("phone", v)} />
+          <CompactField label="Email" value={draft.email} editing={editing} onChange={(v) => updateField("email", v)} />
+          <CompactField label="Address" value={draft.address ?? ""} editing={editing} onChange={(v) => updateField("address", v || null)} className="col-span-2" />
+        </div>
+
+        {/* Notes — inline, single-line when not editing */}
+        {(editing || lead.notes) && (
+          <div className="mt-1.5">
+            {editing ? (
+              <textarea
+                value={draft.notes ?? ""}
+                onChange={(e) => updateField("notes", e.target.value || null)}
+                rows={1}
+                className="w-full text-[11px] text-brand-muted bg-transparent border border-brand-border rounded px-2 py-1 focus:border-accent-blue outline-none resize-none"
+                placeholder="Notes..."
+              />
+            ) : (
+              <p className="text-[11px] text-brand-muted/60 truncate">
+                <span className="text-brand-muted/40">Notes:</span> {lead.notes}
+              </p>
+            )}
           </div>
         )}
 
-        {/* Message History */}
+        {/* Status + Campaigns — inline row */}
+        <div className="flex flex-wrap items-center gap-1 mt-2">
+          {LEAD_STATUS_CONFIG.map((s) => {
+            const isActive = draft.status === s.value;
+            return (
+              <button
+                key={s.value}
+                type="button"
+                onClick={() => {
+                  updateField("status", s.value);
+                  if (!editing) {
+                    onUpdate({ ...lead, status: s.value, updated_at: new Date().toISOString() });
+                  }
+                }}
+                className={`text-[9px] px-1.5 py-0 rounded-full border font-medium transition-colors ${
+                  isActive
+                    ? getStatusActiveStyle(s.color)
+                    : "text-brand-muted/40 border-brand-border/30 hover:border-brand-muted/40"
+                }`}
+              >
+                {s.label}
+              </button>
+            );
+          })}
+          {lead.assigned_campaigns.map((cid) => {
+            const name = campaignNames.get(cid);
+            if (!name) return null;
+            return (
+              <span
+                key={cid}
+                className="inline-flex items-center gap-1 text-[9px] px-1.5 py-0 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-400 font-medium"
+              >
+                <MegaphoneIcon className="w-2 h-2" />
+                {name}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const updated: Lead = {
+                      ...lead,
+                      assigned_campaigns: lead.assigned_campaigns.filter((id) => id !== cid),
+                      updated_at: new Date().toISOString(),
+                    };
+                    onUpdate(updated);
+                  }}
+                  className="hover:text-red-400 transition-colors"
+                >
+                  <svg className="w-2 h-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </span>
+            );
+          })}
+        </div>
+
+        {/* Message History — compact */}
         {messageLogs.length > 0 && (
           <MessageHistory logs={messageLogs} />
         )}
-
-        {/* Meta */}
-        <div className="flex items-center gap-4 mt-3 pt-3 border-t border-brand-border/30">
-          <span className="text-[10px] text-brand-muted/40">
-            Source: {lead.source}
-          </span>
-          <span className="text-[10px] text-brand-muted/40">
-            Added: {new Date(lead.created_at).toLocaleDateString()}
-          </span>
-        </div>
       </div>
     </div>
   );
@@ -381,7 +378,7 @@ function getStatusActiveStyle(color: string): string {
   return map[color] ?? map.blue;
 }
 
-function DetailField({
+function CompactField({
   label,
   value,
   editing,
@@ -396,18 +393,16 @@ function DetailField({
 }) {
   return (
     <div className={className}>
-      <label className="text-[10px] font-medium text-brand-muted uppercase tracking-wider">
-        {label}
-      </label>
+      <label className="text-[9px] text-brand-muted/50 uppercase tracking-wider">{label}</label>
       {editing ? (
         <input
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full text-xs text-white bg-transparent border border-brand-border rounded-md px-2 py-1.5 mt-1 focus:border-accent-blue outline-none"
+          className="w-full text-[11px] text-white bg-transparent border border-brand-border rounded px-1.5 py-0.5 focus:border-accent-blue outline-none"
         />
       ) : (
-        <p className="text-xs text-white mt-1">{value || "—"}</p>
+        <p className="text-[11px] text-white truncate">{value || "—"}</p>
       )}
     </div>
   );
@@ -505,10 +500,10 @@ function MessageHistory({ logs }: { readonly logs: readonly MessageLog[] }) {
   const emailCount = logs.filter((m) => m.channel === "email").length;
 
   return (
-    <div className="mt-3">
-      <div className="flex items-center justify-between mb-1.5">
-        <label className="text-[10px] font-medium text-brand-muted uppercase tracking-wider">
-          Message History
+    <div className="mt-2 pt-2 border-t border-brand-border/20">
+      <div className="flex items-center justify-between mb-1">
+        <label className="text-[9px] text-brand-muted/50 uppercase tracking-wider">
+          History
         </label>
         <div className="flex items-center gap-1">
           <HistoryFilterButton
@@ -534,47 +529,38 @@ function MessageHistory({ logs }: { readonly logs: readonly MessageLog[] }) {
         </div>
       </div>
 
-      <div className="max-h-[200px] overflow-y-auto space-y-1.5">
+      <div className="max-h-[140px] overflow-y-auto space-y-1">
         {filtered.length === 0 ? (
-          <p className="text-[10px] text-brand-muted/40 py-2 text-center">
+          <p className="text-[9px] text-brand-muted/40 py-1 text-center">
             No {filter === "all" ? "" : filter} messages yet.
           </p>
         ) : (
           filtered.map((msg) => (
             <div
               key={msg.id}
-              className={`rounded-lg border p-2.5 ${
+              className={`rounded border px-2 py-1.5 ${
                 msg.channel === "sms"
                   ? "border-green-500/15 bg-green-500/5"
                   : "border-accent-blue/15 bg-accent-blue/5"
               }`}
             >
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center gap-1.5">
                 {msg.channel === "sms" ? (
-                  <SmsIcon className="w-3 h-3 text-green-400 shrink-0" />
+                  <SmsIcon className="w-2.5 h-2.5 text-green-400 shrink-0" />
                 ) : (
-                  <EmailIcon className="w-3 h-3 text-accent-blue shrink-0" />
+                  <EmailIcon className="w-2.5 h-2.5 text-accent-blue shrink-0" />
                 )}
-                <span className={`text-[10px] font-medium ${
-                  msg.channel === "sms" ? "text-green-400" : "text-accent-blue"
-                }`}>
-                  {msg.channel === "sms" ? "SMS" : "Email"}
-                </span>
-                <span className="text-[10px] text-brand-muted/40">→</span>
-                <span className="text-[10px] text-brand-muted truncate">{msg.to}</span>
-                <span className="text-[10px] text-brand-muted/40 ml-auto shrink-0">
+                {msg.subject && (
+                  <span className="text-[10px] text-white font-medium truncate">{msg.subject}</span>
+                )}
+                {!msg.subject && (
+                  <span className="text-[10px] text-brand-muted truncate">{msg.body}</span>
+                )}
+                <span className="text-[9px] text-brand-muted/40 ml-auto shrink-0">
                   {formatMessageDate(msg.sent_at)}
                 </span>
                 <MessageStatusBadge status={msg.status} />
               </div>
-              {msg.subject && (
-                <p className="text-[10px] text-white font-medium mb-0.5 ml-5">
-                  {msg.subject}
-                </p>
-              )}
-              <p className="text-[10px] text-brand-muted leading-relaxed ml-5 line-clamp-2">
-                {msg.body}
-              </p>
             </div>
           ))
         )}

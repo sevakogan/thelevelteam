@@ -39,6 +39,37 @@ export async function getLeads(): Promise<readonly Lead[]> {
   return data as Lead[];
 }
 
+export async function updateLead(
+  id: string,
+  fields: Partial<Omit<Lead, "id" | "created_at">>
+): Promise<Lead> {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("leads")
+    .update({ ...fields, updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to update lead: ${error.message}`);
+  }
+
+  return data as Lead;
+}
+
+export async function deleteLead(id: string): Promise<void> {
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase
+    .from("leads")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    throw new Error(`Failed to delete lead: ${error.message}`);
+  }
+}
+
 export async function updateLeadStatus(
   id: string,
   status: LeadStatus
