@@ -8,6 +8,7 @@ import Logo from "@/components/ui/Logo";
 const navItems = [
   { label: "Dashboard", href: "/dashboard" },
   { label: "Leads", href: "/dashboard/leads" },
+  { label: "Marketing", href: "/dashboard/marketing" },
   { label: "Companies", href: "/admin" },
 ];
 

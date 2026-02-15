@@ -1,5 +1,5 @@
-export type UserRole = "admin" | "collaborator" | "viewer";
-export type UserStatus = "pending" | "approved" | "denied";
+export type UserRole = "admin" | "collaborator" | "viewer" | "retail";
+export type UserStatus = "pending" | "approved" | "active" | "denied";
 
 export interface Profile {
   readonly id: string;

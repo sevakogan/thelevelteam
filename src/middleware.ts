@@ -10,6 +10,8 @@ const PUBLIC_AUTH_ROUTES = new Set([
   "/confirm",
 ]);
 
+const APPROVED_STATUSES = new Set(["approved", "active"]);
+
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request: { headers: request.headers } });
 
@@ -59,7 +61,7 @@ export async function middleware(request: NextRequest) {
       .eq("id", user.id)
       .single();
 
-    if (!profile || profile.status !== "approved") {
+    if (!profile || !APPROVED_STATUSES.has(profile.status)) {
       return NextResponse.redirect(new URL("/pending", request.url));
     }
   }
