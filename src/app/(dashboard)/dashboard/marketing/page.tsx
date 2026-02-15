@@ -1,14 +1,18 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import type { Lead } from "@/lib/marketing/types";
+import type { Lead, LeadStatus } from "@/lib/marketing/types";
 import type { Campaign } from "./_components/types";
 import { createCampaign, createStep } from "./_components/types";
 import { DEFAULT_CAMPAIGNS } from "./_components/defaults";
 import { CampaignSidebar } from "./_components/CampaignSidebar";
 import { CampaignEditor } from "./_components/CampaignEditor";
 import { LeadsList } from "./_components/LeadsList";
+import { LeadKanban, getDefaultColumns } from "./_components/LeadKanban";
+import type { KanbanColumn } from "./_components/LeadKanban";
+import { AddLeadModal } from "./_components/AddLeadModal";
 import { ComplianceNotice } from "./_components/ComplianceNotice";
+import { PlusIcon } from "./_components/icons";
 
 export default function MarketingPage() {
   const [leads, setLeads] = useState<readonly Lead[]>([]);
@@ -20,6 +24,10 @@ export default function MarketingPage() {
   const [campaigns, setCampaigns] = useState<readonly Campaign[]>(DEFAULT_CAMPAIGNS);
   const [activeCampaignId, setActiveCampaignId] = useState<string | null>(
     DEFAULT_CAMPAIGNS[0]?.id ?? null
+  );
+  const [showAddLead, setShowAddLead] = useState(false);
+  const [kanbanColumns, setKanbanColumns] = useState<readonly KanbanColumn[]>(
+    getDefaultColumns
   );
 
   const fetchLeads = useCallback(async () => {
@@ -39,6 +47,7 @@ export default function MarketingPage() {
     fetchLeads();
   }, [fetchLeads]);
 
+  // ─── Lead operations ──────────────────────────────────
   const toggleLead = useCallback((id: string) => {
     setSelectedLeadIds((prev) => {
       const next = new Set(prev);
@@ -58,6 +67,27 @@ export default function MarketingPage() {
     });
   }, [leads]);
 
+  const addLead = useCallback((lead: Lead) => {
+    setLeads((prev) => [lead, ...prev]);
+  }, []);
+
+  const updateLead = useCallback((updated: Lead) => {
+    setLeads((prev) =>
+      prev.map((l) => (l.id === updated.id ? updated : l))
+    );
+  }, []);
+
+  const updateLeadStatus = useCallback((leadId: string, status: LeadStatus) => {
+    setLeads((prev) =>
+      prev.map((l) =>
+        l.id === leadId
+          ? { ...l, status, updated_at: new Date().toISOString() }
+          : l
+      )
+    );
+  }, []);
+
+  // ─── Campaign operations ──────────────────────────────
   const addCampaign = useCallback(() => {
     const newCampaign = createCampaign(
       "New Campaign",
@@ -107,20 +137,40 @@ export default function MarketingPage() {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-white">Marketing</h1>
-        <p className="text-brand-muted text-sm mt-1">
-          Create campaigns, choose channels, and edit automation flows
-        </p>
+      {/* Header + Add Lead button */}
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-white">Marketing</h1>
+          <p className="text-brand-muted text-sm mt-1">
+            Manage clients, pipeline, campaigns, and automation flows
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowAddLead(true)}
+          className="flex items-center gap-2 text-sm font-medium text-white bg-accent-blue hover:bg-accent-blue/80 px-5 py-2.5 rounded-xl transition-colors shadow-lg shadow-accent-blue/20"
+        >
+          <PlusIcon className="w-4 h-4" />
+          Add a Lead
+        </button>
       </div>
 
-      {/* Leads */}
+      {/* Clients list */}
       <LeadsList
         leads={leads}
         selectedIds={selectedLeadIds}
         onToggle={toggleLead}
         onToggleAll={toggleAll}
+        onUpdateLead={updateLead}
+      />
+
+      {/* Kanban pipeline */}
+      <LeadKanban
+        leads={leads}
+        onUpdateStatus={updateLeadStatus}
+        onEditLead={(lead) => updateLead(lead)}
+        columns={kanbanColumns}
+        onUpdateColumns={setKanbanColumns}
       />
 
       {/* Campaigns: sidebar + editor */}
@@ -149,6 +199,13 @@ export default function MarketingPage() {
 
       {/* Legal & Compliance */}
       <ComplianceNotice />
+
+      {/* Add Lead modal */}
+      <AddLeadModal
+        open={showAddLead}
+        onClose={() => setShowAddLead(false)}
+        onAdd={addLead}
+      />
     </div>
   );
 }

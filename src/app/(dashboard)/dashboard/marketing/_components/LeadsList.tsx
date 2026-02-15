@@ -1,16 +1,31 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import type { Lead } from "@/lib/marketing/types";
-import { SmsIcon, EmailIcon } from "./icons";
+import { LEAD_STATUS_CONFIG } from "@/lib/marketing/types";
+import { SmsIcon, EmailIcon, PencilIcon } from "./icons";
 
 interface LeadsListProps {
   readonly leads: readonly Lead[];
   readonly selectedIds: ReadonlySet<string>;
   readonly onToggle: (id: string) => void;
   readonly onToggleAll: () => void;
+  readonly onUpdateLead: (lead: Lead) => void;
 }
 
-export function LeadsList({ leads, selectedIds, onToggle, onToggleAll }: LeadsListProps) {
+export function LeadsList({
+  leads,
+  selectedIds,
+  onToggle,
+  onToggleAll,
+  onUpdateLead,
+}: LeadsListProps) {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const toggleExpand = useCallback((id: string) => {
+    setExpandedId((prev) => (prev === id ? null : id));
+  }, []);
+
   return (
     <div className="border border-brand-border rounded-xl overflow-hidden">
       <div className="px-4 py-3 border-b border-brand-border bg-brand-border/10 flex items-center justify-between">
@@ -33,39 +48,276 @@ export function LeadsList({ leads, selectedIds, onToggle, onToggleAll }: LeadsLi
       {leads.length === 0 ? (
         <div className="px-4 py-12 text-center">
           <p className="text-brand-muted text-sm">
-            No leads yet. They&apos;ll appear here when someone submits the contact form.
+            No leads yet. Add one manually or wait for form submissions.
           </p>
         </div>
       ) : (
-        <div className="divide-y divide-brand-border/50 max-h-64 overflow-y-auto">
+        <div className="divide-y divide-brand-border/50 max-h-[400px] overflow-y-auto">
           {leads.map((lead) => (
-            <label
+            <LeadRow
               key={lead.id}
-              className="flex items-center gap-3 px-4 py-3 hover:bg-brand-border/10 cursor-pointer transition-colors"
-            >
-              <Checkbox
-                checked={selectedIds.has(lead.id)}
-                onChange={() => onToggle(lead.id)}
-              />
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-white font-medium truncate">
-                    {lead.name}
-                  </span>
-                  <StatusBadge status={lead.status} />
-                </div>
-                <div className="flex items-center gap-3 mt-0.5">
-                  <span className="text-xs text-brand-muted truncate">{lead.email}</span>
-                  <span className="text-xs text-brand-muted hidden sm:inline">{lead.phone}</span>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                {lead.sms_consent && <ConsentBadge channel="sms" />}
-                {lead.email_consent && <ConsentBadge channel="email" />}
-              </div>
-            </label>
+              lead={lead}
+              selected={selectedIds.has(lead.id)}
+              expanded={expandedId === lead.id}
+              onToggle={() => onToggle(lead.id)}
+              onExpand={() => toggleExpand(lead.id)}
+              onUpdate={onUpdateLead}
+            />
           ))}
         </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Lead row with expandable detail ──────────────────────────────────────────
+
+function LeadRow({
+  lead,
+  selected,
+  expanded,
+  onToggle,
+  onExpand,
+  onUpdate,
+}: {
+  readonly lead: Lead;
+  readonly selected: boolean;
+  readonly expanded: boolean;
+  readonly onToggle: () => void;
+  readonly onExpand: () => void;
+  readonly onUpdate: (lead: Lead) => void;
+}) {
+  return (
+    <div>
+      {/* Summary row */}
+      <div className="flex items-center gap-3 px-4 py-3 hover:bg-brand-border/10 transition-colors">
+        <Checkbox checked={selected} onChange={onToggle} />
+        <button
+          type="button"
+          onClick={onExpand}
+          className="flex-1 min-w-0 text-left flex items-center gap-3"
+        >
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-white font-medium truncate">
+                {lead.name}
+              </span>
+              {lead.company && (
+                <span className="text-xs text-brand-muted truncate hidden sm:inline">
+                  @ {lead.company}
+                </span>
+              )}
+              <StatusBadge status={lead.status} />
+            </div>
+            <div className="flex items-center gap-3 mt-0.5">
+              {lead.phone && <span className="text-xs text-brand-muted truncate">{lead.phone}</span>}
+              {lead.email && <span className="text-xs text-brand-muted truncate hidden sm:inline">{lead.email}</span>}
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {lead.sms_consent && <ConsentBadge channel="sms" />}
+            {lead.email_consent && <ConsentBadge channel="email" />}
+          </div>
+          <svg
+            className={`w-4 h-4 text-brand-muted/40 shrink-0 transition-transform ${expanded ? "rotate-180" : ""}`}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Expanded detail */}
+      {expanded && (
+        <LeadDetail lead={lead} onUpdate={onUpdate} />
+      )}
+    </div>
+  );
+}
+
+// ─── Lead detail (expanded view) ──────────────────────────────────────────────
+
+function LeadDetail({
+  lead,
+  onUpdate,
+}: {
+  readonly lead: Lead;
+  readonly onUpdate: (lead: Lead) => void;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(lead);
+
+  const updateField = useCallback(
+    <K extends keyof Lead>(field: K, value: Lead[K]) => {
+      setDraft((prev) => ({ ...prev, [field]: value }));
+    },
+    []
+  );
+
+  const save = useCallback(() => {
+    onUpdate({ ...draft, updated_at: new Date().toISOString() });
+    setEditing(false);
+  }, [draft, onUpdate]);
+
+  const cancel = useCallback(() => {
+    setDraft(lead);
+    setEditing(false);
+  }, [lead]);
+
+  return (
+    <div className="px-4 pb-4 pt-0 ml-7">
+      <div className="rounded-lg border border-brand-border/50 bg-brand-border/5 p-4">
+        <div className="flex items-center justify-between mb-3">
+          <h4 className="text-xs font-semibold text-white uppercase tracking-wider">
+            Client Details
+          </h4>
+          {!editing ? (
+            <button
+              type="button"
+              onClick={() => setEditing(true)}
+              className="flex items-center gap-1 text-[11px] text-accent-blue hover:text-accent-purple transition-colors"
+            >
+              <PencilIcon className="w-3 h-3" />
+              Edit
+            </button>
+          ) : (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={cancel}
+                className="text-[11px] text-brand-muted hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={save}
+                className="text-[11px] font-medium text-accent-blue hover:text-accent-purple transition-colors px-2 py-0.5 rounded border border-brand-border hover:border-accent-blue/40"
+              >
+                Save
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <DetailField label="Name" value={draft.name} editing={editing} onChange={(v) => updateField("name", v)} />
+          <DetailField label="Company" value={draft.company ?? ""} editing={editing} onChange={(v) => updateField("company", v || null)} />
+          <DetailField label="Phone" value={draft.phone} editing={editing} onChange={(v) => updateField("phone", v)} />
+          <DetailField label="Email" value={draft.email} editing={editing} onChange={(v) => updateField("email", v)} />
+          <DetailField label="Address" value={draft.address ?? ""} editing={editing} onChange={(v) => updateField("address", v || null)} className="sm:col-span-2" />
+        </div>
+
+        {/* Notes */}
+        <div className="mt-3">
+          <label className="text-[10px] font-medium text-brand-muted uppercase tracking-wider">
+            Notes / Reason for Inquiry
+          </label>
+          {editing ? (
+            <textarea
+              value={draft.notes ?? ""}
+              onChange={(e) => updateField("notes", e.target.value || null)}
+              rows={2}
+              className="w-full text-xs text-brand-muted bg-transparent border border-brand-border rounded-md px-2 py-1.5 mt-1 focus:border-accent-blue outline-none resize-none"
+              placeholder="Add notes..."
+            />
+          ) : (
+            <p className="text-xs text-brand-muted mt-1 leading-relaxed">
+              {lead.notes || "—"}
+            </p>
+          )}
+        </div>
+
+        {/* Status picker */}
+        <div className="mt-3">
+          <label className="text-[10px] font-medium text-brand-muted uppercase tracking-wider">
+            Status
+          </label>
+          <div className="flex flex-wrap gap-1.5 mt-1.5">
+            {LEAD_STATUS_CONFIG.map((s) => {
+              const isActive = draft.status === s.value;
+              return (
+                <button
+                  key={s.value}
+                  type="button"
+                  onClick={() => {
+                    updateField("status", s.value);
+                    if (!editing) {
+                      onUpdate({ ...lead, status: s.value, updated_at: new Date().toISOString() });
+                    }
+                  }}
+                  className={`text-[10px] px-2 py-0.5 rounded-full border font-medium transition-colors ${
+                    isActive
+                      ? getStatusActiveStyle(s.color)
+                      : "text-brand-muted/60 border-brand-border/40 hover:border-brand-muted/40"
+                  }`}
+                >
+                  {s.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Meta */}
+        <div className="flex items-center gap-4 mt-3 pt-3 border-t border-brand-border/30">
+          <span className="text-[10px] text-brand-muted/40">
+            Source: {lead.source}
+          </span>
+          <span className="text-[10px] text-brand-muted/40">
+            Added: {new Date(lead.created_at).toLocaleDateString()}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function getStatusActiveStyle(color: string): string {
+  const map: Record<string, string> = {
+    blue: "bg-blue-500/10 text-blue-400 border-blue-500/30",
+    yellow: "bg-yellow-500/10 text-yellow-400 border-yellow-500/30",
+    purple: "bg-purple-500/10 text-purple-400 border-purple-500/30",
+    cyan: "bg-cyan-500/10 text-cyan-400 border-cyan-500/30",
+    orange: "bg-orange-500/10 text-orange-400 border-orange-500/30",
+    green: "bg-green-500/10 text-green-400 border-green-500/30",
+    red: "bg-red-500/10 text-red-400 border-red-500/30",
+    gray: "bg-gray-500/10 text-gray-400 border-gray-500/30",
+  };
+  return map[color] ?? map.blue;
+}
+
+function DetailField({
+  label,
+  value,
+  editing,
+  onChange,
+  className = "",
+}: {
+  readonly label: string;
+  readonly value: string;
+  readonly editing: boolean;
+  readonly onChange: (v: string) => void;
+  readonly className?: string;
+}) {
+  return (
+    <div className={className}>
+      <label className="text-[10px] font-medium text-brand-muted uppercase tracking-wider">
+        {label}
+      </label>
+      {editing ? (
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full text-xs text-white bg-transparent border border-brand-border rounded-md px-2 py-1.5 mt-1 focus:border-accent-blue outline-none"
+        />
+      ) : (
+        <p className="text-xs text-white mt-1">{value || "—"}</p>
       )}
     </div>
   );
@@ -104,20 +356,12 @@ function Checkbox({
 }
 
 function StatusBadge({ status }: { readonly status: string }) {
-  const styles: Record<string, string> = {
-    new: "bg-accent-blue/10 text-accent-blue border-accent-blue/20",
-    contacted: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
-    converted: "bg-green-500/10 text-green-400 border-green-500/20",
-    unsubscribed: "bg-red-500/10 text-red-400 border-red-500/20",
-  };
+  const config = LEAD_STATUS_CONFIG.find((s) => s.value === status);
+  const style = config ? getStatusActiveStyle(config.color) : "bg-blue-500/10 text-blue-400 border-blue-500/20";
 
   return (
-    <span
-      className={`inline-block px-1.5 py-0 rounded-full text-[10px] font-medium border ${
-        styles[status] ?? styles.new
-      }`}
-    >
-      {status}
+    <span className={`inline-block px-1.5 py-0 rounded-full text-[10px] font-medium border ${style}`}>
+      {config?.label ?? status}
     </span>
   );
 }

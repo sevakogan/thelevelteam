@@ -3,6 +3,9 @@ export interface Lead {
   readonly name: string;
   readonly email: string;
   readonly phone: string;
+  readonly address: string | null;
+  readonly company: string | null;
+  readonly notes: string | null;
   readonly message: string | null;
   readonly project_interest: string | null;
   readonly source: string;
@@ -13,12 +16,34 @@ export interface Lead {
   readonly updated_at: string;
 }
 
-export type LeadStatus = "new" | "contacted" | "converted" | "unsubscribed";
+export type LeadStatus =
+  | "incoming"
+  | "followed_up"
+  | "qualified"
+  | "proposal_sent"
+  | "negotiation"
+  | "won"
+  | "lost"
+  | "unsubscribed";
+
+export const LEAD_STATUS_CONFIG: readonly { readonly value: LeadStatus; readonly label: string; readonly color: string }[] = [
+  { value: "incoming", label: "Incoming", color: "blue" },
+  { value: "followed_up", label: "Followed Up", color: "yellow" },
+  { value: "qualified", label: "Qualified", color: "purple" },
+  { value: "proposal_sent", label: "Proposal Sent", color: "cyan" },
+  { value: "negotiation", label: "Negotiation", color: "orange" },
+  { value: "won", label: "Won", color: "green" },
+  { value: "lost", label: "Lost", color: "red" },
+  { value: "unsubscribed", label: "Unsubscribed", color: "gray" },
+];
 
 export interface LeadInput {
   readonly name: string;
   readonly email: string;
   readonly phone: string;
+  readonly address?: string;
+  readonly company?: string;
+  readonly notes?: string;
   readonly message?: string;
   readonly projectInterest?: string;
   readonly smsConsent: boolean;
