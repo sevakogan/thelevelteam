@@ -2,9 +2,8 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import type { Campaign, ChannelType, FlowStep } from "./types";
-import { createStep } from "./types";
-import { PlusIcon, GripIcon, PencilIcon, TrashIcon } from "./icons";
-import { ChannelBadge } from "./ChannelBadge";
+import { createStep, switchCampaignChannel } from "./types";
+import { PlusIcon, GripIcon, PencilIcon, TrashIcon, SmsIcon, EmailIcon } from "./icons";
 
 interface CampaignEditorProps {
   readonly campaign: Campaign;
@@ -20,8 +19,6 @@ const CHANNEL_OPTIONS: readonly { value: ChannelType; label: string }[] = [
 export function CampaignEditor({ campaign, onUpdate }: CampaignEditorProps) {
   const [editingStepId, setEditingStepId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState(false);
-  const [dragIndex, setDragIndex] = useState<number | null>(null);
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const nameRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -33,106 +30,10 @@ export function CampaignEditor({ campaign, onUpdate }: CampaignEditorProps) {
     [campaign, onUpdate]
   );
 
-  const updateChannel = useCallback(
-    (channel: ChannelType) => onUpdate({ ...campaign, channel }),
+  const handleChannelChange = useCallback(
+    (channel: ChannelType) => onUpdate(switchCampaignChannel(campaign, channel)),
     [campaign, onUpdate]
   );
-
-  const updateStep = useCallback(
-    (stepId: string, field: keyof FlowStep, value: string) => {
-      const steps = campaign.steps.map((s) =>
-        s.id === stepId ? { ...s, [field]: value } : s
-      );
-      onUpdate({ ...campaign, steps });
-    },
-    [campaign, onUpdate]
-  );
-
-  const deleteStep = useCallback(
-    (stepId: string) => {
-      const steps = campaign.steps.filter((s) => s.id !== stepId);
-      onUpdate({ ...campaign, steps });
-      setEditingStepId(null);
-    },
-    [campaign, onUpdate]
-  );
-
-  const addStep = useCallback(() => {
-    const newStep = createStep("New Step", "Day ?", "Enter your message here...");
-    onUpdate({ ...campaign, steps: [...campaign.steps, newStep] });
-    setEditingStepId(newStep.id);
-  }, [campaign, onUpdate]);
-
-  const handleDragStart = useCallback((index: number) => {
-    setDragIndex(index);
-  }, []);
-
-  const handleDragOver = useCallback(
-    (e: React.DragEvent, index: number) => {
-      e.preventDefault();
-      if (dragIndex === null || dragIndex === index) return;
-      setDragOverIndex(index);
-    },
-    [dragIndex]
-  );
-
-  const handleDrop = useCallback(
-    (dropIndex: number) => {
-      if (dragIndex === null || dragIndex === dropIndex) {
-        setDragIndex(null);
-        setDragOverIndex(null);
-        return;
-      }
-
-      const steps = [...campaign.steps];
-      const [moved] = steps.splice(dragIndex, 1);
-      steps.splice(dropIndex, 0, moved);
-      onUpdate({ ...campaign, steps });
-      setDragIndex(null);
-      setDragOverIndex(null);
-    },
-    [campaign, dragIndex, onUpdate]
-  );
-
-  const handleDragEnd = useCallback(() => {
-    setDragIndex(null);
-    setDragOverIndex(null);
-  }, []);
-
-  const channelColor =
-    campaign.channel === "sms"
-      ? "green"
-      : campaign.channel === "email"
-      ? "blue"
-      : "purple";
-
-  const dotBg =
-    channelColor === "green"
-      ? "bg-green-400"
-      : channelColor === "blue"
-      ? "bg-accent-blue"
-      : "bg-purple-400";
-
-  const dotRing =
-    channelColor === "green"
-      ? "ring-green-400/20"
-      : channelColor === "blue"
-      ? "ring-accent-blue/20"
-      : "ring-purple-400/20";
-
-  const lineBg =
-    channelColor === "green"
-      ? "bg-green-400/20"
-      : channelColor === "blue"
-      ? "bg-accent-blue/20"
-      : "bg-purple-400/20";
-
-  const delayBg =
-    channelColor === "green"
-      ? "bg-green-500/10 text-green-400 border-green-500/20"
-      : channelColor === "blue"
-      ? "bg-accent-blue/10 text-accent-blue border-accent-blue/20"
-      : "bg-purple-500/10 text-purple-400 border-purple-500/20";
 
   return (
     <div className="border border-brand-border rounded-xl overflow-hidden">
@@ -166,7 +67,7 @@ export function CampaignEditor({ campaign, onUpdate }: CampaignEditorProps) {
           {CHANNEL_OPTIONS.map((opt) => (
             <button
               key={opt.value}
-              onClick={() => updateChannel(opt.value)}
+              onClick={() => handleChannelChange(opt.value)}
               className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
                 campaign.channel === opt.value
                   ? opt.value === "sms"
@@ -185,109 +86,380 @@ export function CampaignEditor({ campaign, onUpdate }: CampaignEditorProps) {
 
       {/* Flow steps */}
       <div className="p-6">
-        <div className="flex items-center justify-between mb-5">
-          <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-            <ChannelBadge channel={campaign.channel} />
-            Automation Flow
-          </h3>
-          <button
-            onClick={addStep}
-            className="flex items-center gap-1.5 text-xs font-medium text-accent-blue hover:text-accent-purple transition-colors px-3 py-1.5 rounded-lg border border-brand-border hover:border-accent-blue/40"
-          >
-            <PlusIcon className="w-3.5 h-3.5" />
-            Add Step
-          </button>
-        </div>
-
-        <div className="relative">
-          {campaign.steps.map((step, index) => {
-            const isLast = index === campaign.steps.length - 1;
-            const isDragging = dragIndex === index;
-            const isDragOver = dragOverIndex === index;
-
-            return (
-              <div
-                key={step.id}
-                draggable={editingStepId !== step.id}
-                onDragStart={() => handleDragStart(index)}
-                onDragOver={(e) => handleDragOver(e, index)}
-                onDrop={() => handleDrop(index)}
-                onDragEnd={handleDragEnd}
-                className={`flex gap-3 transition-all ${
-                  isDragging ? "opacity-30" : ""
-                } ${isDragOver ? "translate-y-1" : ""}`}
-              >
-                {/* Drag handle + timeline */}
-                <div className="flex items-start gap-1 shrink-0">
-                  {editingStepId !== step.id && (
-                    <div className="pt-0.5 cursor-grab active:cursor-grabbing">
-                      <GripIcon className="w-4 h-4 text-brand-muted/30 hover:text-brand-muted transition-colors" />
-                    </div>
-                  )}
-                  <div className="flex flex-col items-center">
-                    <div className={`w-3 h-3 rounded-full ${dotBg} ring-4 ${dotRing} shrink-0`} />
-                    {!isLast && (
-                      <div className={`w-0.5 flex-1 ${lineBg} min-h-[48px]`} />
-                    )}
-                  </div>
-                </div>
-
-                {/* Content */}
-                <div className="pb-5 flex-1 min-w-0">
-                  {isDragOver && dragIndex !== null && (
-                    <div className="h-0.5 bg-accent-blue rounded-full mb-2 -mt-1" />
-                  )}
-
-                  {editingStepId === step.id ? (
-                    <StepForm
-                      step={step}
-                      onUpdate={updateStep}
-                      onDone={() => setEditingStepId(null)}
-                      onDelete={() => deleteStep(step.id)}
-                      canDelete={campaign.steps.length > 1}
-                      delayBg={delayBg}
-                    />
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => setEditingStepId(step.id)}
-                      className="w-full text-left group rounded-lg p-2 -m-2 hover:bg-brand-border/10 transition-colors"
-                    >
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm text-white font-medium">
-                          {step.label}
-                        </span>
-                        <span className={`text-[10px] px-1.5 py-0 rounded-full border font-medium ${delayBg}`}>
-                          {step.delay}
-                        </span>
-                        <PencilIcon className="w-3 h-3 text-brand-muted opacity-0 group-hover:opacity-100 transition-opacity ml-auto" />
-                      </div>
-                      <p className="text-xs text-brand-muted leading-relaxed">
-                        {step.description}
-                      </p>
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {campaign.steps.length === 0 && (
-          <div className="text-center py-8">
-            <p className="text-brand-muted text-sm mb-3">No steps yet</p>
-            <button
-              onClick={addStep}
-              className="text-xs font-medium text-accent-blue hover:text-accent-purple transition-colors"
-            >
-              + Add your first step
-            </button>
-          </div>
+        {campaign.channel === "both" ? (
+          <SplitFlowEditor
+            campaign={campaign}
+            onUpdate={onUpdate}
+            editingStepId={editingStepId}
+            onEditStep={setEditingStepId}
+          />
+        ) : (
+          <SingleFlowEditor
+            campaign={campaign}
+            onUpdate={onUpdate}
+            editingStepId={editingStepId}
+            onEditStep={setEditingStepId}
+            channel={campaign.channel}
+          />
         )}
       </div>
     </div>
   );
 }
+
+// ─── Split flow (side-by-side SMS + Email) ──────────────────────────────────
+
+interface SplitFlowEditorProps {
+  readonly campaign: Campaign;
+  readonly onUpdate: (updated: Campaign) => void;
+  readonly editingStepId: string | null;
+  readonly onEditStep: (id: string | null) => void;
+}
+
+function SplitFlowEditor({ campaign, onUpdate, editingStepId, onEditStep }: SplitFlowEditorProps) {
+  const updateSmsStep = useCallback(
+    (stepId: string, field: keyof FlowStep, value: string) => {
+      const smsSteps = campaign.smsSteps.map((s) =>
+        s.id === stepId ? { ...s, [field]: value } : s
+      );
+      onUpdate({ ...campaign, smsSteps });
+    },
+    [campaign, onUpdate]
+  );
+
+  const updateEmailStep = useCallback(
+    (stepId: string, field: keyof FlowStep, value: string) => {
+      const emailSteps = campaign.emailSteps.map((s) =>
+        s.id === stepId ? { ...s, [field]: value } : s
+      );
+      onUpdate({ ...campaign, emailSteps });
+    },
+    [campaign, onUpdate]
+  );
+
+  const deleteSmsStep = useCallback(
+    (stepId: string) => {
+      onUpdate({ ...campaign, smsSteps: campaign.smsSteps.filter((s) => s.id !== stepId) });
+      onEditStep(null);
+    },
+    [campaign, onUpdate, onEditStep]
+  );
+
+  const deleteEmailStep = useCallback(
+    (stepId: string) => {
+      onUpdate({ ...campaign, emailSteps: campaign.emailSteps.filter((s) => s.id !== stepId) });
+      onEditStep(null);
+    },
+    [campaign, onUpdate, onEditStep]
+  );
+
+  const addSmsStep = useCallback(() => {
+    const step = createStep("New SMS Step", "Day ?", "Enter your SMS message...");
+    onUpdate({ ...campaign, smsSteps: [...campaign.smsSteps, step] });
+    onEditStep(step.id);
+  }, [campaign, onUpdate, onEditStep]);
+
+  const addEmailStep = useCallback(() => {
+    const step = createStep("New Email Step", "Day ?", "Enter your email message...");
+    onUpdate({ ...campaign, emailSteps: [...campaign.emailSteps, step] });
+    onEditStep(step.id);
+  }, [campaign, onUpdate, onEditStep]);
+
+  const reorderSms = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      const steps = [...campaign.smsSteps];
+      const [moved] = steps.splice(fromIndex, 1);
+      steps.splice(toIndex, 0, moved);
+      onUpdate({ ...campaign, smsSteps: steps });
+    },
+    [campaign, onUpdate]
+  );
+
+  const reorderEmail = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      const steps = [...campaign.emailSteps];
+      const [moved] = steps.splice(fromIndex, 1);
+      steps.splice(toIndex, 0, moved);
+      onUpdate({ ...campaign, emailSteps: steps });
+    },
+    [campaign, onUpdate]
+  );
+
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* SMS column */}
+      <FlowColumn
+        title="SMS Flow"
+        icon={<SmsIcon className="w-4 h-4 text-green-400" />}
+        steps={campaign.smsSteps}
+        channel="sms"
+        editingStepId={editingStepId}
+        onEditStep={onEditStep}
+        onUpdateStep={updateSmsStep}
+        onDeleteStep={deleteSmsStep}
+        onAddStep={addSmsStep}
+        onReorder={reorderSms}
+      />
+
+      {/* Email column */}
+      <FlowColumn
+        title="Email Flow"
+        icon={<EmailIcon className="w-4 h-4 text-accent-blue" />}
+        steps={campaign.emailSteps}
+        channel="email"
+        editingStepId={editingStepId}
+        onEditStep={onEditStep}
+        onUpdateStep={updateEmailStep}
+        onDeleteStep={deleteEmailStep}
+        onAddStep={addEmailStep}
+        onReorder={reorderEmail}
+      />
+    </div>
+  );
+}
+
+// ─── Single flow (one channel) ──────────────────────────────────────────────
+
+interface SingleFlowEditorProps {
+  readonly campaign: Campaign;
+  readonly onUpdate: (updated: Campaign) => void;
+  readonly editingStepId: string | null;
+  readonly onEditStep: (id: string | null) => void;
+  readonly channel: "sms" | "email";
+}
+
+function SingleFlowEditor({
+  campaign,
+  onUpdate,
+  editingStepId,
+  onEditStep,
+  channel,
+}: SingleFlowEditorProps) {
+  const updateStep = useCallback(
+    (stepId: string, field: keyof FlowStep, value: string) => {
+      const steps = campaign.steps.map((s) =>
+        s.id === stepId ? { ...s, [field]: value } : s
+      );
+      onUpdate({ ...campaign, steps });
+    },
+    [campaign, onUpdate]
+  );
+
+  const deleteStep = useCallback(
+    (stepId: string) => {
+      onUpdate({ ...campaign, steps: campaign.steps.filter((s) => s.id !== stepId) });
+      onEditStep(null);
+    },
+    [campaign, onUpdate, onEditStep]
+  );
+
+  const addStep = useCallback(() => {
+    const label = channel === "sms" ? "New SMS Step" : "New Email Step";
+    const step = createStep(label, "Day ?", "Enter your message here...");
+    onUpdate({ ...campaign, steps: [...campaign.steps, step] });
+    onEditStep(step.id);
+  }, [campaign, channel, onUpdate, onEditStep]);
+
+  const reorder = useCallback(
+    (fromIndex: number, toIndex: number) => {
+      const steps = [...campaign.steps];
+      const [moved] = steps.splice(fromIndex, 1);
+      steps.splice(toIndex, 0, moved);
+      onUpdate({ ...campaign, steps });
+    },
+    [campaign, onUpdate]
+  );
+
+  const icon =
+    channel === "sms" ? (
+      <SmsIcon className="w-4 h-4 text-green-400" />
+    ) : (
+      <EmailIcon className="w-4 h-4 text-accent-blue" />
+    );
+
+  const title = channel === "sms" ? "SMS Automation Flow" : "Email Automation Flow";
+
+  return (
+    <FlowColumn
+      title={title}
+      icon={icon}
+      steps={campaign.steps}
+      channel={channel}
+      editingStepId={editingStepId}
+      onEditStep={onEditStep}
+      onUpdateStep={updateStep}
+      onDeleteStep={deleteStep}
+      onAddStep={addStep}
+      onReorder={reorder}
+    />
+  );
+}
+
+// ─── Shared flow column ─────────────────────────────────────────────────────
+
+interface FlowColumnProps {
+  readonly title: string;
+  readonly icon: React.ReactNode;
+  readonly steps: readonly FlowStep[];
+  readonly channel: "sms" | "email";
+  readonly editingStepId: string | null;
+  readonly onEditStep: (id: string | null) => void;
+  readonly onUpdateStep: (id: string, field: keyof FlowStep, value: string) => void;
+  readonly onDeleteStep: (id: string) => void;
+  readonly onAddStep: () => void;
+  readonly onReorder: (fromIndex: number, toIndex: number) => void;
+}
+
+function FlowColumn({
+  title,
+  icon,
+  steps,
+  channel,
+  editingStepId,
+  onEditStep,
+  onUpdateStep,
+  onDeleteStep,
+  onAddStep,
+  onReorder,
+}: FlowColumnProps) {
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  const handleDragStart = useCallback((index: number) => setDragIndex(index), []);
+
+  const handleDragOver = useCallback(
+    (e: React.DragEvent, index: number) => {
+      e.preventDefault();
+      if (dragIndex === null || dragIndex === index) return;
+      setDragOverIndex(index);
+    },
+    [dragIndex]
+  );
+
+  const handleDrop = useCallback(
+    (dropIndex: number) => {
+      if (dragIndex !== null && dragIndex !== dropIndex) {
+        onReorder(dragIndex, dropIndex);
+      }
+      setDragIndex(null);
+      setDragOverIndex(null);
+    },
+    [dragIndex, onReorder]
+  );
+
+  const handleDragEnd = useCallback(() => {
+    setDragIndex(null);
+    setDragOverIndex(null);
+  }, []);
+
+  const dotBg = channel === "sms" ? "bg-green-400" : "bg-accent-blue";
+  const dotRing = channel === "sms" ? "ring-green-400/20" : "ring-accent-blue/20";
+  const lineBg = channel === "sms" ? "bg-green-400/20" : "bg-accent-blue/20";
+  const delayBg =
+    channel === "sms"
+      ? "bg-green-500/10 text-green-400 border-green-500/20"
+      : "bg-accent-blue/10 text-accent-blue border-accent-blue/20";
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-5">
+        <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+          {icon}
+          {title}
+        </h3>
+        <button
+          onClick={onAddStep}
+          className="flex items-center gap-1 text-xs font-medium text-accent-blue hover:text-accent-purple transition-colors px-2 py-1 rounded-lg border border-brand-border hover:border-accent-blue/40"
+        >
+          <PlusIcon className="w-3 h-3" />
+          Add
+        </button>
+      </div>
+
+      <div className="relative">
+        {steps.map((step, index) => {
+          const isLast = index === steps.length - 1;
+          const isDragging = dragIndex === index;
+          const isDragOver = dragOverIndex === index;
+
+          return (
+            <div
+              key={step.id}
+              draggable={editingStepId !== step.id}
+              onDragStart={() => handleDragStart(index)}
+              onDragOver={(e) => handleDragOver(e, index)}
+              onDrop={() => handleDrop(index)}
+              onDragEnd={handleDragEnd}
+              className={`flex gap-3 transition-all ${isDragging ? "opacity-30" : ""} ${
+                isDragOver ? "translate-y-1" : ""
+              }`}
+            >
+              {/* Drag handle + timeline */}
+              <div className="flex items-start gap-1 shrink-0">
+                {editingStepId !== step.id && (
+                  <div className="pt-0.5 cursor-grab active:cursor-grabbing">
+                    <GripIcon className="w-4 h-4 text-brand-muted/30 hover:text-brand-muted transition-colors" />
+                  </div>
+                )}
+                <div className="flex flex-col items-center">
+                  <div className={`w-3 h-3 rounded-full ${dotBg} ring-4 ${dotRing} shrink-0`} />
+                  {!isLast && <div className={`w-0.5 flex-1 ${lineBg} min-h-[48px]`} />}
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="pb-5 flex-1 min-w-0">
+                {isDragOver && dragIndex !== null && (
+                  <div className="h-0.5 bg-accent-blue rounded-full mb-2 -mt-1" />
+                )}
+
+                {editingStepId === step.id ? (
+                  <StepForm
+                    step={step}
+                    onUpdate={onUpdateStep}
+                    onDone={() => onEditStep(null)}
+                    onDelete={() => onDeleteStep(step.id)}
+                    canDelete={steps.length > 1}
+                    delayBg={delayBg}
+                  />
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => onEditStep(step.id)}
+                    className="w-full text-left group rounded-lg p-2 -m-2 hover:bg-brand-border/10 transition-colors"
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-sm text-white font-medium">{step.label}</span>
+                      <span className={`text-[10px] px-1.5 py-0 rounded-full border font-medium ${delayBg}`}>
+                        {step.delay}
+                      </span>
+                      <PencilIcon className="w-3 h-3 text-brand-muted opacity-0 group-hover:opacity-100 transition-opacity ml-auto" />
+                    </div>
+                    <p className="text-xs text-brand-muted leading-relaxed">{step.description}</p>
+                  </button>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {steps.length === 0 && (
+        <div className="text-center py-8 border border-dashed border-brand-border rounded-lg">
+          <p className="text-brand-muted text-xs mb-2">No steps yet</p>
+          <button
+            onClick={onAddStep}
+            className="text-xs font-medium text-accent-blue hover:text-accent-purple transition-colors"
+          >
+            + Add first step
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Step edit form ─────────────────────────────────────────────────────────
 
 function StepForm({
   step,
@@ -340,11 +512,7 @@ function StepForm({
 
       <div className="flex items-center justify-between">
         {canDelete ? (
-          <button
-            type="button"
-            onClick={onDelete}
-            className="flex items-center gap-1 text-[11px] text-red-400 hover:text-red-300 transition-colors"
-          >
+          <button type="button" onClick={onDelete} className="flex items-center gap-1 text-[11px] text-red-400 hover:text-red-300 transition-colors">
             <TrashIcon className="w-3 h-3" />
             Delete
           </button>

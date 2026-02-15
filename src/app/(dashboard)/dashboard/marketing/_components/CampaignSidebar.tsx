@@ -58,7 +58,12 @@ export function CampaignSidebar({
                 <div className="flex items-center gap-2">
                   <ChannelBadge channel={campaign.channel} />
                   <span className="text-[10px] text-brand-muted">
-                    {campaign.steps.length} {campaign.steps.length === 1 ? "step" : "steps"}
+                    {(() => {
+                      const count = campaign.channel === "both"
+                        ? campaign.smsSteps.length + campaign.emailSteps.length
+                        : campaign.steps.length;
+                      return `${count} ${count === 1 ? "step" : "steps"}`;
+                    })()}
                   </span>
                 </div>
               </div>
