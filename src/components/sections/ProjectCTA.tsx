@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { fadeInUp } from "@/lib/animations";
+import { useLeadModal } from "@/lib/marketing/useLeadModal";
 import type { Company } from "@/lib/types";
 
 interface ProjectCTAProps {
@@ -9,6 +10,8 @@ interface ProjectCTAProps {
 }
 
 export default function ProjectCTA({ company }: ProjectCTAProps) {
+  const { openModal } = useLeadModal();
+
   return (
     <section className="py-20">
       <div className="max-w-4xl mx-auto px-6">
@@ -47,7 +50,31 @@ export default function ProjectCTA({ company }: ProjectCTAProps) {
             </svg>
           </a>
 
-          {/* Secondary: Back to Portfolio */}
+          {/* Request More Info */}
+          <button
+            onClick={() => openModal(company.slug)}
+            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-white font-medium text-sm tracking-wide transition-all duration-300 hover:bg-white/5"
+            style={{
+              border: `1px solid ${company.color_primary}40`,
+            }}
+          >
+            <span>Request More Info</span>
+            <svg
+              className="w-4 h-4"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+              />
+            </svg>
+          </button>
+
+          {/* Back to Portfolio */}
           <a
             href="/#portfolio"
             className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-white font-medium text-sm tracking-wide transition-all duration-300 hover:bg-white/5"

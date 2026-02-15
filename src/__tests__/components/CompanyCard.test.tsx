@@ -38,12 +38,10 @@ describe("CompanyCard", () => {
     expect(screen.getByText("Supabase")).toBeInTheDocument();
   });
 
-  it("links to live project URL", () => {
+  it("links to project detail page", () => {
     render(<CompanyCard company={MOCK_COMPANY} index={0} />);
     const link = screen.getByRole("link");
-    expect(link).toHaveAttribute("href", "https://crownvault.vercel.app");
-    expect(link).toHaveAttribute("target", "_blank");
-    expect(link).toHaveAttribute("rel", "noopener noreferrer");
+    expect(link).toHaveAttribute("href", "/projects/crownvault");
   });
 
   it("renders with reversed layout for odd index", () => {

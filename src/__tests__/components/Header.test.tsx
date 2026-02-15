@@ -22,17 +22,14 @@ describe("Header", () => {
 
   it("nav links point to correct anchors", () => {
     render(<Header />);
-    expect(screen.getByText("Work").closest("a")).toHaveAttribute("href", "#portfolio");
-    expect(screen.getByText("About").closest("a")).toHaveAttribute("href", "#about");
-    expect(screen.getByText("Contact").closest("a")).toHaveAttribute("href", "#contact");
+    expect(screen.getByText("Work").closest("a")).toHaveAttribute("href", "/#portfolio");
+    expect(screen.getByText("About").closest("a")).toHaveAttribute("href", "/#about");
+    expect(screen.getByText("Contact").closest("a")).toHaveAttribute("href", "/#contact");
   });
 
-  it("renders Hire Us button with mailto link", () => {
+  it("renders Hire Us button", () => {
     render(<Header />);
     expect(screen.getByText("Hire Us")).toBeInTheDocument();
-    expect(screen.getByText("Hire Us").closest("a")).toHaveAttribute(
-      "href",
-      "mailto:info@thelevelteam.com"
-    );
+    expect(screen.getByText("Hire Us").closest("button")).toBeInTheDocument();
   });
 });
