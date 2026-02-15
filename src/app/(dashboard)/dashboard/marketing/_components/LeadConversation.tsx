@@ -130,10 +130,10 @@ export function LeadConversation({
       <div className="border border-brand-border rounded-xl flex items-center justify-center h-full min-h-[400px]">
         <div className="text-center px-6">
           <div className="w-10 h-10 rounded-full bg-brand-border/20 flex items-center justify-center mx-auto mb-3">
-            <SmsIcon className="w-5 h-5 text-brand-muted/40" />
+            <SmsIcon className="w-5 h-5 text-brand-muted/60" />
           </div>
           <p className="text-sm text-brand-muted">Select a lead to start a conversation</p>
-          <p className="text-xs text-brand-muted/40 mt-1">Click on any lead from the list</p>
+          <p className="text-xs text-brand-muted/60 mt-1">Click on any lead from the list</p>
         </div>
       </div>
     );
@@ -248,10 +248,10 @@ function MessageThread({
     <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2 bg-[#080a0f]">
       {sorted.length === 0 && (
         <div className="text-center py-10">
-          <p className="text-xs text-brand-muted/40">
+          <p className="text-xs text-brand-muted/60">
             No {label} messages yet
           </p>
-          <p className="text-[10px] text-brand-muted/30 mt-1">
+          <p className="text-[10px] text-brand-muted/50 mt-1">
             Send the first message below
           </p>
         </div>
@@ -283,8 +283,8 @@ function CampaignsPanel({
           <div className="w-9 h-9 rounded-full bg-purple-500/10 flex items-center justify-center mx-auto mb-3">
             <MegaphoneIcon className="w-4 h-4 text-purple-400/40" />
           </div>
-          <p className="text-xs text-brand-muted/60">No campaigns assigned</p>
-          <p className="text-[10px] text-brand-muted/30 mt-1">
+          <p className="text-xs text-brand-muted/80">No campaigns assigned</p>
+          <p className="text-[10px] text-brand-muted/50 mt-1">
             Select leads and assign campaigns below
           </p>
         </div>
@@ -309,7 +309,7 @@ function CampaignsPanel({
               className="rounded-lg border border-brand-border/30 bg-brand-border/5 px-3 py-2.5"
             >
               <div className="flex items-center gap-2">
-                <MegaphoneIcon className="w-3.5 h-3.5 text-brand-muted/40" />
+                <MegaphoneIcon className="w-3.5 h-3.5 text-brand-muted/60" />
                 <span className="text-xs text-brand-muted">
                   {name ?? "Unknown Campaign"}
                 </span>
@@ -388,7 +388,7 @@ function CampaignCard({
               <span className="text-[8px] text-purple-400 font-bold">{idx + 1}</span>
             </div>
             <span className="text-brand-muted truncate">{step.label}</span>
-            <span className="text-brand-muted/30 ml-auto shrink-0">{step.delay}</span>
+            <span className="text-brand-muted/50 ml-auto shrink-0">{step.delay}</span>
           </div>
         ))}
       </div>
@@ -452,7 +452,7 @@ function MessageBubble({
         <div className={`flex items-center gap-1.5 mt-1 ${
           outbound ? "justify-end" : "justify-start"
         }`}>
-          <span className="text-[9px] text-brand-muted/40">{time}</span>
+          <span className="text-[9px] text-brand-muted/60">{time}</span>
           {outbound && <StatusDot status={message.status} />}
         </div>
       </div>
@@ -493,11 +493,11 @@ function SmsCompose({
             }}
             rows={2}
             disabled={disabled}
-            className="w-full text-xs text-white bg-transparent border border-brand-border rounded-lg px-3 py-2 focus:border-green-400/60 outline-none resize-none placeholder:text-brand-muted/40 disabled:opacity-40"
+            className="w-full text-xs text-white bg-transparent border border-brand-border rounded-lg px-3 py-2 focus:border-green-400/60 outline-none resize-none placeholder:text-brand-muted/60 disabled:opacity-40"
             placeholder={disabled ? "SMS not available" : "Type a message... (Enter to send)"}
           />
           {charCount > 0 && (
-            <span className="text-[9px] text-brand-muted/40 mt-0.5 block">
+            <span className="text-[9px] text-brand-muted/60 mt-0.5 block">
               {charCount}/160 · {segmentCount} seg
             </span>
           )}
@@ -543,7 +543,7 @@ function EmailCompose({
         value={subject}
         onChange={(e) => onSubjectChange(e.target.value)}
         disabled={disabled}
-        className="w-full text-xs text-white bg-transparent border border-brand-border rounded-lg px-3 py-1.5 focus:border-accent-blue/60 outline-none placeholder:text-brand-muted/40 disabled:opacity-40"
+        className="w-full text-xs text-white bg-transparent border border-brand-border rounded-lg px-3 py-1.5 focus:border-accent-blue/60 outline-none placeholder:text-brand-muted/60 disabled:opacity-40"
         placeholder={disabled ? "Email not available" : "Subject..."}
       />
       <div className="flex items-end gap-2">
@@ -552,7 +552,7 @@ function EmailCompose({
           onChange={(e) => onBodyChange(e.target.value)}
           rows={3}
           disabled={disabled}
-          className="flex-1 text-xs text-white bg-transparent border border-brand-border rounded-lg px-3 py-2 focus:border-accent-blue/60 outline-none resize-none placeholder:text-brand-muted/40 disabled:opacity-40"
+          className="flex-1 text-xs text-white bg-transparent border border-brand-border rounded-lg px-3 py-2 focus:border-accent-blue/60 outline-none resize-none placeholder:text-brand-muted/60 disabled:opacity-40"
           placeholder="Write your email..."
         />
         <button
@@ -604,8 +604,8 @@ function PanelTabButton({
         active
           ? activeStyles[color]
           : disabled
-            ? "text-brand-muted/20 border-brand-border/20 cursor-not-allowed"
-            : "text-brand-muted/50 border-brand-border/30 hover:border-brand-muted/40"
+            ? "text-brand-muted/40 border-brand-border/20 cursor-not-allowed"
+            : "text-brand-muted/70 border-brand-border/30 hover:border-brand-muted/40"
       }`}
     >
       {icon}

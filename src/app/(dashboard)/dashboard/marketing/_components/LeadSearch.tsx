@@ -42,7 +42,7 @@ export function LeadSearch({ filters, onChange, resultCount, totalCount }: LeadS
         {/* Search icon */}
         <svg
           className={`w-4 h-4 shrink-0 transition-colors ${
-            focused ? "text-accent-blue" : "text-brand-muted/40"
+            focused ? "text-accent-blue" : "text-brand-muted/60"
           }`}
           fill="none"
           viewBox="0 0 24 24"
@@ -64,7 +64,7 @@ export function LeadSearch({ filters, onChange, resultCount, totalCount }: LeadS
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           placeholder="Search by name, phone, or email..."
-          className="flex-1 text-sm text-white bg-transparent outline-none placeholder:text-brand-muted/40"
+          className="flex-1 text-sm text-white bg-transparent outline-none placeholder:text-brand-muted/60"
         />
 
         {/* Result count badge */}
@@ -79,7 +79,7 @@ export function LeadSearch({ filters, onChange, resultCount, totalCount }: LeadS
           <button
             type="button"
             onClick={clearAll}
-            className="text-[10px] text-brand-muted/60 hover:text-white transition-colors shrink-0"
+            className="text-[10px] text-brand-muted/80 hover:text-white transition-colors shrink-0"
           >
             Clear
           </button>
@@ -142,7 +142,7 @@ function StatusPill({
       className={`text-[10px] px-2 py-0.5 rounded-full border font-medium transition-colors whitespace-nowrap ${
         active
           ? activeStyle
-          : "text-brand-muted/40 border-brand-border/30 hover:border-brand-muted/40 hover:text-brand-muted/60"
+          : "text-brand-muted/60 border-brand-border/30 hover:border-brand-muted/40 hover:text-brand-muted/80"
       }`}
     >
       {label}

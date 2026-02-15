@@ -95,11 +95,11 @@ export function SendSMS({ leads, onSend }: SendSMSProps) {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               rows={4}
-              className="w-full text-sm text-white bg-transparent border border-brand-border rounded-lg px-3 py-2 mt-1.5 focus:border-green-400/60 outline-none resize-none placeholder:text-brand-muted/40"
+              className="w-full text-sm text-white bg-transparent border border-brand-border rounded-lg px-3 py-2 mt-1.5 focus:border-green-400/60 outline-none resize-none placeholder:text-brand-muted/60"
               placeholder="Type your SMS message..."
             />
             <div className="flex items-center justify-between mt-1">
-              <span className="text-[10px] text-brand-muted/60">
+              <span className="text-[10px] text-brand-muted/80">
                 {charCount} characters · {segmentCount} segment{segmentCount !== 1 ? "s" : ""}
               </span>
               {charCount > 160 && (
@@ -132,7 +132,7 @@ export function SendSMS({ leads, onSend }: SendSMSProps) {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full text-xs text-white bg-transparent border border-brand-border rounded-lg px-3 py-1.5 mb-2 focus:border-green-400/60 outline-none placeholder:text-brand-muted/40"
+              className="w-full text-xs text-white bg-transparent border border-brand-border rounded-lg px-3 py-1.5 mb-2 focus:border-green-400/60 outline-none placeholder:text-brand-muted/60"
               placeholder="Search leads by name, phone, or company..."
             />
 
@@ -172,7 +172,7 @@ export function SendSMS({ leads, onSend }: SendSMSProps) {
 
           {/* Send */}
           <div className="flex items-center justify-between pt-2 border-t border-brand-border/30">
-            <span className="text-[10px] text-brand-muted/60">
+            <span className="text-[10px] text-brand-muted/80">
               {selectedLeadIds.size > 0 && message.trim()
                 ? `Will send ${segmentCount * selectedLeadIds.size} total segment${segmentCount * selectedLeadIds.size !== 1 ? "s" : ""}`
                 : "Select recipients and compose a message"}
@@ -192,7 +192,7 @@ export function SendSMS({ leads, onSend }: SendSMSProps) {
                 className={`flex items-center gap-2 text-xs font-medium px-4 py-2 rounded-lg transition-colors ${
                   selectedLeadIds.size > 0 && message.trim() && !sending
                     ? "text-white bg-green-600 hover:bg-green-500"
-                    : "text-brand-muted/40 bg-brand-border/30 cursor-not-allowed"
+                    : "text-brand-muted/60 bg-brand-border/30 cursor-not-allowed"
                 }`}
               >
                 <SmsIcon className="w-3.5 h-3.5" />

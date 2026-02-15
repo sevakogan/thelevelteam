@@ -17,6 +17,7 @@ function normalizeLead(row: Record<string, unknown>): Lead {
     company: row.company ?? null,
     notes: row.notes ?? row.message ?? null,
     assigned_campaigns: (row.assigned_campaigns as string[] | null) ?? [],
+    assigned_pipelines: (row.assigned_pipelines as string[] | null) ?? [],
   } as unknown as Lead;
 }
 

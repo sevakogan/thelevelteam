@@ -198,7 +198,7 @@ export function AddLeadModal({ open, onClose, onAdd }: AddLeadModalProps) {
               value={draft.notes}
               onChange={(e) => updateField("notes", e.target.value)}
               rows={3}
-              className="w-full text-sm text-white bg-transparent border border-brand-border rounded-lg px-3 py-2 focus:border-accent-blue outline-none resize-none placeholder:text-brand-muted/40"
+              className="w-full text-sm text-white bg-transparent border border-brand-border rounded-lg px-3 py-2 focus:border-accent-blue outline-none resize-none placeholder:text-brand-muted/60"
               placeholder="What are they looking for? Any context or details..."
             />
           </div>
@@ -276,7 +276,7 @@ const Field = forwardRef<HTMLInputElement, FieldProps>(
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className={`w-full text-sm text-white bg-transparent border rounded-lg px-3 py-2 outline-none placeholder:text-brand-muted/40 transition-colors ${
+          className={`w-full text-sm text-white bg-transparent border rounded-lg px-3 py-2 outline-none placeholder:text-brand-muted/60 transition-colors ${
             error
               ? "border-red-500 focus:border-red-400"
               : "border-brand-border focus:border-accent-blue"

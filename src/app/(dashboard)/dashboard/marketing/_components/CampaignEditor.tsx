@@ -419,7 +419,7 @@ function FlowColumn({
                       onClick={(e) => { e.stopPropagation(); moveStep(index, "up"); }}
                       disabled={isFirst}
                       className={`p-0 leading-none transition-colors ${
-                        isFirst ? "text-brand-muted/10 cursor-default" : "text-brand-muted/40 hover:text-white cursor-pointer"
+                        isFirst ? "text-brand-muted/30 cursor-default" : "text-brand-muted/60 hover:text-white cursor-pointer"
                       }`}
                       title="Move up"
                     >
@@ -428,14 +428,14 @@ function FlowColumn({
                       </svg>
                     </button>
                     <div className="cursor-grab active:cursor-grabbing">
-                      <GripIcon className="w-4 h-4 text-brand-muted/30 hover:text-brand-muted transition-colors" />
+                      <GripIcon className="w-4 h-4 text-brand-muted/50 hover:text-brand-muted transition-colors" />
                     </div>
                     <button
                       type="button"
                       onClick={(e) => { e.stopPropagation(); moveStep(index, "down"); }}
                       disabled={isLast}
                       className={`p-0 leading-none transition-colors ${
-                        isLast ? "text-brand-muted/10 cursor-default" : "text-brand-muted/40 hover:text-white cursor-pointer"
+                        isLast ? "text-brand-muted/30 cursor-default" : "text-brand-muted/60 hover:text-white cursor-pointer"
                       }`}
                       title="Move down"
                     >

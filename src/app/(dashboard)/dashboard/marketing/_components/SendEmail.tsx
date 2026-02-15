@@ -95,7 +95,7 @@ export function SendEmail({ leads, onSend }: SendEmailProps) {
               type="text"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
-              className="w-full text-sm text-white bg-transparent border border-brand-border rounded-lg px-3 py-2 mt-1.5 focus:border-accent-blue/60 outline-none placeholder:text-brand-muted/40"
+              className="w-full text-sm text-white bg-transparent border border-brand-border rounded-lg px-3 py-2 mt-1.5 focus:border-accent-blue/60 outline-none placeholder:text-brand-muted/60"
               placeholder="Email subject line..."
             />
           </div>
@@ -109,14 +109,14 @@ export function SendEmail({ leads, onSend }: SendEmailProps) {
               value={body}
               onChange={(e) => setBody(e.target.value)}
               rows={8}
-              className="w-full text-sm text-white bg-transparent border border-brand-border rounded-lg px-3 py-2 mt-1.5 focus:border-accent-blue/60 outline-none resize-none placeholder:text-brand-muted/40 leading-relaxed"
+              className="w-full text-sm text-white bg-transparent border border-brand-border rounded-lg px-3 py-2 mt-1.5 focus:border-accent-blue/60 outline-none resize-none placeholder:text-brand-muted/60 leading-relaxed"
               placeholder="Write your email content here..."
             />
             <div className="flex items-center gap-3 mt-1">
-              <span className="text-[10px] text-brand-muted/60">
+              <span className="text-[10px] text-brand-muted/80">
                 {body.length} characters
               </span>
-              <span className="text-[10px] text-brand-muted/40">
+              <span className="text-[10px] text-brand-muted/60">
                 Plain text · HTML templates coming soon
               </span>
             </div>
@@ -144,7 +144,7 @@ export function SendEmail({ leads, onSend }: SendEmailProps) {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full text-xs text-white bg-transparent border border-brand-border rounded-lg px-3 py-1.5 mb-2 focus:border-accent-blue/60 outline-none placeholder:text-brand-muted/40"
+              className="w-full text-xs text-white bg-transparent border border-brand-border rounded-lg px-3 py-1.5 mb-2 focus:border-accent-blue/60 outline-none placeholder:text-brand-muted/60"
               placeholder="Search leads by name, email, or company..."
             />
 
@@ -184,7 +184,7 @@ export function SendEmail({ leads, onSend }: SendEmailProps) {
 
           {/* Send */}
           <div className="flex items-center justify-between pt-2 border-t border-brand-border/30">
-            <span className="text-[10px] text-brand-muted/60">
+            <span className="text-[10px] text-brand-muted/80">
               {selectedLeadIds.size > 0 && subject.trim() && body.trim()
                 ? `Will send ${selectedLeadIds.size} email${selectedLeadIds.size !== 1 ? "s" : ""}`
                 : "Select recipients and compose an email"}
@@ -204,7 +204,7 @@ export function SendEmail({ leads, onSend }: SendEmailProps) {
                 className={`flex items-center gap-2 text-xs font-medium px-4 py-2 rounded-lg transition-colors ${
                   selectedLeadIds.size > 0 && subject.trim() && body.trim() && !sending
                     ? "text-white bg-accent-blue hover:bg-accent-blue/80"
-                    : "text-brand-muted/40 bg-brand-border/30 cursor-not-allowed"
+                    : "text-brand-muted/60 bg-brand-border/30 cursor-not-allowed"
                 }`}
               >
                 <EmailIcon className="w-3.5 h-3.5" />

@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import type { Lead, LeadStatus } from "@/lib/marketing/types";
 import { LEAD_STATUS_CONFIG } from "@/lib/marketing/types";
-import { PlusIcon, PencilIcon } from "./icons";
+import { PlusIcon, PencilIcon, GripIcon } from "./icons";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -24,6 +24,7 @@ interface LeadKanbanProps {
   readonly leads: readonly Lead[];
   readonly onUpdateStatus: (leadId: string, status: LeadStatus) => void;
   readonly onEditLead: (lead: Lead) => void;
+  readonly onFocusLead: (leadId: string) => void;
   readonly pipelines: readonly Pipeline[];
   readonly activePipelineId: string;
   readonly onUpdatePipelines: (pipelines: readonly Pipeline[]) => void;
@@ -54,7 +55,7 @@ function makeDefaultColumns(): readonly KanbanColumn[] {
 
 export function getDefaultPipelines(): readonly Pipeline[] {
   return [
-    { id: crypto.randomUUID(), name: "Sales Pipeline", columns: makeDefaultColumns() },
+    { id: "pipeline-sales", name: "Sales Pipeline", columns: makeDefaultColumns() },
   ];
 }
 
@@ -64,15 +65,23 @@ export function LeadKanban({
   leads,
   onUpdateStatus,
   onEditLead,
+  onFocusLead,
   pipelines,
   activePipelineId,
   onUpdatePipelines,
   onSelectPipeline,
 }: LeadKanbanProps) {
-  const activePipeline = pipelines.find((p) => p.id === activePipelineId) ?? pipelines[0];
+  const resolvedPipelineId = activePipelineId || pipelines[0]?.id || "";
+  const activePipeline = pipelines.find((p) => p.id === resolvedPipelineId) ?? pipelines[0];
   const columns = useMemo(
     () => activePipeline?.columns ?? [],
     [activePipeline]
+  );
+
+  // Filter leads to only those assigned to this pipeline
+  const pipelineLeads = useMemo(
+    () => leads.filter((l) => l.assigned_pipelines.includes(resolvedPipelineId)),
+    [leads, resolvedPipelineId]
   );
 
   const [dragLeadId, setDragLeadId] = useState<string | null>(null);
@@ -81,6 +90,12 @@ export function LeadKanban({
   const [addingColumn, setAddingColumn] = useState(false);
   const [newColLabel, setNewColLabel] = useState("");
   const newColRef = useRef<HTMLInputElement>(null);
+
+  // Edit mode state
+  const [editMode, setEditMode] = useState(false);
+  const [dragColIdx, setDragColIdx] = useState<number | null>(null);
+  const [dragOverColIdx, setDragOverColIdx] = useState<number | null>(null);
+  const colRefs = useRef<Map<number, HTMLDivElement>>(new Map());
 
   // Pipeline management state
   const [addingPipeline, setAddingPipeline] = useState(false);
@@ -101,11 +116,11 @@ export function LeadKanban({
     (newColumns: readonly KanbanColumn[]) => {
       onUpdatePipelines(
         pipelines.map((p) =>
-          p.id === activePipelineId ? { ...p, columns: newColumns } : p
+          p.id === resolvedPipelineId ? { ...p, columns: newColumns } : p
         )
       );
     },
-    [pipelines, activePipelineId, onUpdatePipelines]
+    [pipelines, resolvedPipelineId, onUpdatePipelines]
   );
 
   // ─── Drag lead between columns ──────────────────────────
@@ -179,6 +194,67 @@ export function LeadKanban({
     [columns, updateColumns]
   );
 
+  // ─── Column drag reorder (edit mode) ─────────────────────
+  const handleColGripDragStart = useCallback(
+    (e: React.DragEvent, idx: number) => {
+      setDragColIdx(idx);
+      e.dataTransfer.effectAllowed = "move";
+      // Set the whole column as the drag image
+      const colEl = colRefs.current.get(idx);
+      if (colEl) {
+        e.dataTransfer.setDragImage(colEl, 100, 30);
+      }
+    },
+    []
+  );
+
+  const handleColReorderOver = useCallback(
+    (e: React.DragEvent, idx: number) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      if (dragColIdx !== null && idx !== dragColIdx) {
+        setDragOverColIdx(idx);
+      }
+    },
+    [dragColIdx]
+  );
+
+  const handleColReorderDrop = useCallback(
+    (dropIdx: number) => {
+      if (dragColIdx === null || dragColIdx === dropIdx) {
+        setDragColIdx(null);
+        setDragOverColIdx(null);
+        return;
+      }
+      const reordered = [...columns];
+      const [moved] = reordered.splice(dragColIdx, 1);
+      reordered.splice(dropIdx, 0, moved);
+      updateColumns(reordered);
+      setDragColIdx(null);
+      setDragOverColIdx(null);
+    },
+    [dragColIdx, columns, updateColumns]
+  );
+
+  const handleColReorderEnd = useCallback(() => {
+    setDragColIdx(null);
+    setDragOverColIdx(null);
+  }, []);
+
+  const toggleEditMode = useCallback(() => {
+    setEditMode((prev) => {
+      if (prev) {
+        // Exiting edit mode — clean up
+        setEditingColumnId(null);
+        setAddingColumn(false);
+        setNewColLabel("");
+        setDragColIdx(null);
+        setDragOverColIdx(null);
+      }
+      return !prev;
+    });
+  }, []);
+
   // ─── Pipeline management ──────────────────────────────────
   const addPipeline = useCallback(() => {
     if (!newPipelineName.trim()) return;
@@ -198,11 +274,11 @@ export function LeadKanban({
       if (pipelines.length <= 1) return;
       const filtered = pipelines.filter((p) => p.id !== pipelineId);
       onUpdatePipelines(filtered);
-      if (activePipelineId === pipelineId) {
+      if (resolvedPipelineId === pipelineId) {
         onSelectPipeline(filtered[0].id);
       }
     },
-    [pipelines, activePipelineId, onUpdatePipelines, onSelectPipeline]
+    [pipelines, resolvedPipelineId, onUpdatePipelines, onSelectPipeline]
   );
 
   const renamePipeline = useCallback(
@@ -225,22 +301,50 @@ export function LeadKanban({
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 4.5v15m6-15v15m-10.875 0h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H4.125C3.504 4.5 3 5.004 3 5.625v12.75c0 .621.504 1.125 1.125 1.125z" />
             </svg>
             <span className="text-sm text-white font-medium">Pipeline</span>
-            <span className="text-xs text-brand-muted">{leads.length} leads</span>
+            <span className="text-xs text-brand-muted">{pipelineLeads.length} leads</span>
           </div>
-          <button
-            type="button"
-            onClick={() => setAddingColumn(true)}
-            className="flex items-center gap-1 text-xs font-medium text-accent-blue hover:text-accent-purple transition-colors"
-          >
-            <PlusIcon className="w-3.5 h-3.5" />
-            Add Stage
-          </button>
+          <div className="flex items-center gap-2">
+            {editMode && (
+              <button
+                type="button"
+                onClick={() => setAddingColumn(true)}
+                className="flex items-center gap-1 text-xs font-medium text-accent-blue hover:text-accent-purple transition-colors"
+              >
+                <PlusIcon className="w-3.5 h-3.5" />
+                Add Stage
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={toggleEditMode}
+              className={`flex items-center gap-1 text-xs font-medium transition-colors ${
+                editMode
+                  ? "text-green-400 hover:text-green-300"
+                  : "text-brand-muted hover:text-accent-blue"
+              }`}
+            >
+              {editMode ? (
+                <>
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Done
+                </>
+              ) : (
+                <>
+                  <PencilIcon className="w-3.5 h-3.5" />
+                  Edit
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Pipeline tabs row */}
         <div className="flex items-center gap-1 overflow-x-auto">
           {pipelines.map((pipeline) => {
-            const isActive = pipeline.id === activePipelineId;
+            const isActive = pipeline.id === resolvedPipelineId;
+            const pipelineCount = leads.filter((l) => l.assigned_pipelines.includes(pipeline.id)).length;
             return (
               <div key={pipeline.id} className="flex items-center group shrink-0">
                 {editingPipelineId === pipeline.id ? (
@@ -257,18 +361,19 @@ export function LeadKanban({
                     className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-colors ${
                       isActive
                         ? "bg-accent-blue/15 text-accent-blue border border-accent-blue/30"
-                        : "text-brand-muted/60 hover:text-brand-muted border border-transparent hover:border-brand-border/40"
+                        : "text-brand-muted/80 hover:text-brand-muted border border-transparent hover:border-brand-border/40"
                     }`}
                     title="Double-click to rename"
                   >
                     {pipeline.name}
+                    <span className="ml-1.5 text-[10px] opacity-60">{pipelineCount}</span>
                   </button>
                 )}
                 {pipelines.length > 1 && isActive && (
                   <button
                     type="button"
                     onClick={() => deletePipeline(pipeline.id)}
-                    className="opacity-0 group-hover:opacity-100 text-brand-muted/30 hover:text-red-400 transition-all p-0.5 ml-0.5"
+                    className="opacity-0 group-hover:opacity-100 text-brand-muted/50 hover:text-red-400 transition-all p-0.5 ml-0.5"
                     title="Delete pipeline"
                   >
                     <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -293,7 +398,7 @@ export function LeadKanban({
                   if (e.key === "Escape") { setAddingPipeline(false); setNewPipelineName(""); }
                 }}
                 placeholder="Pipeline name..."
-                className="text-xs text-white bg-transparent border border-accent-blue/30 rounded-lg px-2 py-1 outline-none w-28 placeholder:text-brand-muted/40"
+                className="text-xs text-white bg-transparent border border-accent-blue/30 rounded-lg px-2 py-1 outline-none w-28 placeholder:text-brand-muted/60"
               />
               <button
                 type="button"
@@ -314,7 +419,7 @@ export function LeadKanban({
             <button
               type="button"
               onClick={() => setAddingPipeline(true)}
-              className="flex items-center gap-1 text-[10px] text-brand-muted/40 hover:text-accent-blue transition-colors shrink-0 px-2 py-1.5"
+              className="flex items-center gap-1 text-[10px] text-brand-muted/60 hover:text-accent-blue transition-colors shrink-0 px-2 py-1.5"
               title="Add a new pipeline"
             >
               <PlusIcon className="w-3 h-3" />
@@ -326,38 +431,65 @@ export function LeadKanban({
       {/* Kanban columns */}
       <div className="p-4 overflow-x-auto">
         <div className="flex gap-3 min-w-0" style={{ minWidth: `${columns.length * 220}px` }}>
-          {columns.map((col) => {
-            const colLeads = leads.filter((l) => l.status === col.status);
+          {columns.map((col, colIdx) => {
+            const colLeads = pipelineLeads.filter((l) => l.status === col.status);
             const colors = STATUS_COLORS[col.color] ?? STATUS_COLORS.blue;
             const isDragOver = dragOverCol === col.status;
+            const isColDragging = dragColIdx === colIdx;
+            const isColDragOver = dragOverColIdx === colIdx;
 
             return (
               <div
                 key={col.id}
-                className={`flex-1 min-w-[200px] max-w-[280px] rounded-xl border transition-colors ${
-                  isDragOver
-                    ? `${colors.border} ${colors.bg}`
-                    : "border-brand-border/50 bg-brand-border/5"
+                ref={(el) => { if (el) colRefs.current.set(colIdx, el); }}
+                onDragOver={editMode
+                  ? (e) => handleColReorderOver(e, colIdx)
+                  : (e) => handleColDragOver(e, col.status)
+                }
+                onDrop={editMode
+                  ? () => handleColReorderDrop(colIdx)
+                  : () => handleColDrop(col.status)
+                }
+                onDragEnd={editMode ? handleColReorderEnd : handleDragEnd}
+                className={`flex-1 min-w-[200px] max-w-[280px] rounded-xl border transition-all ${
+                  isColDragging
+                    ? "opacity-30 scale-[0.97]"
+                    : isColDragOver
+                      ? "border-accent-blue border-2"
+                      : isDragOver
+                        ? `${colors.border} ${colors.bg}`
+                        : "border-brand-border/50 bg-brand-border/5"
                 }`}
-                onDragOver={(e) => handleColDragOver(e, col.status)}
-                onDrop={() => handleColDrop(col.status)}
               >
                 {/* Column header */}
                 <div className="px-3 py-2.5 border-b border-brand-border/30 flex items-center justify-between group">
                   <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <button
-                      type="button"
-                      onClick={() => cycleColumnColor(col.id)}
-                      className={`w-2.5 h-2.5 rounded-full shrink-0 ${colors.dot} hover:ring-2 hover:ring-offset-1 hover:ring-offset-transparent hover:ring-current transition-all cursor-pointer`}
-                      title="Click to change color"
-                    />
-                    {editingColumnId === col.id ? (
+                    {editMode ? (
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <div
+                          draggable
+                          onDragStart={(e) => handleColGripDragStart(e, colIdx)}
+                          className="cursor-grab active:cursor-grabbing p-0.5"
+                        >
+                          <GripIcon className="w-3 h-3 text-brand-muted/60 hover:text-brand-muted/90 transition-colors" />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => cycleColumnColor(col.id)}
+                          className={`w-2.5 h-2.5 rounded-full shrink-0 ${colors.dot} hover:ring-2 hover:ring-offset-1 hover:ring-offset-transparent hover:ring-current transition-all cursor-pointer`}
+                          title="Click to change color"
+                        />
+                      </div>
+                    ) : (
+                      <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${colors.dot}`} />
+                    )}
+                    {editMode && editingColumnId === col.id ? (
                       <ColumnLabelEditor
                         value={col.label}
                         onChange={(v) => updateColumnLabel(col.id, v)}
                         onDone={() => setEditingColumnId(null)}
                       />
-                    ) : (
+                    ) : editMode ? (
                       <button
                         type="button"
                         onClick={() => setEditingColumnId(col.id)}
@@ -365,16 +497,20 @@ export function LeadKanban({
                       >
                         {col.label}
                       </button>
+                    ) : (
+                      <span className={`text-xs font-semibold truncate ${colors.text}`}>
+                        {col.label}
+                      </span>
                     )}
-                    <span className="text-[10px] text-brand-muted/60 shrink-0">
+                    <span className="text-[10px] text-brand-muted/80 shrink-0">
                       {colLeads.length}
                     </span>
                   </div>
-                  {columns.length > 2 && (
+                  {editMode && columns.length > 2 && (
                     <button
                       type="button"
                       onClick={() => deleteColumn(col.id)}
-                      className="opacity-0 group-hover:opacity-100 text-brand-muted/40 hover:text-red-400 transition-all p-0.5"
+                      className="opacity-0 group-hover:opacity-100 text-brand-muted/60 hover:text-red-400 transition-all p-0.5"
                       title="Remove stage"
                     >
                       <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -393,12 +529,16 @@ export function LeadKanban({
                       onDragStart={() => handleLeadDragStart(lead.id)}
                       onDragEnd={handleDragEnd}
                       isDragging={dragLeadId === lead.id}
+                      onClick={() => onFocusLead(lead.id)}
                       onEdit={() => onEditLead(lead)}
+                      draggable={!editMode}
                     />
                   ))}
                   {colLeads.length === 0 && (
                     <div className="text-center py-4">
-                      <p className="text-[10px] text-brand-muted/40">Drop leads here</p>
+                      <p className="text-[10px] text-brand-muted/60">
+                        {editMode ? "Drag to reorder" : "Drop leads here"}
+                      </p>
                     </div>
                   )}
                 </div>
@@ -406,8 +546,8 @@ export function LeadKanban({
             );
           })}
 
-          {/* Add column inline */}
-          {addingColumn && (
+          {/* Add column inline (edit mode only) */}
+          {editMode && addingColumn && (
             <div className="min-w-[200px] max-w-[280px] rounded-xl border border-dashed border-accent-blue/30 bg-accent-blue/5 p-3">
               <input
                 ref={newColRef}
@@ -419,7 +559,7 @@ export function LeadKanban({
                   if (e.key === "Escape") { setAddingColumn(false); setNewColLabel(""); }
                 }}
                 placeholder="Stage name..."
-                className="w-full text-xs text-white bg-transparent border-b border-accent-blue/30 outline-none py-1 placeholder:text-brand-muted/40"
+                className="w-full text-xs text-white bg-transparent border-b border-accent-blue/30 outline-none py-1 placeholder:text-brand-muted/60"
               />
               <div className="flex items-center justify-end gap-2 mt-2">
                 <button
@@ -452,22 +592,27 @@ function LeadCard({
   onDragStart,
   onDragEnd,
   isDragging,
+  onClick,
   onEdit,
+  draggable: canDrag = true,
 }: {
   readonly lead: Lead;
   readonly onDragStart: () => void;
   readonly onDragEnd: () => void;
   readonly isDragging: boolean;
+  readonly onClick: () => void;
   readonly onEdit: () => void;
+  readonly draggable?: boolean;
 }) {
   return (
     <div
-      draggable
-      onDragStart={onDragStart}
-      onDragEnd={onDragEnd}
-      className={`rounded-lg border border-brand-border/40 bg-[#0f1117] px-3 py-2 cursor-grab active:cursor-grabbing group transition-all hover:border-brand-muted/30 ${
-        isDragging ? "opacity-30 scale-95" : ""
-      }`}
+      draggable={canDrag}
+      onDragStart={canDrag ? onDragStart : undefined}
+      onDragEnd={canDrag ? onDragEnd : undefined}
+      onClick={onClick}
+      className={`rounded-lg border border-brand-border/40 bg-[#0f1117] px-3 py-2 group transition-all hover:border-brand-muted/30 cursor-pointer ${
+        canDrag ? "active:cursor-grabbing" : ""
+      } ${isDragging ? "opacity-30 scale-95" : ""}`}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
@@ -479,7 +624,7 @@ function LeadCard({
         <button
           type="button"
           onClick={(e) => { e.stopPropagation(); onEdit(); }}
-          className="opacity-0 group-hover:opacity-100 text-brand-muted/40 hover:text-accent-blue transition-all p-0.5 shrink-0"
+          className="opacity-0 group-hover:opacity-100 text-brand-muted/60 hover:text-accent-blue transition-all p-0.5 shrink-0"
           title="Edit lead"
         >
           <PencilIcon className="w-3 h-3" />
@@ -490,14 +635,14 @@ function LeadCard({
           <span className="text-[10px] text-brand-muted truncate">{lead.phone}</span>
         )}
         {lead.phone && lead.email && (
-          <span className="text-[10px] text-brand-muted/30">·</span>
+          <span className="text-[10px] text-brand-muted/50">·</span>
         )}
         {lead.email && (
           <span className="text-[10px] text-brand-muted truncate">{lead.email}</span>
         )}
       </div>
       {lead.notes && (
-        <p className="text-[10px] text-brand-muted/60 mt-1 line-clamp-2 leading-relaxed">
+        <p className="text-[10px] text-brand-muted/80 mt-1 line-clamp-2 leading-relaxed">
           {lead.notes}
         </p>
       )}

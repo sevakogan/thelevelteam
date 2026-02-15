@@ -12,13 +12,17 @@ import { LeadKanban, getDefaultPipelines } from "./_components/LeadKanban";
 import type { Pipeline } from "./_components/LeadKanban";
 import { AddLeadModal } from "./_components/AddLeadModal";
 import { AssignCampaignBar } from "./_components/AssignCampaignBar";
+import { AssignPipelineBar } from "./_components/AssignPipelineBar";
 import { ComplianceNotice } from "./_components/ComplianceNotice";
 import { LeadConversation } from "./_components/LeadConversation";
 import { LeadSearch, EMPTY_FILTERS, filterLeads } from "./_components/LeadSearch";
 import type { LeadSearchFilters } from "./_components/LeadSearch";
-import { PlusIcon, MegaphoneIcon } from "./_components/icons";
+import { PipelineAutomation } from "./_components/PipelineAutomation";
+import type { AutomationRule } from "./_components/automationTypes";
+import { createAutomationRule } from "./_components/automationTypes";
+import { PlusIcon, MegaphoneIcon, BoltIcon } from "./_components/icons";
 
-type MarketingTab = "leads" | "campaigns";
+type MarketingTab = "leads" | "campaigns" | "automation";
 
 export default function MarketingPage() {
   const [activeTab, setActiveTab] = useState<MarketingTab>("leads");
@@ -38,6 +42,7 @@ export default function MarketingPage() {
   const [activePipelineId, setActivePipelineId] = useState<string>("");
   const [messageLogs, setMessageLogs] = useState<readonly MessageLog[]>([]);
   const [searchFilters, setSearchFilters] = useState<LeadSearchFilters>(EMPTY_FILTERS);
+  const [automationRules, setAutomationRules] = useState<readonly AutomationRule[]>([]);
 
   const fetchLeads = useCallback(async () => {
     try {
@@ -105,19 +110,26 @@ export default function MarketingPage() {
 
   const updateLeadStatus = useCallback((leadId: string, status: LeadStatus) => {
     const now = new Date().toISOString();
+    const resolvedPipelineId = activePipelineId || pipelines[0]?.id || "";
     setLeads((prev) =>
-      prev.map((l) =>
-        l.id === leadId
-          ? { ...l, status, updated_at: now }
-          : l
-      )
+      prev.map((l) => {
+        if (l.id !== leadId) return l;
+        // Auto-assign to active pipeline if not already assigned
+        const needsAssign = resolvedPipelineId && !l.assigned_pipelines.includes(resolvedPipelineId);
+        return {
+          ...l,
+          status,
+          updated_at: now,
+          ...(needsAssign ? { assigned_pipelines: [...l.assigned_pipelines, resolvedPipelineId] } : {}),
+        };
+      })
     );
     fetch("/api/marketing/leads", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: leadId, status, updated_at: now }),
     }).catch((err) => console.error("Failed to persist status update:", err));
-  }, []);
+  }, [activePipelineId, pipelines]);
 
   // ─── Focus lead for conversation ──────────────────────
   const focusLead = useCallback((id: string) => {
@@ -129,10 +141,14 @@ export default function MarketingPage() {
     [leads, focusedLeadId]
   );
 
-  const filteredLeads = useMemo(
-    () => filterLeads(leads, searchFilters),
-    [leads, searchFilters]
-  );
+  const resolvedPipelineId = activePipelineId || pipelines[0]?.id || "";
+
+  const filteredLeads = useMemo(() => {
+    const searched = filterLeads(leads, searchFilters);
+    // Also filter by active pipeline — only show leads assigned to the selected pipeline
+    if (!resolvedPipelineId) return searched;
+    return searched.filter((l) => l.assigned_pipelines.includes(resolvedPipelineId));
+  }, [leads, searchFilters, resolvedPipelineId]);
 
   // ─── Campaign operations ──────────────────────────────
   const addCampaign = useCallback(() => {
@@ -195,6 +211,27 @@ export default function MarketingPage() {
     [selectedLeadIds]
   );
 
+  // ─── Assign pipelines to selected leads ─────────────
+  const assignPipelines = useCallback(
+    (pipelineIds: readonly string[]) => {
+      setLeads((prev) =>
+        prev.map((lead) => {
+          if (!selectedLeadIds.has(lead.id)) return lead;
+          const existing = new Set(lead.assigned_pipelines);
+          for (const pid of pipelineIds) {
+            existing.add(pid);
+          }
+          return {
+            ...lead,
+            assigned_pipelines: Array.from(existing),
+            updated_at: new Date().toISOString(),
+          };
+        })
+      );
+    },
+    [selectedLeadIds]
+  );
+
   const clearSelection = useCallback(() => {
     setSelectedLeadIds(new Set());
   }, []);
@@ -202,6 +239,20 @@ export default function MarketingPage() {
   // ─── Message log operations ──────────────────────────
   const addMessageLogs = useCallback((logs: readonly MessageLog[]) => {
     setMessageLogs((prev) => [...logs, ...prev]);
+  }, []);
+
+  // ─── Automation rule operations ─────────────────────
+  const addAutomationRule = useCallback(() => {
+    const rule = createAutomationRule(
+      "New Automation",
+      pipelines[0]?.id ?? "",
+      "enters_stage"
+    );
+    setAutomationRules((prev) => [...prev, rule]);
+  }, [pipelines]);
+
+  const updateAutomationRules = useCallback((rules: readonly AutomationRule[]) => {
+    setAutomationRules(rules);
   }, []);
 
   const activeCampaign = campaigns.find((c) => c.id === activeCampaignId) ?? null;
@@ -253,6 +304,13 @@ export default function MarketingPage() {
             label="Campaigns"
             count={campaigns.length}
           />
+          <TabButton
+            active={activeTab === "automation"}
+            onClick={() => setActiveTab("automation")}
+            icon={<BoltIcon className="w-4 h-4" />}
+            label="Automation"
+            count={automationRules.length}
+          />
         </div>
 
         {/* Context-aware action button */}
@@ -276,6 +334,16 @@ export default function MarketingPage() {
             New Campaign
           </button>
         )}
+        {activeTab === "automation" && (
+          <button
+            type="button"
+            onClick={addAutomationRule}
+            className="flex items-center gap-2 text-sm font-medium text-white bg-accent-blue hover:bg-accent-blue/80 px-4 py-2 rounded-xl transition-colors shadow-lg shadow-accent-blue/20 mb-2 shrink-0"
+          >
+            <PlusIcon className="w-4 h-4" />
+            New Rule
+          </button>
+        )}
       </div>
 
       {/* ─── Leads Tab ───────────────────────────────────────── */}
@@ -286,6 +354,7 @@ export default function MarketingPage() {
             leads={leads}
             onUpdateStatus={updateLeadStatus}
             onEditLead={(lead) => updateLead(lead)}
+            onFocusLead={focusLead}
             pipelines={pipelines}
             activePipelineId={activePipelineId || pipelines[0]?.id || ""}
             onUpdatePipelines={setPipelines}
@@ -315,12 +384,20 @@ export default function MarketingPage() {
                 onDeleteLead={deleteLead}
                 campaignNames={campaignNames}
                 messageLogs={messageLogs}
+                pipelines={pipelines}
               />
 
               <AssignCampaignBar
                 selectedCount={selectedLeadIds.size}
                 campaigns={campaigns}
                 onAssign={assignCampaigns}
+                onClear={clearSelection}
+              />
+
+              <AssignPipelineBar
+                selectedCount={selectedLeadIds.size}
+                pipelines={pipelines}
+                onAssign={assignPipelines}
                 onClear={clearSelection}
               />
             </div>
@@ -366,6 +443,16 @@ export default function MarketingPage() {
 
           <ComplianceNotice />
         </div>
+      )}
+
+      {/* ─── Automation Tab ──────────────────────────────────── */}
+      {activeTab === "automation" && (
+        <PipelineAutomation
+          pipelines={pipelines}
+          campaigns={campaigns}
+          rules={automationRules}
+          onUpdateRules={updateAutomationRules}
+        />
       )}
 
       {/* Add Lead modal */}

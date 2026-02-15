@@ -13,6 +13,7 @@ export interface Lead {
   readonly sms_consent: boolean;
   readonly email_consent: boolean;
   readonly assigned_campaigns: readonly string[];
+  readonly assigned_pipelines: readonly string[];
   readonly created_at: string;
   readonly updated_at: string;
 }

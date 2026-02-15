@@ -121,6 +121,7 @@ export async function PUT(req: NextRequest) {
 
     // Strip client-only fields that don't exist in the DB
     delete fields.assigned_campaigns;
+    delete fields.assigned_pipelines;
 
     const updated = await updateLead(id, fields);
     return NextResponse.json(updated);

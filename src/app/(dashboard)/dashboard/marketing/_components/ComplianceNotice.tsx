@@ -156,7 +156,7 @@ export function ComplianceNotice() {
                   className="w-full text-xs text-brand-muted leading-relaxed bg-transparent border border-accent-blue/30 rounded-lg px-3 py-2 focus:border-accent-blue outline-none resize-none"
                   placeholder="Enter your SMS consent message..."
                 />
-                <div className="text-[10px] text-brand-muted/60 text-right">
+                <div className="text-[10px] text-brand-muted/80 text-right">
                   {smsConsent.length} characters
                 </div>
 
@@ -180,7 +180,7 @@ export function ComplianceNotice() {
                             {req.label}
                           </span>
                           {!passed && (
-                            <p className="text-[10px] text-brand-muted/60">{req.hint}</p>
+                            <p className="text-[10px] text-brand-muted/80">{req.hint}</p>
                           )}
                         </div>
                       </div>
@@ -211,7 +211,7 @@ export function ComplianceNotice() {
               </div>
             )}
 
-            <p className="text-[10px] text-brand-muted/60 mt-1.5">
+            <p className="text-[10px] text-brand-muted/80 mt-1.5">
               This message is sent as the first SMS to new leads and must meet TCPA / 10DLC / CTIA carrier requirements.
             </p>
           </div>
@@ -267,7 +267,7 @@ export function ComplianceNotice() {
               </div>
             )}
 
-            <p className="text-[10px] text-brand-muted/60 mt-1.5">
+            <p className="text-[10px] text-brand-muted/80 mt-1.5">
               This text is shown to users on the lead capture form before they submit.
             </p>
           </div>

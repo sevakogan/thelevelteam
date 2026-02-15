@@ -99,7 +99,7 @@ export function CampaignSidebar({
             >
               {/* Drag handle */}
               <div className="pl-2 cursor-grab active:cursor-grabbing shrink-0 self-stretch flex items-center">
-                <GripIcon className="w-3.5 h-3.5 text-brand-muted/20 hover:text-brand-muted/50 transition-colors" />
+                <GripIcon className="w-3.5 h-3.5 text-brand-muted/40 hover:text-brand-muted/70 transition-colors" />
               </div>
 
               {/* Campaign row */}

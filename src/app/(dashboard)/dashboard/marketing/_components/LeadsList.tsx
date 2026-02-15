@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import type { Lead, MessageLog } from "@/lib/marketing/types";
 import { LEAD_STATUS_CONFIG } from "@/lib/marketing/types";
 import { SmsIcon, EmailIcon, PencilIcon, MegaphoneIcon } from "./icons";
+import type { Pipeline } from "./LeadKanban";
 
 interface LeadsListProps {
   readonly leads: readonly Lead[];
@@ -16,6 +17,7 @@ interface LeadsListProps {
   readonly onDeleteLead: (id: string) => void;
   readonly campaignNames: ReadonlyMap<string, string>;
   readonly messageLogs: readonly MessageLog[];
+  readonly pipelines: readonly Pipeline[];
 }
 
 export function LeadsList({
@@ -29,6 +31,7 @@ export function LeadsList({
   onDeleteLead,
   campaignNames,
   messageLogs,
+  pipelines,
 }: LeadsListProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -77,6 +80,7 @@ export function LeadsList({
               onDelete={onDeleteLead}
               campaignNames={campaignNames}
               messageLogs={messageLogs.filter((m) => m.lead_id === lead.id)}
+              pipelines={pipelines}
             />
           ))}
         </div>
@@ -99,6 +103,7 @@ function LeadRow({
   onDelete,
   campaignNames,
   messageLogs,
+  pipelines,
 }: {
   readonly lead: Lead;
   readonly selected: boolean;
@@ -111,6 +116,7 @@ function LeadRow({
   readonly onDelete: (id: string) => void;
   readonly campaignNames: ReadonlyMap<string, string>;
   readonly messageLogs: readonly MessageLog[];
+  readonly pipelines: readonly Pipeline[];
 }) {
   const assignedNames = lead.assigned_campaigns
     .map((id) => campaignNames.get(id))
@@ -161,7 +167,7 @@ function LeadRow({
           title={expanded ? "Collapse details" : "Expand details"}
         >
           <svg
-            className={`w-4 h-4 text-brand-muted/40 transition-transform ${expanded ? "rotate-180" : ""}`}
+            className={`w-4 h-4 text-brand-muted/60 transition-transform ${expanded ? "rotate-180" : ""}`}
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -197,7 +203,7 @@ function LeadRow({
 
       {/* Expanded detail */}
       {expanded && (
-        <LeadDetail lead={lead} onUpdate={onUpdate} onDelete={onDelete} campaignNames={campaignNames} messageLogs={messageLogs} />
+        <LeadDetail lead={lead} onUpdate={onUpdate} onDelete={onDelete} campaignNames={campaignNames} messageLogs={messageLogs} pipelines={pipelines} />
       )}
     </div>
   );
@@ -211,12 +217,14 @@ function LeadDetail({
   onDelete,
   campaignNames,
   messageLogs,
+  pipelines,
 }: {
   readonly lead: Lead;
   readonly onUpdate: (lead: Lead) => void;
   readonly onDelete: (id: string) => void;
   readonly campaignNames: ReadonlyMap<string, string>;
   readonly messageLogs: readonly MessageLog[];
+  readonly pipelines: readonly Pipeline[];
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(lead);
@@ -244,7 +252,7 @@ function LeadDetail({
         {/* Header row — title + actions */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] text-brand-muted/40">
+            <span className="text-[10px] text-brand-muted/60">
               {lead.source} · {new Date(lead.created_at).toLocaleDateString()}
             </span>
           </div>
@@ -312,8 +320,8 @@ function LeadDetail({
                 placeholder="Notes..."
               />
             ) : (
-              <p className="text-[11px] text-brand-muted/60 truncate">
-                <span className="text-brand-muted/40">Notes:</span> {lead.notes}
+              <p className="text-[11px] text-brand-muted/80 truncate">
+                <span className="text-brand-muted/60">Notes:</span> {lead.notes}
               </p>
             )}
           </div>
@@ -336,7 +344,7 @@ function LeadDetail({
                 className={`text-[9px] px-1.5 py-0 rounded-full border font-medium transition-colors ${
                   isActive
                     ? getStatusActiveStyle(s.color)
-                    : "text-brand-muted/40 border-brand-border/30 hover:border-brand-muted/40"
+                    : "text-brand-muted/60 border-brand-border/30 hover:border-brand-muted/40"
                 }`}
               >
                 {s.label}
@@ -372,6 +380,51 @@ function LeadDetail({
               </span>
             );
           })}
+          {/* Pipeline badges */}
+          {lead.assigned_pipelines.map((pid) => {
+            const pipeline = pipelines.find((p) => p.id === pid);
+            if (!pipeline) return null;
+            return (
+              <span
+                key={pid}
+                className="inline-flex items-center gap-1 text-[9px] px-1.5 py-0 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 font-medium"
+              >
+                <svg className="w-2 h-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 4.5v15m6-15v15m-10.875 0h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H4.125C3.504 4.5 3 5.004 3 5.625v12.75c0 .621.504 1.125 1.125 1.125z" />
+                </svg>
+                {pipeline.name}
+                <button
+                  type="button"
+                  onClick={() => {
+                    const updated: Lead = {
+                      ...lead,
+                      assigned_pipelines: lead.assigned_pipelines.filter((id) => id !== pid),
+                      updated_at: new Date().toISOString(),
+                    };
+                    onUpdate(updated);
+                  }}
+                  className="hover:text-red-400 transition-colors"
+                >
+                  <svg className="w-2 h-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </span>
+            );
+          })}
+          {/* Add pipeline dropdown */}
+          <PipelineAddDropdown
+            pipelines={pipelines}
+            assignedIds={lead.assigned_pipelines}
+            onAssign={(pid) => {
+              const updated: Lead = {
+                ...lead,
+                assigned_pipelines: [...lead.assigned_pipelines, pid],
+                updated_at: new Date().toISOString(),
+              };
+              onUpdate(updated);
+            }}
+          />
         </div>
 
         {/* Message History — compact */}
@@ -414,7 +467,7 @@ function CompactField({
 }) {
   return (
     <div className={className}>
-      <label className="text-[9px] text-brand-muted/50 uppercase tracking-wider">{label}</label>
+      <label className="text-[9px] text-brand-muted/70 uppercase tracking-wider">{label}</label>
       {editing ? (
         <input
           type="text"
@@ -486,7 +539,7 @@ function ConsentToggle({
       ? "bg-green-500/10 text-green-400 border-green-500/20 hover:bg-green-500/20"
       : "bg-accent-blue/10 text-accent-blue border-accent-blue/20 hover:bg-accent-blue/20";
   const inactiveStyle =
-    "bg-transparent text-brand-muted/30 border-brand-border/30 hover:border-brand-muted/40 hover:text-brand-muted/50";
+    "bg-transparent text-brand-muted/50 border-brand-border/30 hover:border-brand-muted/40 hover:text-brand-muted/70";
 
   return (
     <button
@@ -523,7 +576,7 @@ function MessageHistory({ logs }: { readonly logs: readonly MessageLog[] }) {
   return (
     <div className="mt-2 pt-2 border-t border-brand-border/20">
       <div className="flex items-center justify-between mb-1">
-        <label className="text-[9px] text-brand-muted/50 uppercase tracking-wider">
+        <label className="text-[9px] text-brand-muted/70 uppercase tracking-wider">
           History
         </label>
         <div className="flex items-center gap-1">
@@ -552,7 +605,7 @@ function MessageHistory({ logs }: { readonly logs: readonly MessageLog[] }) {
 
       <div className="max-h-[140px] overflow-y-auto space-y-1">
         {filtered.length === 0 ? (
-          <p className="text-[9px] text-brand-muted/40 py-1 text-center">
+          <p className="text-[9px] text-brand-muted/60 py-1 text-center">
             No {filter === "all" ? "" : filter} messages yet.
           </p>
         ) : (
@@ -577,7 +630,7 @@ function MessageHistory({ logs }: { readonly logs: readonly MessageLog[] }) {
                 {!msg.subject && (
                   <span className="text-[10px] text-brand-muted truncate">{msg.body}</span>
                 )}
-                <span className="text-[9px] text-brand-muted/40 ml-auto shrink-0">
+                <span className="text-[9px] text-brand-muted/60 ml-auto shrink-0">
                   {formatMessageDate(msg.sent_at)}
                 </span>
                 <MessageStatusBadge status={msg.status} />
@@ -615,7 +668,7 @@ function HistoryFilterButton({
       type="button"
       onClick={onClick}
       className={`text-[9px] px-1.5 py-0.5 rounded-full border font-medium transition-colors ${
-        active ? activeColor : "text-brand-muted/40 border-brand-border/20 hover:border-brand-muted/30"
+        active ? activeColor : "text-brand-muted/60 border-brand-border/20 hover:border-brand-muted/30"
       }`}
     >
       {label} {count > 0 && <span className="ml-0.5">{count}</span>}
@@ -634,6 +687,53 @@ function MessageStatusBadge({ status }: { readonly status: string }) {
     <span className={`text-[8px] px-1 py-0 rounded font-medium uppercase shrink-0 ${styles[status] ?? styles.sent}`}>
       {status}
     </span>
+  );
+}
+
+function PipelineAddDropdown({
+  pipelines,
+  assignedIds,
+  onAssign,
+}: {
+  readonly pipelines: readonly Pipeline[];
+  readonly assignedIds: readonly string[];
+  readonly onAssign: (pipelineId: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const unassigned = pipelines.filter((p) => !assignedIds.includes(p.id));
+
+  if (unassigned.length === 0) return null;
+
+  return (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        className="inline-flex items-center gap-0.5 text-[9px] px-1 py-0 rounded-full border border-dashed border-cyan-500/30 text-cyan-400/60 hover:text-cyan-400 hover:border-cyan-500/50 transition-colors"
+      >
+        <svg className="w-2 h-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+        </svg>
+        Pipeline
+      </button>
+      {open && (
+        <div className="absolute z-20 top-full left-0 mt-1 bg-[#0f1117] border border-brand-border rounded-lg shadow-xl py-1 min-w-[140px]">
+          {unassigned.map((pipeline) => (
+            <button
+              key={pipeline.id}
+              type="button"
+              onClick={() => {
+                onAssign(pipeline.id);
+                setOpen(false);
+              }}
+              className="w-full text-left px-3 py-1.5 text-[11px] text-brand-muted hover:text-white hover:bg-brand-border/20 transition-colors"
+            >
+              {pipeline.name}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
