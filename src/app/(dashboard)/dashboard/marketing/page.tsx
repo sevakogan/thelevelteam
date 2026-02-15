@@ -13,11 +13,10 @@ import type { KanbanColumn } from "./_components/LeadKanban";
 import { AddLeadModal } from "./_components/AddLeadModal";
 import { AssignCampaignBar } from "./_components/AssignCampaignBar";
 import { ComplianceNotice } from "./_components/ComplianceNotice";
-import { SendSMS } from "./_components/SendSMS";
-import { SendEmail } from "./_components/SendEmail";
-import { PlusIcon, MegaphoneIcon, SmsIcon, EmailIcon } from "./_components/icons";
+import { LeadConversation } from "./_components/LeadConversation";
+import { PlusIcon, MegaphoneIcon } from "./_components/icons";
 
-type MarketingTab = "leads" | "campaigns" | "send-sms" | "send-email";
+type MarketingTab = "leads" | "campaigns";
 
 export default function MarketingPage() {
   const [activeTab, setActiveTab] = useState<MarketingTab>("leads");
@@ -27,6 +26,7 @@ export default function MarketingPage() {
   const [selectedLeadIds, setSelectedLeadIds] = useState<ReadonlySet<string>>(
     new Set()
   );
+  const [focusedLeadId, setFocusedLeadId] = useState<string | null>(null);
   const [campaigns, setCampaigns] = useState<readonly Campaign[]>(DEFAULT_CAMPAIGNS);
   const [activeCampaignId, setActiveCampaignId] = useState<string | null>(
     DEFAULT_CAMPAIGNS[0]?.id ?? null
@@ -79,11 +79,9 @@ export default function MarketingPage() {
   }, [fetchLeads]);
 
   const updateLead = useCallback((updated: Lead) => {
-    // Optimistic local update
     setLeads((prev) =>
       prev.map((l) => (l.id === updated.id ? updated : l))
     );
-    // Persist to API (fire-and-forget with error log)
     fetch("/api/marketing/leads", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -92,17 +90,16 @@ export default function MarketingPage() {
   }, []);
 
   const deleteLead = useCallback((id: string) => {
-    // Optimistic local removal
     setLeads((prev) => prev.filter((l) => l.id !== id));
     setSelectedLeadIds((prev) => {
       const next = new Set(prev);
       next.delete(id);
       return next;
     });
-    // Persist to API
+    if (focusedLeadId === id) setFocusedLeadId(null);
     fetch(`/api/marketing/leads?id=${id}`, { method: "DELETE" })
       .catch((err) => console.error("Failed to delete lead:", err));
-  }, []);
+  }, [focusedLeadId]);
 
   const updateLeadStatus = useCallback((leadId: string, status: LeadStatus) => {
     const now = new Date().toISOString();
@@ -113,13 +110,22 @@ export default function MarketingPage() {
           : l
       )
     );
-    // Persist to API
     fetch("/api/marketing/leads", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id: leadId, status, updated_at: now }),
     }).catch((err) => console.error("Failed to persist status update:", err));
   }, []);
+
+  // ─── Focus lead for conversation ──────────────────────
+  const focusLead = useCallback((id: string) => {
+    setFocusedLeadId((prev) => (prev === id ? null : id));
+  }, []);
+
+  const focusedLead = useMemo(
+    () => leads.find((l) => l.id === focusedLeadId) ?? null,
+    [leads, focusedLeadId]
+  );
 
   // ─── Campaign operations ──────────────────────────────
   const addCampaign = useCallback(() => {
@@ -187,16 +193,6 @@ export default function MarketingPage() {
     setMessageLogs((prev) => [...logs, ...prev]);
   }, []);
 
-  const smsLogCount = useMemo(
-    () => messageLogs.filter((m) => m.channel === "sms").length,
-    [messageLogs]
-  );
-
-  const emailLogCount = useMemo(
-    () => messageLogs.filter((m) => m.channel === "email").length,
-    [messageLogs]
-  );
-
   const activeCampaign = campaigns.find((c) => c.id === activeCampaignId) ?? null;
 
   if (loading) {
@@ -246,21 +242,6 @@ export default function MarketingPage() {
             label="Campaigns"
             count={campaigns.length}
           />
-          <TabButton
-            active={activeTab === "send-sms"}
-            onClick={() => setActiveTab("send-sms")}
-            icon={<SmsIcon className="w-4 h-4" />}
-            label="Send SMS"
-            count={smsLogCount}
-            accentColor="green"
-          />
-          <TabButton
-            active={activeTab === "send-email"}
-            onClick={() => setActiveTab("send-email")}
-            icon={<EmailIcon className="w-4 h-4" />}
-            label="Send Email"
-            count={emailLogCount}
-          />
         </div>
 
         {/* Context-aware action button */}
@@ -288,25 +269,8 @@ export default function MarketingPage() {
 
       {/* ─── Leads Tab ───────────────────────────────────────── */}
       {activeTab === "leads" && (
-        <div className="space-y-6">
-          <LeadsList
-            leads={leads}
-            selectedIds={selectedLeadIds}
-            onToggle={toggleLead}
-            onToggleAll={toggleAll}
-            onUpdateLead={updateLead}
-            onDeleteLead={deleteLead}
-            campaignNames={campaignNames}
-            messageLogs={messageLogs}
-          />
-
-          <AssignCampaignBar
-            selectedCount={selectedLeadIds.size}
-            campaigns={campaigns}
-            onAssign={assignCampaigns}
-            onClear={clearSelection}
-          />
-
+        <div className="space-y-4">
+          {/* Pipeline on top */}
           <LeadKanban
             leads={leads}
             onUpdateStatus={updateLeadStatus}
@@ -314,6 +278,39 @@ export default function MarketingPage() {
             columns={kanbanColumns}
             onUpdateColumns={setKanbanColumns}
           />
+
+          {/* 2-column layout: Leads list (left) + Conversation (right) */}
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-4">
+            {/* Left — leads list + assign bar */}
+            <div className="space-y-4">
+              <LeadsList
+                leads={leads}
+                selectedIds={selectedLeadIds}
+                focusedId={focusedLeadId}
+                onToggle={toggleLead}
+                onToggleAll={toggleAll}
+                onFocus={focusLead}
+                onUpdateLead={updateLead}
+                onDeleteLead={deleteLead}
+                campaignNames={campaignNames}
+                messageLogs={messageLogs}
+              />
+
+              <AssignCampaignBar
+                selectedCount={selectedLeadIds.size}
+                campaigns={campaigns}
+                onAssign={assignCampaigns}
+                onClear={clearSelection}
+              />
+            </div>
+
+            {/* Right — conversation panel */}
+            <LeadConversation
+              lead={focusedLead}
+              messageLogs={messageLogs}
+              onSend={addMessageLogs}
+            />
+          </div>
         </div>
       )}
 
@@ -347,16 +344,6 @@ export default function MarketingPage() {
         </div>
       )}
 
-      {/* ─── Send SMS Tab ────────────────────────────────────── */}
-      {activeTab === "send-sms" && (
-        <SendSMS leads={leads} onSend={addMessageLogs} />
-      )}
-
-      {/* ─── Send Email Tab ──────────────────────────────────── */}
-      {activeTab === "send-email" && (
-        <SendEmail leads={leads} onSend={addMessageLogs} />
-      )}
-
       {/* Add Lead modal */}
       <AddLeadModal
         open={showAddLead}
@@ -375,23 +362,13 @@ function TabButton({
   icon,
   label,
   count,
-  accentColor,
 }: {
   readonly active: boolean;
   readonly onClick: () => void;
   readonly icon: React.ReactNode;
   readonly label: string;
   readonly count: number;
-  readonly accentColor?: "green" | "blue";
 }) {
-  const color = accentColor ?? "blue";
-  const activeBadge =
-    color === "green"
-      ? "bg-green-500/20 text-green-400"
-      : "bg-accent-blue/20 text-accent-blue";
-  const activeBar =
-    color === "green" ? "bg-green-400" : "bg-accent-blue";
-
   return (
     <button
       type="button"
@@ -408,7 +385,7 @@ function TabButton({
         <span
           className={`text-xs px-1.5 py-0.5 rounded-full ${
             active
-              ? activeBadge
+              ? "bg-accent-blue/20 text-accent-blue"
               : "bg-brand-border/50 text-brand-muted"
           }`}
         >
@@ -416,7 +393,7 @@ function TabButton({
         </span>
       )}
       {active && (
-        <span className={`absolute bottom-0 left-2 right-2 h-0.5 ${activeBar} rounded-full`} />
+        <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-accent-blue rounded-full" />
       )}
     </button>
   );

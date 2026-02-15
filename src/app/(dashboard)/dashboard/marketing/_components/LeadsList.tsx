@@ -8,8 +8,10 @@ import { SmsIcon, EmailIcon, PencilIcon, MegaphoneIcon } from "./icons";
 interface LeadsListProps {
   readonly leads: readonly Lead[];
   readonly selectedIds: ReadonlySet<string>;
+  readonly focusedId: string | null;
   readonly onToggle: (id: string) => void;
   readonly onToggleAll: () => void;
+  readonly onFocus: (id: string) => void;
   readonly onUpdateLead: (lead: Lead) => void;
   readonly onDeleteLead: (id: string) => void;
   readonly campaignNames: ReadonlyMap<string, string>;
@@ -19,8 +21,10 @@ interface LeadsListProps {
 export function LeadsList({
   leads,
   selectedIds,
+  focusedId,
   onToggle,
   onToggleAll,
+  onFocus,
   onUpdateLead,
   onDeleteLead,
   campaignNames,
@@ -64,8 +68,10 @@ export function LeadsList({
               key={lead.id}
               lead={lead}
               selected={selectedIds.has(lead.id)}
+              focused={focusedId === lead.id}
               expanded={expandedId === lead.id}
               onToggle={() => onToggle(lead.id)}
+              onFocus={() => onFocus(lead.id)}
               onExpand={() => toggleExpand(lead.id)}
               onUpdate={onUpdateLead}
               onDelete={onDeleteLead}
@@ -84,8 +90,10 @@ export function LeadsList({
 function LeadRow({
   lead,
   selected,
+  focused,
   expanded,
   onToggle,
+  onFocus,
   onExpand,
   onUpdate,
   onDelete,
@@ -94,8 +102,10 @@ function LeadRow({
 }: {
   readonly lead: Lead;
   readonly selected: boolean;
+  readonly focused: boolean;
   readonly expanded: boolean;
   readonly onToggle: () => void;
+  readonly onFocus: () => void;
   readonly onExpand: () => void;
   readonly onUpdate: (lead: Lead) => void;
   readonly onDelete: (id: string) => void;
@@ -109,11 +119,15 @@ function LeadRow({
   return (
     <div>
       {/* Summary row */}
-      <div className="flex items-center gap-3 px-4 py-3 hover:bg-brand-border/10 transition-colors">
+      <div className={`flex items-center gap-3 px-4 py-3 transition-colors cursor-pointer ${
+        focused
+          ? "bg-accent-blue/5 border-l-2 border-l-accent-blue"
+          : "hover:bg-brand-border/10 border-l-2 border-l-transparent"
+      }`}>
         <Checkbox checked={selected} onChange={onToggle} />
         <button
           type="button"
-          onClick={onExpand}
+          onClick={onFocus}
           className="flex-1 min-w-0 text-left flex items-center gap-3"
         >
           <div className="flex-1 min-w-0">
@@ -139,8 +153,15 @@ function LeadRow({
               )}
             </div>
           </div>
+        </button>
+        <button
+          type="button"
+          onClick={onExpand}
+          className="shrink-0 p-1 hover:bg-brand-border/20 rounded transition-colors"
+          title={expanded ? "Collapse details" : "Expand details"}
+        >
           <svg
-            className={`w-4 h-4 text-brand-muted/40 shrink-0 transition-transform ${expanded ? "rotate-180" : ""}`}
+            className={`w-4 h-4 text-brand-muted/40 transition-transform ${expanded ? "rotate-180" : ""}`}
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
