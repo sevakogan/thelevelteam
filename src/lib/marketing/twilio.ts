@@ -1,3 +1,16 @@
+/**
+ * Twilio — SMS messaging
+ *
+ * Part of the unified Twilio setup:
+ *   SMS   → This module (Twilio Messaging API)
+ *   Email → ./sendgrid.ts (Twilio SendGrid)
+ *
+ * Env vars needed:
+ *   TWILIO_ACCOUNT_SID
+ *   TWILIO_AUTH_TOKEN
+ *   TWILIO_PHONE_NUMBER
+ */
+
 import Twilio from "twilio";
 import { MARKETING_CONFIG } from "./config";
 

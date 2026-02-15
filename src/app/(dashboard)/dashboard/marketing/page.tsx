@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo } from "react";
-import type { Lead, LeadStatus } from "@/lib/marketing/types";
+import type { Lead, LeadStatus, MessageLog } from "@/lib/marketing/types";
 import type { Campaign } from "./_components/types";
 import { createCampaign, createStep } from "./_components/types";
 import { DEFAULT_CAMPAIGNS } from "./_components/defaults";
@@ -13,9 +13,11 @@ import type { KanbanColumn } from "./_components/LeadKanban";
 import { AddLeadModal } from "./_components/AddLeadModal";
 import { AssignCampaignBar } from "./_components/AssignCampaignBar";
 import { ComplianceNotice } from "./_components/ComplianceNotice";
-import { PlusIcon, MegaphoneIcon } from "./_components/icons";
+import { SendSMS } from "./_components/SendSMS";
+import { SendEmail } from "./_components/SendEmail";
+import { PlusIcon, MegaphoneIcon, SmsIcon, EmailIcon } from "./_components/icons";
 
-type MarketingTab = "leads" | "campaigns";
+type MarketingTab = "leads" | "campaigns" | "send-sms" | "send-email";
 
 export default function MarketingPage() {
   const [activeTab, setActiveTab] = useState<MarketingTab>("leads");
@@ -33,6 +35,7 @@ export default function MarketingPage() {
   const [kanbanColumns, setKanbanColumns] = useState<readonly KanbanColumn[]>(
     getDefaultColumns
   );
+  const [messageLogs, setMessageLogs] = useState<readonly MessageLog[]>([]);
 
   const fetchLeads = useCallback(async () => {
     try {
@@ -152,6 +155,21 @@ export default function MarketingPage() {
     setSelectedLeadIds(new Set());
   }, []);
 
+  // ─── Message log operations ──────────────────────────
+  const addMessageLogs = useCallback((logs: readonly MessageLog[]) => {
+    setMessageLogs((prev) => [...logs, ...prev]);
+  }, []);
+
+  const smsLogCount = useMemo(
+    () => messageLogs.filter((m) => m.channel === "sms").length,
+    [messageLogs]
+  );
+
+  const emailLogCount = useMemo(
+    () => messageLogs.filter((m) => m.channel === "email").length,
+    [messageLogs]
+  );
+
   const activeCampaign = campaigns.find((c) => c.id === activeCampaignId) ?? null;
 
   if (loading) {
@@ -176,13 +194,13 @@ export default function MarketingPage() {
       <div>
         <h1 className="text-2xl font-bold text-white">Marketing</h1>
         <p className="text-brand-muted text-sm mt-1">
-          Manage leads, pipeline, campaigns, and automation flows
+          Manage leads, pipeline, campaigns, and messaging
         </p>
       </div>
 
       {/* ─── Tab Navigation ──────────────────────────────────── */}
       <div className="flex items-center justify-between border-b border-brand-border">
-        <div className="flex items-center gap-0">
+        <div className="flex items-center gap-0 overflow-x-auto">
           <TabButton
             active={activeTab === "leads"}
             onClick={() => setActiveTab("leads")}
@@ -201,6 +219,21 @@ export default function MarketingPage() {
             label="Campaigns"
             count={campaigns.length}
           />
+          <TabButton
+            active={activeTab === "send-sms"}
+            onClick={() => setActiveTab("send-sms")}
+            icon={<SmsIcon className="w-4 h-4" />}
+            label="Send SMS"
+            count={smsLogCount}
+            accentColor="green"
+          />
+          <TabButton
+            active={activeTab === "send-email"}
+            onClick={() => setActiveTab("send-email")}
+            icon={<EmailIcon className="w-4 h-4" />}
+            label="Send Email"
+            count={emailLogCount}
+          />
         </div>
 
         {/* Context-aware action button */}
@@ -208,7 +241,7 @@ export default function MarketingPage() {
           <button
             type="button"
             onClick={() => setShowAddLead(true)}
-            className="flex items-center gap-2 text-sm font-medium text-white bg-accent-blue hover:bg-accent-blue/80 px-4 py-2 rounded-xl transition-colors shadow-lg shadow-accent-blue/20 mb-2"
+            className="flex items-center gap-2 text-sm font-medium text-white bg-accent-blue hover:bg-accent-blue/80 px-4 py-2 rounded-xl transition-colors shadow-lg shadow-accent-blue/20 mb-2 shrink-0"
           >
             <PlusIcon className="w-4 h-4" />
             Add a Lead
@@ -218,7 +251,7 @@ export default function MarketingPage() {
           <button
             type="button"
             onClick={addCampaign}
-            className="flex items-center gap-2 text-sm font-medium text-white bg-accent-blue hover:bg-accent-blue/80 px-4 py-2 rounded-xl transition-colors shadow-lg shadow-accent-blue/20 mb-2"
+            className="flex items-center gap-2 text-sm font-medium text-white bg-accent-blue hover:bg-accent-blue/80 px-4 py-2 rounded-xl transition-colors shadow-lg shadow-accent-blue/20 mb-2 shrink-0"
           >
             <PlusIcon className="w-4 h-4" />
             New Campaign
@@ -229,7 +262,6 @@ export default function MarketingPage() {
       {/* ─── Leads Tab ───────────────────────────────────────── */}
       {activeTab === "leads" && (
         <div className="space-y-6">
-          {/* Clients list */}
           <LeadsList
             leads={leads}
             selectedIds={selectedLeadIds}
@@ -237,9 +269,9 @@ export default function MarketingPage() {
             onToggleAll={toggleAll}
             onUpdateLead={updateLead}
             campaignNames={campaignNames}
+            messageLogs={messageLogs}
           />
 
-          {/* Assign campaign bar (visible when leads selected) */}
           <AssignCampaignBar
             selectedCount={selectedLeadIds.size}
             campaigns={campaigns}
@@ -247,7 +279,6 @@ export default function MarketingPage() {
             onClear={clearSelection}
           />
 
-          {/* Kanban pipeline */}
           <LeadKanban
             leads={leads}
             onUpdateStatus={updateLeadStatus}
@@ -261,7 +292,6 @@ export default function MarketingPage() {
       {/* ─── Campaigns Tab ───────────────────────────────────── */}
       {activeTab === "campaigns" && (
         <div className="space-y-6">
-          {/* Campaigns: sidebar + editor */}
           <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4">
             <CampaignSidebar
               campaigns={campaigns}
@@ -285,12 +315,21 @@ export default function MarketingPage() {
             )}
           </div>
 
-          {/* Legal & Compliance */}
           <ComplianceNotice />
         </div>
       )}
 
-      {/* Add Lead modal (always rendered for portal behavior) */}
+      {/* ─── Send SMS Tab ────────────────────────────────────── */}
+      {activeTab === "send-sms" && (
+        <SendSMS leads={leads} onSend={addMessageLogs} />
+      )}
+
+      {/* ─── Send Email Tab ──────────────────────────────────── */}
+      {activeTab === "send-email" && (
+        <SendEmail leads={leads} onSend={addMessageLogs} />
+      )}
+
+      {/* Add Lead modal */}
       <AddLeadModal
         open={showAddLead}
         onClose={() => setShowAddLead(false)}
@@ -308,18 +347,28 @@ function TabButton({
   icon,
   label,
   count,
+  accentColor,
 }: {
   readonly active: boolean;
   readonly onClick: () => void;
   readonly icon: React.ReactNode;
   readonly label: string;
   readonly count: number;
+  readonly accentColor?: "green" | "blue";
 }) {
+  const color = accentColor ?? "blue";
+  const activeBadge =
+    color === "green"
+      ? "bg-green-500/20 text-green-400"
+      : "bg-accent-blue/20 text-accent-blue";
+  const activeBar =
+    color === "green" ? "bg-green-400" : "bg-accent-blue";
+
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`flex items-center gap-2 px-5 py-3 text-sm font-medium transition-colors relative ${
+      className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors relative shrink-0 ${
         active
           ? "text-white"
           : "text-brand-muted hover:text-white"
@@ -327,18 +376,19 @@ function TabButton({
     >
       {icon}
       {label}
-      <span
-        className={`text-xs px-1.5 py-0.5 rounded-full ${
-          active
-            ? "bg-accent-blue/20 text-accent-blue"
-            : "bg-brand-border/50 text-brand-muted"
-        }`}
-      >
-        {count}
-      </span>
-      {/* Active indicator bar */}
+      {count > 0 && (
+        <span
+          className={`text-xs px-1.5 py-0.5 rounded-full ${
+            active
+              ? activeBadge
+              : "bg-brand-border/50 text-brand-muted"
+          }`}
+        >
+          {count}
+        </span>
+      )}
       {active && (
-        <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-accent-blue rounded-full" />
+        <span className={`absolute bottom-0 left-2 right-2 h-0.5 ${activeBar} rounded-full`} />
       )}
     </button>
   );

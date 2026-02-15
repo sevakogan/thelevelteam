@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import type { Lead } from "@/lib/marketing/types";
+import type { Lead, MessageLog } from "@/lib/marketing/types";
 import { LEAD_STATUS_CONFIG } from "@/lib/marketing/types";
 import { SmsIcon, EmailIcon, PencilIcon, MegaphoneIcon } from "./icons";
 
@@ -12,6 +12,7 @@ interface LeadsListProps {
   readonly onToggleAll: () => void;
   readonly onUpdateLead: (lead: Lead) => void;
   readonly campaignNames: ReadonlyMap<string, string>;
+  readonly messageLogs: readonly MessageLog[];
 }
 
 export function LeadsList({
@@ -21,6 +22,7 @@ export function LeadsList({
   onToggleAll,
   onUpdateLead,
   campaignNames,
+  messageLogs,
 }: LeadsListProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -65,6 +67,7 @@ export function LeadsList({
               onExpand={() => toggleExpand(lead.id)}
               onUpdate={onUpdateLead}
               campaignNames={campaignNames}
+              messageLogs={messageLogs.filter((m) => m.lead_id === lead.id)}
             />
           ))}
         </div>
@@ -83,6 +86,7 @@ function LeadRow({
   onExpand,
   onUpdate,
   campaignNames,
+  messageLogs,
 }: {
   readonly lead: Lead;
   readonly selected: boolean;
@@ -91,6 +95,7 @@ function LeadRow({
   readonly onExpand: () => void;
   readonly onUpdate: (lead: Lead) => void;
   readonly campaignNames: ReadonlyMap<string, string>;
+  readonly messageLogs: readonly MessageLog[];
 }) {
   const assignedNames = lead.assigned_campaigns
     .map((id) => campaignNames.get(id))
@@ -146,7 +151,7 @@ function LeadRow({
 
       {/* Expanded detail */}
       {expanded && (
-        <LeadDetail lead={lead} onUpdate={onUpdate} campaignNames={campaignNames} />
+        <LeadDetail lead={lead} onUpdate={onUpdate} campaignNames={campaignNames} messageLogs={messageLogs} />
       )}
     </div>
   );
@@ -158,10 +163,12 @@ function LeadDetail({
   lead,
   onUpdate,
   campaignNames,
+  messageLogs,
 }: {
   readonly lead: Lead;
   readonly onUpdate: (lead: Lead) => void;
   readonly campaignNames: ReadonlyMap<string, string>;
+  readonly messageLogs: readonly MessageLog[];
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(lead);
@@ -319,6 +326,11 @@ function LeadDetail({
           </div>
         )}
 
+        {/* Message History */}
+        {messageLogs.length > 0 && (
+          <MessageHistory logs={messageLogs} />
+        )}
+
         {/* Meta */}
         <div className="flex items-center gap-4 mt-3 pt-3 border-t border-brand-border/30">
           <span className="text-[10px] text-brand-muted/40">
@@ -437,4 +449,159 @@ function ConsentBadge({ channel }: { readonly channel: "sms" | "email" }) {
       {channel.toUpperCase()}
     </span>
   );
+}
+
+// ─── Message History ──────────────────────────────────────────────────────────
+
+function MessageHistory({ logs }: { readonly logs: readonly MessageLog[] }) {
+  const [filter, setFilter] = useState<"all" | "sms" | "email">("all");
+
+  const sorted = [...logs].sort(
+    (a, b) => new Date(b.sent_at).getTime() - new Date(a.sent_at).getTime()
+  );
+
+  const filtered = filter === "all" ? sorted : sorted.filter((m) => m.channel === filter);
+
+  const smsCount = logs.filter((m) => m.channel === "sms").length;
+  const emailCount = logs.filter((m) => m.channel === "email").length;
+
+  return (
+    <div className="mt-3">
+      <div className="flex items-center justify-between mb-1.5">
+        <label className="text-[10px] font-medium text-brand-muted uppercase tracking-wider">
+          Message History
+        </label>
+        <div className="flex items-center gap-1">
+          <HistoryFilterButton
+            label="All"
+            count={logs.length}
+            active={filter === "all"}
+            onClick={() => setFilter("all")}
+          />
+          <HistoryFilterButton
+            label="SMS"
+            count={smsCount}
+            active={filter === "sms"}
+            onClick={() => setFilter("sms")}
+            color="green"
+          />
+          <HistoryFilterButton
+            label="Email"
+            count={emailCount}
+            active={filter === "email"}
+            onClick={() => setFilter("email")}
+            color="blue"
+          />
+        </div>
+      </div>
+
+      <div className="max-h-[200px] overflow-y-auto space-y-1.5">
+        {filtered.length === 0 ? (
+          <p className="text-[10px] text-brand-muted/40 py-2 text-center">
+            No {filter === "all" ? "" : filter} messages yet.
+          </p>
+        ) : (
+          filtered.map((msg) => (
+            <div
+              key={msg.id}
+              className={`rounded-lg border p-2.5 ${
+                msg.channel === "sms"
+                  ? "border-green-500/15 bg-green-500/5"
+                  : "border-accent-blue/15 bg-accent-blue/5"
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                {msg.channel === "sms" ? (
+                  <SmsIcon className="w-3 h-3 text-green-400 shrink-0" />
+                ) : (
+                  <EmailIcon className="w-3 h-3 text-accent-blue shrink-0" />
+                )}
+                <span className={`text-[10px] font-medium ${
+                  msg.channel === "sms" ? "text-green-400" : "text-accent-blue"
+                }`}>
+                  {msg.channel === "sms" ? "SMS" : "Email"}
+                </span>
+                <span className="text-[10px] text-brand-muted/40">→</span>
+                <span className="text-[10px] text-brand-muted truncate">{msg.to}</span>
+                <span className="text-[10px] text-brand-muted/40 ml-auto shrink-0">
+                  {formatMessageDate(msg.sent_at)}
+                </span>
+                <MessageStatusBadge status={msg.status} />
+              </div>
+              {msg.subject && (
+                <p className="text-[10px] text-white font-medium mb-0.5 ml-5">
+                  {msg.subject}
+                </p>
+              )}
+              <p className="text-[10px] text-brand-muted leading-relaxed ml-5 line-clamp-2">
+                {msg.body}
+              </p>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+function HistoryFilterButton({
+  label,
+  count,
+  active,
+  onClick,
+  color,
+}: {
+  readonly label: string;
+  readonly count: number;
+  readonly active: boolean;
+  readonly onClick: () => void;
+  readonly color?: "green" | "blue";
+}) {
+  const activeColor =
+    color === "green"
+      ? "text-green-400 border-green-500/30 bg-green-500/10"
+      : color === "blue"
+      ? "text-accent-blue border-accent-blue/30 bg-accent-blue/10"
+      : "text-white border-brand-muted/40 bg-brand-border/20";
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`text-[9px] px-1.5 py-0.5 rounded-full border font-medium transition-colors ${
+        active ? activeColor : "text-brand-muted/40 border-brand-border/20 hover:border-brand-muted/30"
+      }`}
+    >
+      {label} {count > 0 && <span className="ml-0.5">{count}</span>}
+    </button>
+  );
+}
+
+function MessageStatusBadge({ status }: { readonly status: string }) {
+  const styles: Record<string, string> = {
+    sent: "text-yellow-400 bg-yellow-500/10",
+    delivered: "text-green-400 bg-green-500/10",
+    failed: "text-red-400 bg-red-500/10",
+    bounced: "text-orange-400 bg-orange-500/10",
+  };
+  return (
+    <span className={`text-[8px] px-1 py-0 rounded font-medium uppercase shrink-0 ${styles[status] ?? styles.sent}`}>
+      {status}
+    </span>
+  );
+}
+
+function formatMessageDate(iso: string): string {
+  const d = new Date(iso);
+  const now = new Date();
+  const diffMs = now.getTime() - d.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHrs = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+
+  if (diffMins < 1) return "Just now";
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHrs < 24) return `${diffHrs}h ago`;
+  if (diffDays < 7) return `${diffDays}d ago`;
+  return d.toLocaleDateString();
 }

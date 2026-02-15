@@ -84,3 +84,17 @@ export interface SendResult {
   readonly sent: number;
   readonly errors: number;
 }
+
+export type MessageChannel = "sms" | "email";
+
+export interface MessageLog {
+  readonly id: string;
+  readonly lead_id: string;
+  readonly channel: MessageChannel;
+  readonly to: string;
+  readonly subject?: string;
+  readonly body: string;
+  readonly status: "sent" | "delivered" | "failed" | "bounced";
+  readonly sent_at: string;
+  readonly campaign_id?: string;
+}
