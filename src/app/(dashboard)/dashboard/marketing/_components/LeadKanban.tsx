@@ -79,8 +79,11 @@ export function LeadKanban({
   );
 
   // Filter leads to only those assigned to this pipeline
+  // Leads with no pipeline assignment are shown in ALL pipelines (backwards-compatible)
   const pipelineLeads = useMemo(
-    () => leads.filter((l) => l.assigned_pipelines.includes(resolvedPipelineId)),
+    () => leads.filter((l) =>
+      l.assigned_pipelines.length === 0 || l.assigned_pipelines.includes(resolvedPipelineId)
+    ),
     [leads, resolvedPipelineId]
   );
 

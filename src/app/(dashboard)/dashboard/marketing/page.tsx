@@ -146,8 +146,11 @@ export default function MarketingPage() {
   const filteredLeads = useMemo(() => {
     const searched = filterLeads(leads, searchFilters);
     // Also filter by active pipeline — only show leads assigned to the selected pipeline
+    // Leads with no pipeline assignment are shown in ALL pipelines (backwards-compatible)
     if (!resolvedPipelineId) return searched;
-    return searched.filter((l) => l.assigned_pipelines.includes(resolvedPipelineId));
+    return searched.filter((l) =>
+      l.assigned_pipelines.length === 0 || l.assigned_pipelines.includes(resolvedPipelineId)
+    );
   }, [leads, searchFilters, resolvedPipelineId]);
 
   // ─── Campaign operations ──────────────────────────────
