@@ -1,31 +1,63 @@
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
-export const alt = "TheLevelTeam — We build software that moves industries forward.";
+export const alt =
+  "TheLevelTeam — Boutique Digital Agency | Advertising, Development & Growth Strategy";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
-export default async function OGImage() {
-  // Generate star positions deterministically for the OG image
-  const stars: { x: number; y: number; r: number; o: number }[] = [];
-  for (let i = 0; i < 120; i++) {
-    // Simple seeded pseudo-random using index
-    const px = ((i * 7919 + 1) % 1200);
-    const py = ((i * 6271 + 3) % 630);
-    const pr = ((i * 31) % 3) * 0.4 + 0.6;
-    const po = ((i * 17) % 5) * 0.1 + 0.15;
-    stars.push({ x: px, y: py, r: pr, o: po });
-  }
+// ─── Services ────────────────────────────────────────────────────────────────
 
-  // A few brighter stars
-  const brightStars: { x: number; y: number; r: number; o: number }[] = [];
-  for (let i = 0; i < 15; i++) {
-    const px = ((i * 4253 + 100) % 1200);
-    const py = ((i * 3571 + 50) % 630);
-    const pr = ((i * 13) % 3) * 0.5 + 1.5;
-    const po = ((i * 11) % 4) * 0.1 + 0.5;
-    brightStars.push({ x: px, y: py, r: pr, o: po });
+const SERVICES: readonly { readonly label: string; readonly color: string }[] = [
+  { label: "Paid Advertising", color: "#EC4899" },
+  { label: "Website Development", color: "#3B82F6" },
+  { label: "Cold Calling & Outbound", color: "#10B981" },
+  { label: "Social Media Management", color: "#8B5CF6" },
+  { label: "SEO & Branding", color: "#C9A84C" },
+  { label: "Customer Service", color: "#06B6D4" },
+];
+
+// ─── Portfolio clients ───────────────────────────────────────────────────────
+
+const CLIENTS: readonly {
+  readonly name: string;
+  readonly accent: string;
+  readonly industry: string;
+}[] = [
+  { name: "CrownVault", accent: "#3B82F6", industry: "Luxury Watches" },
+  { name: "RevenuFlow", accent: "#8B5CF6", industry: "AI Revenue" },
+  { name: "WeCare Drive", accent: "#1E40AF", industry: "Medical Logistics" },
+  { name: "GeniusTestBoost", accent: "#C9A84C", industry: "Education" },
+];
+
+// ─── Stars (deterministic) ──────────────────────────────────────────────────
+
+function generateStars(
+  count: number,
+  seedA: number,
+  seedB: number,
+  rBase: number,
+  rRange: number,
+  oBase: number,
+  oRange: number
+): readonly { readonly x: number; readonly y: number; readonly r: number; readonly o: number }[] {
+  const result: { x: number; y: number; r: number; o: number }[] = [];
+  for (let i = 0; i < count; i++) {
+    result.push({
+      x: (i * seedA + 1) % 1200,
+      y: (i * seedB + 3) % 630,
+      r: ((i * 31) % 3) * rRange + rBase,
+      o: ((i * 17) % 5) * oRange + oBase,
+    });
   }
+  return result;
+}
+
+// ─── OG Image ───────────────────────────────────────────────────────────────
+
+export default async function OGImage() {
+  const stars = generateStars(100, 7919, 6271, 0.5, 0.3, 0.1, 0.08);
+  const brightStars = generateStars(12, 4253, 3571, 1.2, 0.5, 0.4, 0.12);
 
   return new ImageResponse(
     (
@@ -35,38 +67,53 @@ export default async function OGImage() {
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
           backgroundColor: "#0A0A0F",
           position: "relative",
           overflow: "hidden",
+          padding: "50px 60px 0",
         }}
       >
-        {/* Background gradient orbs */}
+        {/* ─── Background gradient orbs ─────────────────────── */}
         <div
           style={{
             position: "absolute",
-            top: "-100px",
-            right: "-50px",
-            width: "500px",
-            height: "500px",
-            background: "radial-gradient(circle, rgba(59,130,246,0.12) 0%, transparent 70%)",
+            top: "-120px",
+            right: "-80px",
+            width: "600px",
+            height: "600px",
+            background:
+              "radial-gradient(circle, rgba(59,130,246,0.14) 0%, transparent 65%)",
             borderRadius: "50%",
           }}
         />
         <div
           style={{
             position: "absolute",
-            bottom: "-100px",
-            left: "-50px",
-            width: "400px",
+            bottom: "-140px",
+            left: "-60px",
+            width: "500px",
+            height: "500px",
+            background:
+              "radial-gradient(circle, rgba(139,92,246,0.10) 0%, transparent 65%)",
+            borderRadius: "50%",
+          }}
+        />
+        {/* Subtle center glow */}
+        <div
+          style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "800px",
             height: "400px",
-            background: "radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%)",
+            background:
+              "radial-gradient(ellipse, rgba(59,130,246,0.04) 0%, transparent 60%)",
             borderRadius: "50%",
           }}
         />
 
-        {/* Stars */}
+        {/* ─── Starfield ────────────────────────────────────── */}
         {stars.map((star, i) => (
           <div
             key={i}
@@ -92,70 +139,261 @@ export default async function OGImage() {
               height: star.r * 2,
               borderRadius: "50%",
               backgroundColor: `rgba(147, 197, 253, ${star.o})`,
-              boxShadow: `0 0 ${star.r * 4}px rgba(147, 197, 253, ${star.o * 0.4})`,
+              boxShadow: `0 0 ${star.r * 6}px rgba(147, 197, 253, ${star.o * 0.5})`,
             }}
           />
         ))}
 
-        {/* Logo + Text centered */}
+        {/* ─── Main content: 2-column layout ────────────────── */}
         <div
           style={{
             display: "flex",
-            alignItems: "center",
-            gap: "24px",
+            flex: 1,
             zIndex: 10,
+            gap: "40px",
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            alt="TheLevelTeam Logo"
-            src="https://thelevelteam.com/logo.png"
-            width={80}
-            height={80}
-            style={{ borderRadius: 0 }}
-          />
+          {/* ─── LEFT COLUMN (brand + tagline) ───────────────── */}
           <div
             style={{
               display: "flex",
               flexDirection: "column",
+              justifyContent: "center",
+              flex: "1 1 58%",
+            }}
+          >
+            {/* Logo + Brand Name */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "18px",
+              }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                alt="TheLevelTeam Logo"
+                src="https://thelevelteam.com/logo.png"
+                width={56}
+                height={56}
+              />
+              <div
+                style={{
+                  display: "flex",
+                  fontSize: 48,
+                  fontWeight: 800,
+                  letterSpacing: "-1.5px",
+                  lineHeight: 1,
+                }}
+              >
+                <span style={{ color: "#FFFFFF" }}>TheLevel</span>
+                <span style={{ color: "#3B82F6" }}>Team</span>
+              </div>
+            </div>
+
+            {/* Gradient divider */}
+            <div
+              style={{
+                marginTop: "18px",
+                marginBottom: "18px",
+                width: "280px",
+                height: "2px",
+                background:
+                  "linear-gradient(90deg, #3B82F6, #8B5CF6, transparent)",
+                borderRadius: "2px",
+              }}
+            />
+
+            {/* Tagline */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "6px",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: 26,
+                  fontWeight: 600,
+                  color: "#FFFFFF",
+                  lineHeight: 1.3,
+                }}
+              >
+                Boutique Digital Agency
+              </div>
+              <div
+                style={{
+                  fontSize: 17,
+                  color: "#8888a0",
+                  fontWeight: 400,
+                  lineHeight: 1.5,
+                }}
+              >
+                Advertising · Development · Growth Strategy
+              </div>
+              <div
+                style={{
+                  fontSize: 14,
+                  color: "#6b6b80",
+                  fontWeight: 400,
+                  marginTop: "4px",
+                }}
+              >
+                Serving businesses across the United States
+              </div>
+            </div>
+          </div>
+
+          {/* ─── RIGHT COLUMN (services) ─────────────────────── */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              flex: "1 1 42%",
+              gap: "12px",
+              paddingLeft: "20px",
+              borderLeft: "1px solid rgba(30, 30, 46, 0.8)",
             }}
           >
             <div
               style={{
-                display: "flex",
-                fontSize: 64,
-                fontWeight: 700,
-                letterSpacing: "-1px",
+                fontSize: 11,
+                fontWeight: 600,
+                color: "#5a5a70",
+                letterSpacing: "2px",
+                textTransform: "uppercase",
+                marginBottom: "4px",
               }}
             >
-              <span style={{ color: "#FFFFFF" }}>TheLevel</span>
-              <span style={{ color: "#3B82F6" }}>Team</span>
+              Our Services
             </div>
+            {SERVICES.map((svc) => (
+              <div
+                key={svc.label}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                }}
+              >
+                {/* Colored dot */}
+                <div
+                  style={{
+                    width: "8px",
+                    height: "8px",
+                    borderRadius: "50%",
+                    backgroundColor: svc.color,
+                    boxShadow: `0 0 8px ${svc.color}40`,
+                    flexShrink: 0,
+                  }}
+                />
+                <span
+                  style={{
+                    fontSize: 16,
+                    color: "#d0d0e0",
+                    fontWeight: 400,
+                  }}
+                >
+                  {svc.label}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Tagline below */}
+        {/* ─── Bottom: Portfolio client cards ─────────────────── */}
         <div
           style={{
-            marginTop: "20px",
-            fontSize: 24,
-            color: "#9CA3AF",
+            display: "flex",
+            gap: "12px",
             zIndex: 10,
-            fontWeight: 300,
+            paddingBottom: "24px",
+            paddingTop: "16px",
+            borderTop: "1px solid rgba(30, 30, 46, 0.5)",
+            marginTop: "auto",
           }}
         >
-          We build software that moves industries forward.
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              color: "#5a5a70",
+              letterSpacing: "2px",
+              textTransform: "uppercase",
+              display: "flex",
+              alignItems: "center",
+              marginRight: "8px",
+              flexShrink: 0,
+            }}
+          >
+            Portfolio
+          </div>
+          {CLIENTS.map((client) => (
+            <div
+              key={client.name}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                backgroundColor: "rgba(18, 18, 26, 0.8)",
+                border: "1px solid rgba(30, 30, 46, 0.6)",
+                borderRadius: "10px",
+                padding: "8px 16px",
+                flex: 1,
+              }}
+            >
+              {/* Colored accent bar */}
+              <div
+                style={{
+                  width: "3px",
+                  height: "28px",
+                  borderRadius: "3px",
+                  backgroundColor: client.accent,
+                  flexShrink: 0,
+                }}
+              />
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "1px",
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: 13,
+                    fontWeight: 600,
+                    color: "#e0e0f0",
+                  }}
+                >
+                  {client.name}
+                </span>
+                <span
+                  style={{
+                    fontSize: 10,
+                    color: "#6b6b80",
+                    fontWeight: 400,
+                  }}
+                >
+                  {client.industry}
+                </span>
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* Subtle bottom border line */}
+        {/* ─── Bottom gradient bar ────────────────────────────── */}
         <div
           style={{
             position: "absolute",
             bottom: 0,
             left: 0,
             right: 0,
-            height: "3px",
-            background: "linear-gradient(90deg, transparent 0%, #3B82F6 30%, #8B5CF6 70%, transparent 100%)",
+            height: "4px",
+            background:
+              "linear-gradient(90deg, transparent 0%, #3B82F6 25%, #8B5CF6 50%, #EC4899 75%, transparent 100%)",
           }}
         />
       </div>
