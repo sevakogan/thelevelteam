@@ -5,7 +5,17 @@ import { sendSMS } from "@/lib/marketing/twilio";
 import { sendEmail } from "@/lib/marketing/sendgrid";
 import { getWelcomeSMS, getWelcomeEmail } from "@/lib/marketing/templates";
 import { enrollLeadInCampaigns } from "@/lib/marketing/drip";
+import { notifySlack } from "@/lib/marketing/slack";
 import { createSupabaseServer } from "@/lib/supabase-auth-server";
+
+function formatNewLeadSlack(lead: { name: string; email?: string | null; phone?: string | null; message?: string | null; source?: string | null }): string {
+  const lines = [`:rotating_light: *New Lead: ${lead.name}*`];
+  if (lead.email) lines.push(`>:email: ${lead.email}`);
+  if (lead.phone) lines.push(`>:phone: ${lead.phone}`);
+  if (lead.message) lines.push(`>:pencil: "${lead.message}"`);
+  if (lead.source) lines.push(`>:link: Source: ${lead.source}`);
+  return lines.join("\n");
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -32,6 +42,13 @@ export async function POST(req: NextRequest) {
 
     // Send immediate welcome messages (fire-and-forget, don't block response)
     const welcomePromises: Promise<unknown>[] = [];
+
+    // Slack notification
+    welcomePromises.push(
+      notifySlack(formatNewLeadSlack(lead)).catch((err) =>
+        console.error("Slack notification failed:", err)
+      )
+    );
 
     if (lead.sms_consent) {
       welcomePromises.push(
