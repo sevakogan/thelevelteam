@@ -70,12 +70,6 @@ export function DashboardNav() {
               {profile.email}
             </span>
           )}
-          <Link
-            href="/"
-            className="text-xs text-brand-muted hover:text-foreground transition-colors"
-          >
-            View Site
-          </Link>
           <ThemeToggle />
 
           {/* Account dropdown */}
