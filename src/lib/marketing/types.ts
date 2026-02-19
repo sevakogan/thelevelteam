@@ -62,8 +62,10 @@ export interface DripMessage {
 export interface DripCampaign {
   readonly id: string;
   readonly name: string;
-  readonly channel: "sms" | "email";
+  readonly channel: "sms" | "email" | "both";
   readonly messages: readonly DripMessage[];
+  readonly sms_messages?: readonly DripMessage[] | null;
+  readonly email_messages?: readonly DripMessage[] | null;
   readonly is_active: boolean;
   readonly created_at: string;
 }

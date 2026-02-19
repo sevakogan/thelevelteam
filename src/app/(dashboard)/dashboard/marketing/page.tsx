@@ -5,6 +5,8 @@ import type { Lead, LeadStatus, MessageLog } from "@/lib/marketing/types";
 import type { Campaign } from "./_components/types";
 import { createCampaign, createStep } from "./_components/types";
 import { DEFAULT_CAMPAIGNS } from "./_components/defaults";
+import { uiCampaignToDb, dbCampaignToUi } from "@/lib/marketing/campaign-mapper";
+import type { DripCampaign } from "@/lib/marketing/types";
 import { CampaignSidebar } from "./_components/CampaignSidebar";
 import { CampaignEditor } from "./_components/CampaignEditor";
 import { LeadsList } from "./_components/LeadsList";
@@ -34,10 +36,9 @@ export default function MarketingPage() {
     new Set()
   );
   const [focusedLeadId, setFocusedLeadId] = useState<string | null>(null);
-  const [campaigns, setCampaigns] = useState<readonly Campaign[]>(DEFAULT_CAMPAIGNS);
-  const [activeCampaignId, setActiveCampaignId] = useState<string | null>(
-    DEFAULT_CAMPAIGNS[0]?.id ?? null
-  );
+  const [campaigns, setCampaigns] = useState<readonly Campaign[]>([]);
+  const [, setCampaignsLoading] = useState(true);
+  const [activeCampaignId, setActiveCampaignId] = useState<string | null>(null);
   const [showAddLead, setShowAddLead] = useState(false);
   const [editingLead, setEditingLead] = useState<Lead | null>(null);
   const [pipelines, setPipelines] = useState<readonly Pipeline[]>(getDefaultPipelines);
@@ -59,9 +60,33 @@ export default function MarketingPage() {
     }
   }, []);
 
+  const fetchCampaigns = useCallback(async () => {
+    try {
+      const res = await fetch("/api/marketing/campaigns");
+      if (!res.ok) throw new Error("Failed to fetch campaigns");
+      const data: DripCampaign[] = await res.json();
+      if (data.length > 0) {
+        const mapped = data.map(dbCampaignToUi);
+        setCampaigns(mapped);
+        setActiveCampaignId((prev) => prev ?? mapped[0]?.id ?? null);
+      } else {
+        // No campaigns in DB yet — use defaults
+        setCampaigns(DEFAULT_CAMPAIGNS);
+        setActiveCampaignId(DEFAULT_CAMPAIGNS[0]?.id ?? null);
+      }
+    } catch {
+      // Fallback to defaults on error
+      setCampaigns(DEFAULT_CAMPAIGNS);
+      setActiveCampaignId(DEFAULT_CAMPAIGNS[0]?.id ?? null);
+    } finally {
+      setCampaignsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     fetchLeads();
-  }, [fetchLeads]);
+    fetchCampaigns();
+  }, [fetchLeads, fetchCampaigns]);
 
   // Fetch persisted SMS messages when a lead is focused
   useEffect(() => {
@@ -181,15 +206,36 @@ export default function MarketingPage() {
     );
   }, [leads, searchFilters, resolvedPipelineId]);
 
-  // ─── Campaign operations ──────────────────────────────
-  const addCampaign = useCallback(() => {
-    const newCampaign = createCampaign(
+  // ─── Campaign operations (persisted via API) ──────────
+  const addCampaign = useCallback(async () => {
+    const tempCampaign = createCampaign(
       "New Campaign",
       "both",
       [createStep("Welcome", "Immediate", "Enter your welcome message here...")]
     );
-    setCampaigns((prev) => [...prev, newCampaign]);
-    setActiveCampaignId(newCampaign.id);
+    // Optimistic UI
+    setCampaigns((prev) => [...prev, tempCampaign]);
+    setActiveCampaignId(tempCampaign.id);
+
+    try {
+      const payload = uiCampaignToDb(tempCampaign);
+      const res = await fetch("/api/marketing/campaigns", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        const saved: DripCampaign = await res.json();
+        const mapped = dbCampaignToUi(saved);
+        // Replace temp with real DB record
+        setCampaigns((prev) =>
+          prev.map((c) => (c.id === tempCampaign.id ? mapped : c))
+        );
+        setActiveCampaignId(mapped.id);
+      }
+    } catch (err) {
+      console.error("Failed to save new campaign:", err);
+    }
   }, []);
 
   const deleteCampaign = useCallback(
@@ -201,6 +247,8 @@ export default function MarketingPage() {
         }
         return filtered;
       });
+      fetch(`/api/marketing/campaigns/${id}`, { method: "DELETE" })
+        .catch((err) => console.error("Failed to delete campaign:", err));
     },
     [activeCampaignId]
   );
@@ -209,6 +257,13 @@ export default function MarketingPage() {
     setCampaigns((prev) =>
       prev.map((c) => (c.id === updated.id ? updated : c))
     );
+    // Persist to DB (debounced via fire-and-forget)
+    const payload = uiCampaignToDb(updated);
+    fetch(`/api/marketing/campaigns/${updated.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    }).catch((err) => console.error("Failed to persist campaign update:", err));
   }, []);
 
   const reorderCampaigns = useCallback((reordered: readonly Campaign[]) => {

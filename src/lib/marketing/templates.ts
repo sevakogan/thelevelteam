@@ -103,6 +103,26 @@ interface EmailParams {
   readonly lead: Lead;
 }
 
+/**
+ * Wrap raw DB body text in the branded email HTML template.
+ * Used by the drip processor when reading message body from the database.
+ */
+export function buildDripEmailHTML(headline: string, bodyText: string, lead: Lead): string {
+  // Convert plain text to paragraphs
+  const htmlBody = bodyText
+    .split("\n")
+    .filter((line) => line.trim())
+    .map((line) => `<p>${line}</p>`)
+    .join("");
+
+  return buildEmailHTML({
+    headline: headline || "A message from TheLevelTeam",
+    body: htmlBody,
+    cta: { text: "Visit Us", url: company.website },
+    lead,
+  });
+}
+
 function buildEmailHTML({ headline, body, cta, lead }: EmailParams): string {
   const unsubscribeUrl = `${company.website}/api/marketing/unsubscribe?leadId=${lead.id}&channel=email`;
 
