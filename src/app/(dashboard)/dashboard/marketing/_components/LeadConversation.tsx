@@ -67,39 +67,43 @@ export function LeadConversation({
   const canSendSms = Boolean(lead?.phone && lead.sms_consent);
   const canSendEmail = Boolean(lead?.email && lead.email_consent);
 
-  const handleSendSms = useCallback(() => {
+  const handleSendSms = useCallback(async () => {
     if (!lead || !smsText.trim() || !canSendSms) return;
     setSending(true);
 
-    const log: MessageLog = {
-      id: crypto.randomUUID(),
-      lead_id: lead.id,
-      channel: "sms",
-      to: lead.phone,
-      body: smsText.trim(),
-      status: "sent",
-      sent_at: new Date().toISOString(),
-    };
+    try {
+      const res = await fetch("/api/marketing/sms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          leadId: lead.id,
+          to: lead.phone,
+          body: smsText.trim(),
+        }),
+      });
 
-    setTimeout(() => {
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to send SMS");
+      }
+
+      const log: MessageLog = {
+        id: crypto.randomUUID(),
+        lead_id: lead.id,
+        channel: "sms",
+        to: lead.phone,
+        body: smsText.trim(),
+        status: "sent",
+        sent_at: new Date().toISOString(),
+      };
+
       onSend([log]);
       setSmsText("");
+    } catch (err) {
+      console.error("SMS send error:", err);
+    } finally {
       setSending(false);
-
-      // Simulate incoming reply
-      setTimeout(() => {
-        const reply: MessageLog = {
-          id: crypto.randomUUID(),
-          lead_id: lead.id,
-          channel: "sms",
-          to: "you",
-          body: getSimulatedReply(),
-          status: "delivered",
-          sent_at: new Date().toISOString(),
-        };
-        onSend([reply]);
-      }, 2000);
-    }, 600);
+    }
   }, [lead, smsText, canSendSms, onSend]);
 
   const handleSendEmail = useCallback(() => {
@@ -641,15 +645,4 @@ function formatTime(iso: string): string {
   if (diffMins < 60) return `${diffMins}m`;
   if (diffMins < 1440) return d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   return d.toLocaleDateString([], { month: "short", day: "numeric" });
-}
-
-function getSimulatedReply(): string {
-  const replies = [
-    "Thanks for reaching out! Let me think about it.",
-    "Sounds good, when can we schedule a call?",
-    "I'm interested! Can you send more details?",
-    "Got it, I'll get back to you soon.",
-    "Thanks! What are the next steps?",
-  ];
-  return replies[Math.floor(Math.random() * replies.length)];
 }

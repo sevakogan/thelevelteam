@@ -43,34 +43,55 @@ export function SendSMS({ leads, onSend }: SendSMSProps) {
     });
   }, [filteredLeads]);
 
-  const handleSend = useCallback(() => {
+  const handleSend = useCallback(async () => {
     if (selectedLeadIds.size === 0 || !message.trim()) return;
     setSending(true);
 
-    const now = new Date().toISOString();
-    const logs: MessageLog[] = leads
-      .filter((l) => selectedLeadIds.has(l.id))
-      .map((l) => ({
-        id: crypto.randomUUID(),
-        lead_id: l.id,
-        channel: "sms" as const,
-        to: l.phone,
-        body: message.trim(),
-        status: "sent" as const,
-        sent_at: now,
-      }));
+    const selectedLeads = leads.filter((l) => selectedLeadIds.has(l.id));
+    const logs: MessageLog[] = [];
 
-    // Simulate send delay
+    for (const lead of selectedLeads) {
+      try {
+        const res = await fetch("/api/marketing/sms", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            leadId: lead.id,
+            to: lead.phone,
+            body: message.trim(),
+          }),
+        });
+
+        logs.push({
+          id: crypto.randomUUID(),
+          lead_id: lead.id,
+          channel: "sms" as const,
+          to: lead.phone,
+          body: message.trim(),
+          status: res.ok ? ("sent" as const) : ("failed" as const),
+          sent_at: new Date().toISOString(),
+        });
+      } catch {
+        logs.push({
+          id: crypto.randomUUID(),
+          lead_id: lead.id,
+          channel: "sms" as const,
+          to: lead.phone,
+          body: message.trim(),
+          status: "failed" as const,
+          sent_at: new Date().toISOString(),
+        });
+      }
+    }
+
+    onSend(logs);
+    setSending(false);
+    setSent(true);
     setTimeout(() => {
-      onSend(logs);
-      setSending(false);
-      setSent(true);
-      setTimeout(() => {
-        setSent(false);
-        setMessage("");
-        setSelectedLeadIds(new Set());
-      }, 2000);
-    }, 800);
+      setSent(false);
+      setMessage("");
+      setSelectedLeadIds(new Set());
+    }, 2000);
   }, [selectedLeadIds, message, leads, onSend]);
 
   const charCount = message.length;
