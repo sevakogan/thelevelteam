@@ -63,6 +63,32 @@ export default function MarketingPage() {
     fetchLeads();
   }, [fetchLeads]);
 
+  // Fetch persisted SMS messages when a lead is focused
+  useEffect(() => {
+    if (!focusedLeadId) return;
+
+    const loadMessages = async () => {
+      try {
+        const res = await fetch(`/api/marketing/sms?leadId=${focusedLeadId}`);
+        if (!res.ok) return;
+        const { messages } = await res.json();
+        if (!Array.isArray(messages) || messages.length === 0) return;
+
+        setMessageLogs((prev) => {
+          const existingIds = new Set(prev.map((m) => m.id));
+          const newMessages = messages.filter(
+            (m: MessageLog) => !existingIds.has(m.id)
+          );
+          return newMessages.length > 0 ? [...prev, ...newMessages] : prev;
+        });
+      } catch {
+        // Silently fail — messages just won't load
+      }
+    };
+
+    loadMessages();
+  }, [focusedLeadId]);
+
   // ─── Lead operations (persisted via API) ─────────────
   const toggleLead = useCallback((id: string) => {
     setSelectedLeadIds((prev) => {

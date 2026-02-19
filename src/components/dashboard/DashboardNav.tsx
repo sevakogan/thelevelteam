@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/components/auth/AuthProvider";
 import Logo from "@/components/ui/Logo";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard" },
@@ -22,7 +23,7 @@ export function DashboardNav() {
         <div className="flex items-center gap-8">
           <Link href="/dashboard" className="flex items-center gap-2">
             <Logo size={22} />
-            <span className="text-white font-semibold text-sm">
+            <span className="text-foreground font-semibold text-sm">
               TheLevel<span className="text-accent-blue">Team</span>
             </span>
           </Link>
@@ -36,8 +37,8 @@ export function DashboardNav() {
                   href={item.href}
                   className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                     isActive
-                      ? "text-white bg-brand-border/40"
-                      : "text-brand-muted hover:text-white hover:bg-brand-border/20"
+                      ? "text-foreground bg-brand-border/40"
+                      : "text-brand-muted hover:text-foreground hover:bg-brand-border/20"
                   }`}
                 >
                   {item.label}
@@ -55,13 +56,14 @@ export function DashboardNav() {
           )}
           <Link
             href="/"
-            className="text-xs text-brand-muted hover:text-white transition-colors"
+            className="text-xs text-brand-muted hover:text-foreground transition-colors"
           >
             View Site
           </Link>
+          <ThemeToggle />
           <button
             onClick={signOut}
-            className="text-xs text-brand-muted hover:text-white transition-colors"
+            className="text-xs text-brand-muted hover:text-foreground transition-colors"
           >
             Sign Out
           </button>

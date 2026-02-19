@@ -2,9 +2,26 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Light mode (default when no .dark class) */
 :root {
+  --background: #FFFFFF;
+  --foreground: #1a1a1a;
+  --brand-dark: #FFFFFF;
+  --brand-darker: #F5F5F7;
+  --brand-card: #FFFFFF;
+  --brand-border: #E5E5EA;
+  --brand-muted: #6B6B80;
+}
+
+/* Dark mode */
+.dark {
   --background: #0A0A0F;
   --foreground: #ededed;
+  --brand-dark: #0A0A0F;
+  --brand-darker: #060609;
+  --brand-card: #12121a;
+  --brand-border: #1e1e2e;
+  --brand-muted: #8888a0;
 }
 
 body {
@@ -23,11 +40,11 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #0A0A0F;
+  background: var(--brand-dark);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1e1e2e;
+  background: var(--brand-border);
   border-radius: 3px;
 }
 

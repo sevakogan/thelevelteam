@@ -25,7 +25,18 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Failed to fetch messages" }, { status: 500 });
     }
 
-    return NextResponse.json({ messages: data ?? [] });
+    // Map DB rows → MessageLog shape the UI expects
+    const messages = (data ?? []).map((row: Record<string, unknown>) => ({
+      id: row.id,
+      lead_id: row.lead_id,
+      channel: "sms" as const,
+      to: row.direction === "inbound" ? "you" : row.phone,
+      body: row.body,
+      status: row.status ?? "sent",
+      sent_at: row.created_at,
+    }));
+
+    return NextResponse.json({ messages });
   } catch (err) {
     console.error("SMS GET error:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

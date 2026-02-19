@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import Logo from "@/components/ui/Logo";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 import { useLeadModal } from "@/lib/marketing/useLeadModal";
 
 const navLinks = [
@@ -36,7 +37,7 @@ export default function Header() {
           {/* Left — Logo + Name */}
           <a href="/" className="flex items-center gap-2.5 group">
             <Logo size={24} />
-            <span className="text-white font-semibold text-sm tracking-tight">
+            <span className="text-foreground font-semibold text-sm tracking-tight">
               TheLevel<span className="text-accent-blue">Team</span>
             </span>
           </a>
@@ -47,7 +48,7 @@ export default function Header() {
               <a
                 key={link.label}
                 href={link.href}
-                className="text-sm text-brand-muted hover:text-white transition-colors"
+                className="text-sm text-brand-muted hover:text-foreground transition-colors"
               >
                 {link.label}
               </a>
@@ -66,6 +67,8 @@ export default function Header() {
               </svg>
               Admin
             </Link>
+
+            <ThemeToggle />
 
             <motion.button
               onClick={() => openModal()}
