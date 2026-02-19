@@ -5,19 +5,25 @@ const { company } = MARKETING_CONFIG;
 
 // --- SMS Templates ---
 
-export function getWelcomeSMS(lead: Lead): string {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function getWelcomeSMS(_lead: Lead): string {
   return (
-    `Hi ${lead.name}! Thanks for reaching out to ${company.name}. ` +
-    `We'll be in touch within 24hrs. Reply STOP to opt out.`
+    `Hey! Thanks for checking us out — we're stoked you reached out. ` +
+    `Someone from our team will hit you up within 24hrs. Reply STOP to opt out.`
   );
 }
 
-export function getDripSMS(step: number, lead: Lead): string {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function getDripSMS(step: number, _lead: Lead): string {
   const messages: readonly string[] = [
-    `Hi ${lead.name}, quick question — what's your biggest challenge right now? We'd love to help. - ${company.name}`,
-    `Did you know ${company.name} has helped clients increase efficiency by 40%? Check out our work: ${company.website}`,
-    `Still thinking it over, ${lead.name}? Let's schedule a quick 15-min call. Reply YES to connect. - ${company.name}`,
-    `Last check-in, ${lead.name}! We're here whenever you're ready. Visit ${company.website} or reply to chat. - ${company.name}`,
+    // Step 0 — Day 2: Quick Question
+    `Hey! Quick q — what's the ONE thing holding your project back right now? We love solving tricky problems 🌟`,
+    // Step 1 — Day 5: Real Results
+    `Fun fact: we helped a client 3x their user signups in 60 days. Wanna see how? Check it out 👉 ${company.website}`,
+    // Step 2 — Day 10: Let's Chat
+    `No pitch, just a 15-min chat to see if we're a good fit. Sound cool? Reply YES and we'll set it up!`,
+    // Step 3 — Day 20: Still Here
+    `No pressure at all! Just wanted you to know we're here whenever you're ready. Reply anytime or swing by ${company.website} 🤙`,
   ];
 
   return messages[step] ?? messages[messages.length - 1];
@@ -27,15 +33,14 @@ export function getDripSMS(step: number, lead: Lead): string {
 
 export function getWelcomeEmail(lead: Lead): { subject: string; html: string } {
   return {
-    subject: `Thanks for reaching out, ${lead.name}!`,
+    subject: `Welcome! 🎉`,
     html: buildEmailHTML({
-      headline: `Welcome, ${lead.name}!`,
+      headline: `Welcome, ${lead.name}! 🎉`,
       body: `
-        <p>Thank you for your interest in ${company.name}. We received your inquiry and a team member will follow up within 24 hours.</p>
-        ${lead.project_interest ? `<p>We see you're interested in our <strong>${lead.project_interest}</strong> project — great choice!</p>` : ""}
-        <p>In the meantime, feel free to explore our portfolio at <a href="${company.website}">${company.website}</a>.</p>
+        <p>Hey there! We're so glad you reached out. Our team is already buzzing about your project — expect a personal reply within 24 hours.</p>
+        <p>In the meantime, grab a coffee and check out some of our latest work!</p>
       `,
-      cta: { text: "View Our Work", url: company.website },
+      cta: { text: "See Our Work", url: company.website },
       lead,
     }),
   };
@@ -47,29 +52,31 @@ export function getDripEmail(
 ): { subject: string; html: string } {
   const emails: readonly { subject: string; headline: string; body: string; ctaText: string }[] = [
     {
-      subject: "Here's what we do best",
-      headline: "Our Services",
-      body: `<p>At ${company.name}, we specialize in building custom web applications, SaaS platforms, and digital experiences that drive real business results.</p><p>From concept to launch, we handle design, development, and deployment — so you can focus on what you do best.</p>`,
+      // Day 1: What We're All About
+      subject: "What We're All About 🛠️",
+      headline: "What We're All About 🛠️",
+      body: `<p>We build things people actually love using — from sleek web apps to full SaaS platforms.</p><p>Here's a peek behind the curtain at how we bring ideas to life (spoiler: it involves a lot of coffee and zero boring meetings).</p>`,
       ctaText: "See Our Services",
     },
     {
-      subject: lead.project_interest
-        ? `Case study: ${lead.project_interest}`
-        : "See what we've built",
-      headline: "Our Recent Work",
-      body: `<p>Every project we build is tailored to our client's unique needs. We don't do cookie-cutter solutions.</p><p>Check out our portfolio to see real examples of the results we deliver.</p>`,
+      // Day 3: See It In Action
+      subject: "See It In Action 👀",
+      headline: "See It In Action 👀",
+      body: `<p>Nothing speaks louder than results. Check out how we helped real clients launch faster, grow bigger, and stress less.</p><p>Real projects, real outcomes — no fluff.</p>`,
       ctaText: "View Case Studies",
     },
     {
-      subject: "What our clients are saying",
-      headline: "Client Results",
-      body: `<p>Our clients see real, measurable improvements after working with us — from increased efficiency to higher revenue.</p><p>We'd love to help you achieve similar results.</p>`,
-      ctaText: "Get Started",
+      // Day 7: Don't Take Our Word For It
+      subject: "Don't Take Our Word For It 💬",
+      headline: "Don't Take Our Word For It 💬",
+      body: `<p>Our clients say it better than we ever could. Here's what they're saying about working with us — the good, the great, and the 'why didn't we do this sooner.'</p>`,
+      ctaText: "Read Testimonials",
     },
     {
-      subject: `Ready to get started, ${lead.name}?`,
-      headline: "Let's Build Something Great",
-      body: `<p>We've enjoyed sharing our work with you over the past couple of weeks.</p><p>If you're ready to take the next step, we'd love to hop on a quick call to discuss your project. No pressure, no commitment — just a conversation.</p>`,
+      // Day 14: Let's Make It Happen
+      subject: `Let's Make It Happen 🤝`,
+      headline: `Let's Make It Happen, ${lead.name} 🤝`,
+      body: `<p>Ready to turn your idea into something real? Let's hop on a quick no-pressure call.</p><p>Worst case, you walk away with some free advice. Best case? We build something amazing together.</p>`,
       ctaText: "Let's Talk",
     },
   ];
