@@ -106,27 +106,46 @@ export function LeadConversation({
     }
   }, [lead, smsText, canSendSms, onSend]);
 
-  const handleSendEmail = useCallback(() => {
+  const handleSendEmail = useCallback(async () => {
     if (!lead || !emailSubject.trim() || !emailBody.trim() || !canSendEmail) return;
     setSending(true);
 
-    const log: MessageLog = {
-      id: crypto.randomUUID(),
-      lead_id: lead.id,
-      channel: "email",
-      to: lead.email,
-      subject: emailSubject.trim(),
-      body: emailBody.trim(),
-      status: "sent",
-      sent_at: new Date().toISOString(),
-    };
+    try {
+      const res = await fetch("/api/marketing/email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          leadId: lead.id,
+          to: lead.email,
+          subject: emailSubject.trim(),
+          body: emailBody.trim(),
+        }),
+      });
 
-    setTimeout(() => {
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to send email");
+      }
+
+      const log: MessageLog = {
+        id: crypto.randomUUID(),
+        lead_id: lead.id,
+        channel: "email",
+        to: lead.email,
+        subject: emailSubject.trim(),
+        body: emailBody.trim(),
+        status: "sent",
+        sent_at: new Date().toISOString(),
+      };
+
       onSend([log]);
       setEmailSubject("");
       setEmailBody("");
+    } catch (err) {
+      console.error("Email send error:", err);
+    } finally {
       setSending(false);
-    }, 600);
+    }
   }, [lead, emailSubject, emailBody, canSendEmail, onSend]);
 
   if (!lead) {

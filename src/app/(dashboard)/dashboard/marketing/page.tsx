@@ -88,30 +88,29 @@ export default function MarketingPage() {
     fetchCampaigns();
   }, [fetchLeads, fetchCampaigns]);
 
-  // Fetch persisted SMS messages when a lead is focused
+  // Fetch persisted SMS + email messages when a lead is focused
   useEffect(() => {
     if (!focusedLeadId) return;
 
-    const loadMessages = async () => {
-      try {
-        const res = await fetch(`/api/marketing/sms?leadId=${focusedLeadId}`);
-        if (!res.ok) return;
-        const { messages } = await res.json();
-        if (!Array.isArray(messages) || messages.length === 0) return;
-
-        setMessageLogs((prev) => {
-          const existingIds = new Set(prev.map((m) => m.id));
-          const newMessages = messages.filter(
-            (m: MessageLog) => !existingIds.has(m.id)
-          );
-          return newMessages.length > 0 ? [...prev, ...newMessages] : prev;
-        });
-      } catch {
-        // Silently fail — messages just won't load
-      }
+    const mergeMessages = (incoming: MessageLog[]) => {
+      if (incoming.length === 0) return;
+      setMessageLogs((prev) => {
+        const existingIds = new Set(prev.map((m) => m.id));
+        const newMessages = incoming.filter((m) => !existingIds.has(m.id));
+        return newMessages.length > 0 ? [...prev, ...newMessages] : prev;
+      });
     };
 
-    loadMessages();
+    // Load SMS and email in parallel
+    fetch(`/api/marketing/sms?leadId=${focusedLeadId}`)
+      .then((r) => (r.ok ? r.json() : { messages: [] }))
+      .then(({ messages }) => mergeMessages(messages ?? []))
+      .catch(() => {});
+
+    fetch(`/api/marketing/email?leadId=${focusedLeadId}`)
+      .then((r) => (r.ok ? r.json() : { messages: [] }))
+      .then(({ messages }) => mergeMessages(messages ?? []))
+      .catch(() => {});
   }, [focusedLeadId]);
 
   // ─── Lead operations (persisted via API) ─────────────

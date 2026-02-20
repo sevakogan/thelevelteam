@@ -142,24 +142,40 @@ export async function processNextDripMessages(): Promise<SendResult> {
     try {
       // Send SMS if available and consented
       if (smsMsg && lead.sms_consent && (campaign.channel === "sms" || campaign.channel === "both")) {
-        const body = smsMsg.body || getDripSMS(state.current_step, lead);
-        await sendSMS(lead.phone, body);
+        const smsBody = smsMsg.body || getDripSMS(state.current_step, lead);
+        await sendSMS(lead.phone, smsBody);
         sent++;
       }
 
       // Send Email if available and consented
       if (emailMsg && lead.email_consent && (campaign.channel === "email" || campaign.channel === "both")) {
-        // If body comes from DB, wrap it in the branded HTML template
+        let emailSubject: string;
+        let emailBody: string;
+
         if (emailMsg.body) {
-          const subject = emailMsg.subject || `Message from TheLevelTeam`;
+          emailSubject = emailMsg.subject || `Message from TheLevelTeam`;
+          emailBody = emailMsg.body;
           const html = buildDripEmailHTML(emailMsg.subject || "", emailMsg.body, lead);
-          await sendEmail(lead.email, subject, html);
+          await sendEmail(lead.email, emailSubject, html);
         } else {
-          // Fallback to hardcoded template
           const emailContent = getDripEmail(state.current_step, lead);
-          const subject = emailMsg.subject || emailContent.subject;
-          await sendEmail(lead.email, subject, emailContent.html);
+          emailSubject = emailMsg.subject || emailContent.subject;
+          emailBody = emailContent.subject;
+          await sendEmail(lead.email, emailSubject, emailContent.html);
         }
+
+        // Store outbound email for conversation history
+        supabase.from("email_messages").insert({
+          lead_id: lead.id,
+          email: lead.email,
+          direction: "outbound",
+          subject: emailSubject,
+          body: emailBody,
+          status: "sent",
+        }).then(({ error: insertErr }) => {
+          if (insertErr) console.warn("Could not store outbound drip email:", insertErr.message);
+        });
+
         sent++;
       }
     } catch (err) {

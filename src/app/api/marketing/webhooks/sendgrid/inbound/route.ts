@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { getCampaignNamesForLead } from "@/lib/marketing/drip";
 import { notifySlack, formatEmailResponse } from "@/lib/marketing/slack";
+import { sendEmail } from "@/lib/marketing/sendgrid";
+
+const FORWARD_TO = process.env.LEAD_FORWARD_EMAIL || "seva+leads@thelevelteam.com";
 
 /**
  * SendGrid Inbound Parse webhook — receives email replies from leads.
@@ -70,6 +73,28 @@ export async function POST(req: NextRequest) {
         leadName: lead?.name,
         campaignNames,
       })
+    );
+
+    // Forward the reply to the team inbox
+    const senderName = lead?.name ?? senderEmail;
+    const campaignCtx = campaignNames.length > 0
+      ? `\nCampaign: ${campaignNames.join(", ")}`
+      : "";
+    const forwardSubject = `[Lead Reply] ${senderName}: ${subject ?? "(no subject)"}`;
+    const forwardHtml = [
+      `<div style="font-family:sans-serif;padding:16px;max-width:600px">`,
+      `<p style="color:#666;font-size:12px;margin:0 0 12px">`,
+      `Reply from <strong>${senderName}</strong> &lt;${senderEmail}&gt;${campaignCtx}`,
+      `</p>`,
+      `<hr style="border:none;border-top:1px solid #eee;margin:12px 0">`,
+      `<div style="font-size:14px;line-height:1.6;white-space:pre-wrap">${body}</div>`,
+      `<hr style="border:none;border-top:1px solid #eee;margin:12px 0">`,
+      `<p style="color:#999;font-size:11px">Original subject: ${subject ?? "–"}</p>`,
+      `</div>`,
+    ].join("");
+
+    sendEmail(FORWARD_TO, forwardSubject, forwardHtml).catch((err) =>
+      console.error("Failed to forward email:", err)
     );
 
     return NextResponse.json({ received: true });
