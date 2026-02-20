@@ -7,6 +7,7 @@ import { getWelcomeSMS, getWelcomeEmail } from "@/lib/marketing/templates";
 import { enrollLeadInCampaigns } from "@/lib/marketing/drip";
 import { notifySlack } from "@/lib/marketing/slack";
 import { createSupabaseServer } from "@/lib/supabase-auth-server";
+import { getSupabaseAdmin } from "@/lib/supabase-server";
 
 function formatNewLeadSlack(lead: { name: string; email?: string | null; phone?: string | null; message?: string | null; source?: string | null }): string {
   const lines = [`:rotating_light: *New Lead: ${lead.name}*`];
@@ -50,20 +51,47 @@ export async function POST(req: NextRequest) {
       )
     );
 
+    const supabase = getSupabaseAdmin();
+
     if (lead.sms_consent) {
+      const smsBody = getWelcomeSMS(lead);
       welcomePromises.push(
-        sendSMS(lead.phone, getWelcomeSMS(lead)).catch((err) =>
-          console.error("Welcome SMS failed:", err)
-        )
+        sendSMS(lead.phone, smsBody)
+          .then((result) => {
+            // Store outbound welcome SMS
+            supabase.from("sms_messages").insert({
+              lead_id: lead.id,
+              phone: lead.phone,
+              direction: "outbound",
+              body: smsBody,
+              twilio_sid: result.sid,
+              status: result.status,
+            }).then(({ error: insertErr }) => {
+              if (insertErr) console.warn("Could not store welcome SMS:", insertErr.message);
+            });
+          })
+          .catch((err) => console.error("Welcome SMS failed:", err))
       );
     }
 
     if (lead.email_consent) {
       const { subject, html } = getWelcomeEmail(lead);
       welcomePromises.push(
-        sendEmail(lead.email, subject, html).catch((err) =>
-          console.error("Welcome email failed:", err)
-        )
+        sendEmail(lead.email, subject, html)
+          .then(() => {
+            // Store outbound welcome email
+            supabase.from("email_messages").insert({
+              lead_id: lead.id,
+              email: lead.email,
+              direction: "outbound",
+              subject,
+              body: `Welcome email sent to ${lead.name}`,
+              status: "sent",
+            }).then(({ error: insertErr }) => {
+              if (insertErr) console.warn("Could not store welcome email:", insertErr.message);
+            });
+          })
+          .catch((err) => console.error("Welcome email failed:", err))
       );
     }
 

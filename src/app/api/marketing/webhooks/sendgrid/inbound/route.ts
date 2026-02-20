@@ -46,12 +46,14 @@ export async function POST(req: NextRequest) {
 
     const supabase = getSupabaseAdmin();
 
-    // Look up the lead by email
+    // Look up the lead by email (case-insensitive, most recent first)
     const { data: lead } = await supabase
       .from("leads")
       .select("id, name")
-      .eq("email", senderEmail)
-      .single();
+      .ilike("email", senderEmail)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
     // Store the inbound email in a log (optional — for conversation tracking)
     await supabase.from("email_messages").insert({

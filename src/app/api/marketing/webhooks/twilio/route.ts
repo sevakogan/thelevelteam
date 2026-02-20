@@ -29,12 +29,31 @@ export async function POST(req: NextRequest) {
 
     const supabase = getSupabaseAdmin();
 
-    // Look up the lead by phone number
-    const { data: lead } = await supabase
+    // Look up the lead by phone number (try exact match first, then stripped)
+    const stripped = from.replace(/^\+1/, "").replace(/\D/g, "");
+    let lead: { id: string; name: string } | null = null;
+
+    const { data: exactMatch } = await supabase
       .from("leads")
       .select("id, name")
       .eq("phone", from)
-      .single();
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (exactMatch) {
+      lead = exactMatch;
+    } else {
+      // Try matching without country code (some leads stored as 9544591697)
+      const { data: fuzzyMatch } = await supabase
+        .from("leads")
+        .select("id, name")
+        .or(`phone.eq.${stripped},phone.eq.+1${stripped},phone.ilike.%${stripped}`)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      lead = fuzzyMatch;
+    }
 
     // Handle opt-out
     if (isOptOutKeyword(body)) {
