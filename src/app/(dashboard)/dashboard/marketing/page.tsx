@@ -362,19 +362,37 @@ export default function MarketingPage() {
     );
   }
 
+  // ─── Stats ──────────────────────────────────────────
+  const recentCount = leads.filter((l) => {
+    const diff = Date.now() - new Date(l.created_at).getTime();
+    return diff < 7 * 24 * 60 * 60 * 1000; // last 7 days
+  }).length;
+
+  const activeLeadCount = leads.filter((l) =>
+    !["won", "lost", "unsubscribed"].includes(l.status)
+  ).length;
+
   return (
     <div className="space-y-6">
-      {/* ─── Top Header ──────────────────────────────────────── */}
-      <div>
-        <h1 className="text-2xl font-bold text-white">Marketing</h1>
-        <p className="text-brand-muted text-sm mt-1">
-          Manage leads, pipeline, campaigns, and messaging
-        </p>
+      {/* ─── Header + Stats ──────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-white">Marketing</h1>
+          <p className="text-brand-muted text-sm mt-1">
+            Manage leads, campaigns, and messaging
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <StatCard label="Total Leads" value={leads.length} color="blue" />
+          <StatCard label="Active" value={activeLeadCount} color="green" />
+          <StatCard label="This Week" value={recentCount} color="purple" />
+          <StatCard label="Campaigns" value={campaigns.length} color="cyan" />
+        </div>
       </div>
 
       {/* ─── Tab Navigation ──────────────────────────────────── */}
       <div className="flex items-center justify-between border-b border-brand-border">
-        <div className="flex items-center gap-0 overflow-x-auto">
+        <div className="flex items-center gap-1 overflow-x-auto">
           <TabButton
             active={activeTab === "leads"}
             onClick={() => setActiveTab("leads")}
@@ -385,6 +403,7 @@ export default function MarketingPage() {
             }
             label="Leads"
             count={leads.length}
+            hasNotification={hasNewLeads}
           />
           <TabButton
             active={activeTab === "campaigns"}
@@ -407,17 +426,17 @@ export default function MarketingPage() {
           <button
             type="button"
             onClick={() => setShowAddLead(true)}
-            className="flex items-center gap-2 text-sm font-medium text-white bg-accent-blue hover:bg-accent-blue/80 px-4 py-2 rounded-xl transition-colors shadow-lg shadow-accent-blue/20 mb-2 shrink-0"
+            className="flex items-center gap-2 text-sm font-medium text-white bg-accent-blue hover:bg-accent-blue/80 px-4 py-2 rounded-lg transition-colors shadow-lg shadow-accent-blue/20 mb-2 shrink-0"
           >
             <PlusIcon className="w-4 h-4" />
-            Add a Lead
+            Add Lead
           </button>
         )}
         {activeTab === "campaigns" && (
           <button
             type="button"
             onClick={addCampaign}
-            className="flex items-center gap-2 text-sm font-medium text-white bg-accent-blue hover:bg-accent-blue/80 px-4 py-2 rounded-xl transition-colors shadow-lg shadow-accent-blue/20 mb-2 shrink-0"
+            className="flex items-center gap-2 text-sm font-medium text-white bg-accent-blue hover:bg-accent-blue/80 px-4 py-2 rounded-lg transition-colors shadow-lg shadow-accent-blue/20 mb-2 shrink-0"
           >
             <PlusIcon className="w-4 h-4" />
             New Campaign
@@ -427,7 +446,7 @@ export default function MarketingPage() {
           <button
             type="button"
             onClick={addAutomationRule}
-            className="flex items-center gap-2 text-sm font-medium text-white bg-accent-blue hover:bg-accent-blue/80 px-4 py-2 rounded-xl transition-colors shadow-lg shadow-accent-blue/20 mb-2 shrink-0"
+            className="flex items-center gap-2 text-sm font-medium text-white bg-accent-blue hover:bg-accent-blue/80 px-4 py-2 rounded-lg transition-colors shadow-lg shadow-accent-blue/20 mb-2 shrink-0"
           >
             <PlusIcon className="w-4 h-4" />
             New Rule
@@ -437,8 +456,8 @@ export default function MarketingPage() {
 
       {/* ─── Leads Tab ───────────────────────────────────────── */}
       {activeTab === "leads" && (
-        <div className="space-y-4">
-          {/* Pipeline on top */}
+        <div className="space-y-5">
+          {/* Pipeline Kanban */}
           <LeadKanban
             leads={leads}
             onUpdateStatus={updateLeadStatus}
@@ -450,7 +469,7 @@ export default function MarketingPage() {
             onSelectPipeline={setActivePipelineId}
           />
 
-          {/* Search bar */}
+          {/* Search */}
           <LeadSearch
             filters={searchFilters}
             onChange={setSearchFilters}
@@ -458,10 +477,10 @@ export default function MarketingPage() {
             totalCount={leads.length}
           />
 
-          {/* 2-column layout: Leads list (left) + Conversation (right) */}
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-4">
-            {/* Left — leads list + assign bar */}
-            <div className="space-y-4">
+          {/* 2-column layout: Leads list + Conversation */}
+          <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-5">
+            {/* Left — leads list + assign bars */}
+            <div className="space-y-3">
               <LeadsList
                 leads={filteredLeads}
                 selectedIds={selectedLeadIds}
@@ -478,19 +497,22 @@ export default function MarketingPage() {
                 hasNewLeads={hasNewLeads}
               />
 
-              <AssignCampaignBar
-                selectedCount={selectedLeadIds.size}
-                campaigns={campaigns}
-                onAssign={assignCampaigns}
-                onClear={clearSelection}
-              />
-
-              <AssignPipelineBar
-                selectedCount={selectedLeadIds.size}
-                pipelines={pipelines}
-                onAssign={assignPipelines}
-                onClear={clearSelection}
-              />
+              {selectedLeadIds.size > 0 && (
+                <div className="flex flex-col gap-2">
+                  <AssignCampaignBar
+                    selectedCount={selectedLeadIds.size}
+                    campaigns={campaigns}
+                    onAssign={assignCampaigns}
+                    onClear={clearSelection}
+                  />
+                  <AssignPipelineBar
+                    selectedCount={selectedLeadIds.size}
+                    pipelines={pipelines}
+                    onAssign={assignPipelines}
+                    onClear={clearSelection}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Right — conversation panel */}
@@ -508,7 +530,7 @@ export default function MarketingPage() {
       {/* ─── Campaigns Tab ───────────────────────────────────── */}
       {activeTab === "campaigns" && (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-5">
             <CampaignSidebar
               campaigns={campaigns}
               activeCampaignId={activeCampaignId}
@@ -574,12 +596,14 @@ function TabButton({
   icon,
   label,
   count,
+  hasNotification,
 }: {
   readonly active: boolean;
   readonly onClick: () => void;
   readonly icon: React.ReactNode;
   readonly label: string;
   readonly count: number;
+  readonly hasNotification?: boolean;
 }) {
   return (
     <button
@@ -592,7 +616,15 @@ function TabButton({
       }`}
     >
       {icon}
-      {label}
+      <span className="relative">
+        {label}
+        {hasNotification && !active && (
+          <span className="absolute -top-1 -right-2.5 flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+          </span>
+        )}
+      </span>
       {count > 0 && (
         <span
           className={`text-xs px-1.5 py-0.5 rounded-full ${
@@ -608,5 +640,31 @@ function TabButton({
         <span className="absolute bottom-0 left-2 right-2 h-0.5 bg-accent-blue rounded-full" />
       )}
     </button>
+  );
+}
+
+// ─── Stat Card ──────────────────────────────────────────────────────────────────
+
+function StatCard({
+  label,
+  value,
+  color,
+}: {
+  readonly label: string;
+  readonly value: number;
+  readonly color: "blue" | "green" | "purple" | "cyan";
+}) {
+  const colors: Record<string, string> = {
+    blue: "text-blue-400 bg-blue-500/10 border-blue-500/20",
+    green: "text-green-400 bg-green-500/10 border-green-500/20",
+    purple: "text-purple-400 bg-purple-500/10 border-purple-500/20",
+    cyan: "text-cyan-400 bg-cyan-500/10 border-cyan-500/20",
+  };
+
+  return (
+    <div className={`border rounded-lg px-3 py-2 min-w-[80px] ${colors[color]}`}>
+      <p className="text-lg font-bold leading-tight">{value}</p>
+      <p className="text-[10px] opacity-70 font-medium">{label}</p>
+    </div>
   );
 }
