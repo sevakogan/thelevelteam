@@ -93,9 +93,12 @@ export async function POST(req: NextRequest) {
       `</div>`,
     ].join("");
 
-    sendEmail(FORWARD_TO, forwardSubject, forwardHtml).catch((err) =>
-      console.error("Failed to forward email:", err)
-    );
+    try {
+      await sendEmail(FORWARD_TO, forwardSubject, forwardHtml);
+      console.log(`Email forwarded to ${FORWARD_TO}`);
+    } catch (err) {
+      console.error("Failed to forward email to", FORWARD_TO, ":", err);
+    }
 
     return NextResponse.json({ received: true });
   } catch (err) {

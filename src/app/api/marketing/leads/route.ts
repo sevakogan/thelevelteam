@@ -92,7 +92,8 @@ export async function POST(req: NextRequest) {
 
 async function isAuthorized(req: NextRequest): Promise<boolean> {
   const password = req.headers.get("x-admin-password");
-  if (password === process.env.ADMIN_PASSWORD) return true;
+  const adminPassword = process.env.ADMIN_PASSWORD?.trim();
+  if (password && adminPassword && password === adminPassword) return true;
 
   try {
     const supabase = await createSupabaseServer();

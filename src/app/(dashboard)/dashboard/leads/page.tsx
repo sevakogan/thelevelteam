@@ -75,7 +75,7 @@ export default function LeadsPage() {
                 <th className="text-left text-brand-muted font-medium px-4 py-3 hidden md:table-cell">Phone</th>
                 <th className="text-left text-brand-muted font-medium px-4 py-3 hidden lg:table-cell">Project</th>
                 <th className="text-left text-brand-muted font-medium px-4 py-3">Status</th>
-                <th className="text-left text-brand-muted font-medium px-4 py-3 hidden sm:table-cell">Date</th>
+                <th className="text-left text-brand-muted font-medium px-4 py-3 hidden sm:table-cell">Date & Time</th>
               </tr>
             </thead>
             <tbody>
@@ -89,7 +89,17 @@ export default function LeadsPage() {
                     <StatusBadge status={lead.status} />
                   </td>
                   <td className="px-4 py-3 text-brand-muted text-xs hidden sm:table-cell">
-                    {new Date(lead.created_at).toLocaleDateString()}
+                    {new Date(lead.created_at).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                    })}{" "}
+                    <span className="text-brand-muted/60">
+                      {new Date(lead.created_at).toLocaleTimeString("en-US", {
+                        hour: "numeric",
+                        minute: "2-digit",
+                        hour12: true,
+                      })}
+                    </span>
                   </td>
                 </tr>
               ))}

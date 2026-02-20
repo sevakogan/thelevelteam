@@ -278,7 +278,8 @@ function LeadDetail({
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <span className="text-[10px] text-brand-muted/60">
-              {lead.source} · {new Date(lead.created_at).toLocaleDateString()}
+              {lead.source} · {new Date(lead.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}{" "}
+              {new Date(lead.created_at).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })}
             </span>
           </div>
           <div className="flex items-center gap-2">

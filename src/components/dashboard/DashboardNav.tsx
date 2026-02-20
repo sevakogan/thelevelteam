@@ -7,17 +7,59 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import Logo from "@/components/ui/Logo";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 
-const navItems = [
+interface NavItem {
+  readonly label: string;
+  readonly href: string;
+  readonly notify?: boolean;
+}
+
+const navItems: readonly NavItem[] = [
   { label: "Dashboard", href: "/dashboard" },
-  { label: "Leads", href: "/dashboard/leads" },
-  { label: "Marketing", href: "/dashboard/marketing" },
+  { label: "Leads", href: "/dashboard/leads", notify: true },
+  { label: "Marketing", href: "/dashboard/marketing", notify: true },
 ];
+
+function useNewLeadNotification() {
+  const [hasNew, setHasNew] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function check() {
+      try {
+        const res = await fetch("/api/marketing/leads/recent");
+        if (!res.ok) return;
+        const { count } = await res.json();
+        if (!cancelled) setHasNew(count > 0);
+      } catch {
+        // silently ignore
+      }
+    }
+
+    check();
+    const interval = setInterval(check, 30_000); // poll every 30s
+    return () => { cancelled = true; clearInterval(interval); };
+  }, []);
+
+  // Clear notification when visiting leads or marketing pages
+  useEffect(() => {
+    if (pathname.startsWith("/dashboard/leads") || pathname.startsWith("/dashboard/marketing")) {
+      setHasNew(false);
+      // Mark as seen
+      fetch("/api/marketing/leads/recent", { method: "POST" }).catch(() => {});
+    }
+  }, [pathname]);
+
+  return hasNew;
+}
 
 export function DashboardNav() {
   const { profile, signOut } = useAuth();
   const pathname = usePathname();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const hasNewLeads = useNewLeadNotification();
 
   const closeDropdown = useCallback(() => setDropdownOpen(false), []);
 
@@ -47,17 +89,19 @@ export function DashboardNav() {
           <nav className="hidden md:flex items-center gap-1">
             {navItems.map((item) => {
               const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
+              const showDot = item.notify && hasNewLeads && !isActive;
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                  className={`relative px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
                     isActive
                       ? "text-foreground bg-brand-border/40"
                       : "text-brand-muted hover:text-foreground hover:bg-brand-border/20"
                   }`}
                 >
                   {item.label}
+                  {showDot && <NotificationDot />}
                 </Link>
               );
             })}
@@ -124,5 +168,14 @@ export function DashboardNav() {
         </div>
       </div>
     </header>
+  );
+}
+
+function NotificationDot() {
+  return (
+    <span className="absolute -top-0.5 -right-0.5 flex h-2.5 w-2.5">
+      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+      <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500 shadow-[0_0_6px_2px_rgba(34,197,94,0.4)]" />
+    </span>
   );
 }
