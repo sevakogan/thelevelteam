@@ -21,12 +21,25 @@ function getTwilioClient() {
   );
 }
 
+/**
+ * Normalize a US phone number to E.164 format (+1XXXXXXXXXX).
+ * Twilio requires E.164; leads may be stored as "9544591697" or "+19544591697".
+ */
+function toE164(phone: string): string {
+  const digits = phone.replace(/\D/g, "");
+  if (digits.length === 10) return `+1${digits}`;
+  if (digits.length === 11 && digits.startsWith("1")) return `+${digits}`;
+  // Already has country code or non-US — pass through with +
+  return phone.startsWith("+") ? phone : `+${digits}`;
+}
+
 export async function sendSMS(to: string, body: string) {
   const client = getTwilioClient();
+  const e164 = toE164(to);
   const message = await client.messages.create({
     body,
     from: MARKETING_CONFIG.twilio.phoneNumber(),
-    to,
+    to: e164,
   });
   return {
     sid: message.sid,
