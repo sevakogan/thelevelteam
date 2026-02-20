@@ -644,11 +644,18 @@ function LeadCard({
           <span className="text-[10px] text-brand-muted truncate">{lead.email}</span>
         )}
       </div>
-      {lead.notes && (
-        <p className="text-[10px] text-brand-muted/80 mt-1 line-clamp-2 leading-relaxed">
-          {lead.notes}
+      {/* Message / notes preview */}
+      {(lead.message || lead.notes) && (
+        <p className="text-[10px] text-brand-muted/70 mt-1 line-clamp-2 leading-relaxed">
+          {lead.message || lead.notes}
         </p>
       )}
+      {/* Date received */}
+      <p className="text-[9px] text-brand-muted/50 mt-1.5">
+        {new Date(lead.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+        {" "}
+        {new Date(lead.created_at).toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })}
+      </p>
     </div>
   );
 }

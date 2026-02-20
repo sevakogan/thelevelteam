@@ -137,6 +137,18 @@ function LeadRow({
     .map((id) => pipelines.find((p) => p.id === id)?.name)
     .filter(Boolean);
 
+  // Determine the most recent timestamp: last message or created_at
+  const lastMessageAt = messageLogs.length > 0
+    ? messageLogs.reduce((latest, m) => {
+        const t = new Date(m.sent_at).getTime();
+        return t > latest ? t : latest;
+      }, 0)
+    : null;
+  const displayDate = lastMessageAt
+    ? new Date(lastMessageAt).toISOString()
+    : lead.created_at;
+  const dateLabel = lastMessageAt ? "Last msg" : "Received";
+
   return (
     <div>
       {/* Summary row */}
@@ -149,9 +161,10 @@ function LeadRow({
         <button
           type="button"
           onClick={onFocus}
-          className="flex-1 min-w-0 text-left flex items-center gap-3"
+          className="flex-1 min-w-0 text-left"
         >
           <div className="flex-1 min-w-0">
+            {/* Row 1: Name + Status + Date */}
             <div className="flex items-center gap-2">
               <span className="text-sm text-white font-medium truncate">
                 {lead.name}
@@ -162,7 +175,11 @@ function LeadRow({
                 </span>
               )}
               <StatusBadge status={lead.status} />
+              <span className="ml-auto text-[10px] text-brand-muted/60 shrink-0 hidden sm:inline">
+                {dateLabel} · {formatShortDateTime(displayDate)}
+              </span>
             </div>
+            {/* Row 2: Contact info */}
             <div className="flex items-center gap-2 mt-0.5 flex-wrap">
               {lead.phone && <span className="text-xs text-brand-muted truncate">{lead.phone}</span>}
               {lead.email && <span className="text-xs text-brand-muted truncate hidden sm:inline">{lead.email}</span>}
@@ -181,6 +198,12 @@ function LeadRow({
                 </span>
               )}
             </div>
+            {/* Row 3: Lead message/notes preview (if any) */}
+            {(lead.message || lead.notes) && (
+              <p className="text-[11px] text-brand-muted/70 mt-1 truncate leading-relaxed">
+                {lead.message || lead.notes}
+              </p>
+            )}
           </div>
         </button>
         <button
@@ -767,6 +790,13 @@ function PipelineAddDropdown({
       )}
     </div>
   );
+}
+
+function formatShortDateTime(iso: string): string {
+  const d = new Date(iso);
+  const date = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const time = d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+  return `${date}, ${time}`;
 }
 
 function formatMessageDate(iso: string): string {
