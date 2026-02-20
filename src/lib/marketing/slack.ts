@@ -41,6 +41,18 @@ interface ResponseContext {
   readonly campaignNames: readonly string[];
 }
 
+/** Format current time as readable ET timestamp for Slack */
+function timestamp(): string {
+  return new Date().toLocaleString("en-US", {
+    timeZone: "America/New_York",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
 /**
  * Format a Slack notification for an SMS reply with campaign context.
  */
@@ -51,6 +63,7 @@ export function formatSMSResponse(
 ): string {
   const sender = ctx.leadName ? `${ctx.leadName} (${from})` : from;
   const lines = [`:speech_balloon: *SMS Reply from ${sender}*`];
+  lines.push(`:clock1: ${timestamp()}`);
 
   if (ctx.campaignNames.length > 0) {
     lines.push(`:dart: Campaign${ctx.campaignNames.length > 1 ? "s" : ""}: ${ctx.campaignNames.join(", ")}`);
@@ -71,6 +84,7 @@ export function formatEmailResponse(
 ): string {
   const sender = ctx.leadName ? `${ctx.leadName} (${from})` : from;
   const lines = [`:email: *Email Reply from ${sender}*`];
+  lines.push(`:clock1: ${timestamp()}`);
 
   if (subject) {
     lines.push(`>:pencil: Subject: ${subject}`);
