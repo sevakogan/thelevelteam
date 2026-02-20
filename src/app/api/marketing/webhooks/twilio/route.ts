@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 import { isOptOutKeyword } from "@/lib/marketing/twilio";
 import { unsubscribeLead } from "@/lib/marketing/leads";
-import { pauseCampaignsForLead } from "@/lib/marketing/drip";
-import { notifySlack, formatInboundSMS } from "@/lib/marketing/slack";
+import { pauseCampaignsForLead, getCampaignNamesForLead } from "@/lib/marketing/drip";
+import { notifySlack, formatSMSResponse } from "@/lib/marketing/slack";
 
 function twiml(body = "") {
   return new NextResponse(
@@ -53,8 +53,14 @@ export async function POST(req: NextRequest) {
       body,
     });
 
-    // Notify Slack
-    await notifySlack(formatInboundSMS(from, body, lead?.name));
+    // Look up campaign context and notify Slack
+    const campaignNames = lead ? await getCampaignNamesForLead(lead.id) : [];
+    await notifySlack(
+      formatSMSResponse(from, body, {
+        leadName: lead?.name,
+        campaignNames,
+      })
+    );
 
     return twiml();
   } catch (err) {

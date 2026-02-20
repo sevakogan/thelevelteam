@@ -200,6 +200,31 @@ export async function processNextDripMessages(): Promise<SendResult> {
   return { sent, errors };
 }
 
+/**
+ * Look up the campaign names a lead is (or was) enrolled in.
+ * Useful for showing campaign context in Slack notifications.
+ */
+export async function getCampaignNamesForLead(
+  leadId: string
+): Promise<readonly string[]> {
+  const supabase = getSupabaseAdmin();
+
+  const { data, error } = await supabase
+    .from("lead_drip_state")
+    .select("drip_campaigns(name)")
+    .eq("lead_id", leadId)
+    .in("status", ["active", "completed"]);
+
+  if (error || !data) return [];
+
+  return data
+    .map((row) => {
+      const campaign = row.drip_campaigns as unknown as { name: string } | null;
+      return campaign?.name ?? null;
+    })
+    .filter((name): name is string => name !== null);
+}
+
 export async function pauseCampaignsForLead(
   leadId: string,
   channel: "sms" | "email"
