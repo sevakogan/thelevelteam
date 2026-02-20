@@ -5,6 +5,7 @@ import type { Lead, MessageLog } from "@/lib/marketing/types";
 import { LEAD_STATUS_CONFIG } from "@/lib/marketing/types";
 import { SmsIcon, EmailIcon, PencilIcon, MegaphoneIcon } from "./icons";
 import type { Pipeline } from "./LeadKanban";
+import { NotificationDot } from "@/components/ui/NotificationDot";
 
 interface LeadsListProps {
   readonly leads: readonly Lead[];
@@ -19,6 +20,7 @@ interface LeadsListProps {
   readonly campaignNames: ReadonlyMap<string, string>;
   readonly messageLogs: readonly MessageLog[];
   readonly pipelines: readonly Pipeline[];
+  readonly hasNewLeads?: boolean;
 }
 
 export function LeadsList({
@@ -34,6 +36,7 @@ export function LeadsList({
   campaignNames,
   messageLogs,
   pipelines,
+  hasNewLeads = false,
 }: LeadsListProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -50,7 +53,10 @@ export function LeadsList({
             indeterminate={selectedIds.size > 0 && selectedIds.size < leads.length}
             onChange={onToggleAll}
           />
-          <span className="text-sm text-white font-medium">Clients</span>
+          <span className="relative text-sm text-white font-medium">
+            Clients
+            {hasNewLeads && <NotificationDot />}
+          </span>
           <span className="text-xs text-brand-muted">{leads.length} total</span>
         </div>
         {selectedIds.size > 0 && (

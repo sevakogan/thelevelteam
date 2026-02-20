@@ -7,6 +7,7 @@ import { createCampaign, createStep } from "./_components/types";
 import { DEFAULT_CAMPAIGNS } from "./_components/defaults";
 import { uiCampaignToDb, dbCampaignToUi } from "@/lib/marketing/campaign-mapper";
 import type { DripCampaign } from "@/lib/marketing/types";
+import { useNewLeadNotification } from "@/hooks/useNewLeadNotification";
 import { CampaignSidebar } from "./_components/CampaignSidebar";
 import { CampaignEditor } from "./_components/CampaignEditor";
 import { LeadsList } from "./_components/LeadsList";
@@ -59,6 +60,9 @@ export default function MarketingPage() {
       setLoading(false);
     }
   }, []);
+
+  // Notification dot — polls for new leads, auto-refreshes list when count increases
+  const hasNewLeads = useNewLeadNotification(fetchLeads);
 
   const fetchCampaigns = useCallback(async () => {
     try {
@@ -471,6 +475,7 @@ export default function MarketingPage() {
                 campaignNames={campaignNames}
                 messageLogs={messageLogs}
                 pipelines={pipelines}
+                hasNewLeads={hasNewLeads}
               />
 
               <AssignCampaignBar
