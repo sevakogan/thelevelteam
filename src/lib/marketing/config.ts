@@ -27,6 +27,7 @@ export const MARKETING_CONFIG = {
   twilioEmail: {
     apiKey: () => process.env.SENDGRID_API_KEY!,
     fromEmail: () => process.env.SENDGRID_FROM_EMAIL || "info@thelevelteam.com",
+    replyToEmail: () => process.env.SENDGRID_REPLY_TO_EMAIL || "hello@reply.thelevelteam.com",
     fromName: () => "TheLevelTeam",
   },
 

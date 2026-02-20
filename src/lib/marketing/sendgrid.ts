@@ -18,6 +18,10 @@ export async function sendEmail(
       email: MARKETING_CONFIG.twilioEmail.fromEmail(),
       name: MARKETING_CONFIG.twilioEmail.fromName(),
     },
+    replyTo: {
+      email: MARKETING_CONFIG.twilioEmail.replyToEmail(),
+      name: MARKETING_CONFIG.twilioEmail.fromName(),
+    },
     subject,
     html,
   });
