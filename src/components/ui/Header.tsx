@@ -9,6 +9,7 @@ import { useLeadModal } from "@/lib/marketing/useLeadModal";
 
 const navLinks = [
   { label: "Services", href: "/#services" },
+  { label: "Products", href: "/#products" },
   { label: "Work", href: "/#portfolio" },
   { label: "About", href: "/#about" },
   { label: "Contact", href: "/#contact" },

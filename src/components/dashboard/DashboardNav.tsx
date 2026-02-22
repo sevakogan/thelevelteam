@@ -19,7 +19,6 @@ const navItems: readonly NavItem[] = [
   { label: "Dashboard", href: "/dashboard" },
   { label: "Leads", href: "/dashboard/leads", notify: true },
   { label: "Marketing", href: "/dashboard/marketing", notify: true },
-  { label: "Products", href: "/dashboard/products" },
 ];
 
 export function DashboardNav() {
