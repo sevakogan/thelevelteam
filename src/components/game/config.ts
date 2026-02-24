@@ -15,17 +15,6 @@ export const GAME = {
   hitRadius: 90,
 } as const;
 
-// Approximate character widths at ~120px bold sans-serif
-export const LETTER_WIDTHS: Readonly<Record<string, number>> = {
-  W: 110,
-  E: 72,
-  B: 74,
-  U: 76,
-  I: 38,
-  L: 62,
-  D: 76,
-};
-
 export const BIRD_STYLES = [
   { fill: "#3B82F6", glow: "rgba(59,130,246,0.6)", emoji: "\u{1F680}" },
   { fill: "#8B5CF6", glow: "rgba(139,92,246,0.6)", emoji: "\u{1F3A8}" },
@@ -44,3 +33,21 @@ export const COLORS = {
   subtitle: "rgba(136, 136, 160, 0.25)",
   trajectory: "rgba(255, 255, 255, 0.1)",
 } as const;
+
+// Debris shard colors (glass-like fragments)
+export const DEBRIS_COLORS = [
+  "rgba(139, 92, 246, 0.9)",  // purple
+  "rgba(59, 130, 246, 0.9)",  // blue
+  "rgba(255, 255, 255, 0.9)", // white
+  "rgba(6, 182, 212, 0.8)",   // cyan
+  "rgba(236, 72, 153, 0.8)",  // pink
+] as const;
+
+// Spark colors for enhanced particles
+export const SPARK_COLORS = [
+  "#FDE68A", // warm yellow
+  "#FCA5A5", // soft red
+  "#C4B5FD", // lavender
+  "#67E8F9", // cyan
+  "#FFFFFF", // white
+] as const;

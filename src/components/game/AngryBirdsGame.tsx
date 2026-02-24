@@ -2,24 +2,42 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { GAME, BIRD_STYLES, COLORS } from "./config";
+import {
+  createEffectsState,
+  updateEffects,
+  renderEffects,
+  spawnDebris,
+  spawnSparks,
+  spawnShockwave,
+  spawnFlash,
+  triggerShake,
+  triggerSlowMo,
+  spawnBirdTrail,
+  spawnFirework,
+  type EffectsState,
+} from "./effects";
 
 /* ───────────────────── Types ───────────────────── */
+
+/** Damage levels: 0 = pristine, 1 = cracked, 2 = heavily cracked, 3+ = shattered */
+const LETTER_MAX_HP = 3;
+const HARD_HIT_SPEED = 8; // impact speed threshold for one-shot kill
 
 interface LetterBody {
   body: MatterBody;
   char: string;
-  hit: boolean;
-  removed: boolean;
+  hp: number; // remaining hit points
+  shattered: boolean; // fully destroyed (hp <= 0)
+  removed: boolean; // removed from physics world
+  width: number;
+  shatterTime: number; // timestamp when shattered (0 = not shattered)
+  cracks: CrackLine[]; // visual crack lines (accumulate with each hit)
 }
 
-interface Particle {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  life: number;
-  radius: number;
-  color: string;
+interface CrackLine {
+  x1: number; y1: number;
+  x2: number; y2: number;
+  x3: number; y3: number; // zigzag endpoint
 }
 
 interface ScorePopup {
@@ -27,6 +45,8 @@ interface ScorePopup {
   y: number;
   text: string;
   life: number;
+  scale: number;
+  color: string;
 }
 
 type Phase =
@@ -37,7 +57,6 @@ type Phase =
   | "victory"
   | "gameover";
 
-// Loose type for Matter.js bodies (loaded dynamically)
 type MatterBody = {
   position: { x: number; y: number };
   velocity: { x: number; y: number };
@@ -58,8 +77,8 @@ interface GameState {
   score: number;
   phase: Phase;
   isDragging: boolean;
-  particles: Particle[];
   popups: ScorePopup[];
+  effects: EffectsState;
   canvasW: number;
   canvasH: number;
   slingshotX: number;
@@ -69,19 +88,35 @@ interface GameState {
   anchor: { x: number; y: number };
   settleTimer: number;
   animFrame: number;
+  combo: number;
+  lastHitTime: number;
+  victoryFireworkTimer: number;
+}
+
+/* ───────────── Crack generation helper ───────────── */
+
+function generateCrack(w: number): CrackLine {
+  const side = Math.random() > 0.5 ? 1 : -1;
+  return {
+    x1: side * w * (0.05 + Math.random() * 0.3),
+    y1: -35 + Math.random() * 10,
+    x2: side * (Math.random() - 0.5) * 10,
+    y2: -5 + Math.random() * 10,
+    x3: side * w * (0.05 + Math.random() * 0.25),
+    y3: 20 + Math.random() * 15,
+  };
 }
 
 /* ───────────────────── Component ───────────────────── */
 
 export default function AngryBirdsGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const loopRunning = useRef(false);
 
-  // React state — drives UI overlay re-renders
   const [phase, setPhase] = useState<Phase>("loading");
   const [score, setScore] = useState(0);
   const [birdIdx, setBirdIdx] = useState(0);
 
-  // Mutable game state — accessed in the 60fps loop without re-renders
   const gs = useRef<GameState>({
     Matter: null,
     engine: null,
@@ -91,8 +126,8 @@ export default function AngryBirdsGame() {
     score: 0,
     phase: "loading",
     isDragging: false,
-    particles: [],
     popups: [],
+    effects: createEffectsState(),
     canvasW: 0,
     canvasH: 0,
     slingshotX: 0,
@@ -102,6 +137,9 @@ export default function AngryBirdsGame() {
     anchor: { x: 0, y: 0 },
     settleTimer: 0,
     animFrame: 0,
+    combo: 0,
+    lastHitTime: 0,
+    victoryFireworkTimer: 0,
   });
 
   /* ── State sync helpers ── */
@@ -128,6 +166,24 @@ export default function AngryBirdsGame() {
     const canvas = canvasRef.current;
     if (!M || !canvas) return;
 
+    const s = gs.current;
+
+    // Clean up any previous state (handles React StrictMode double-mount)
+    if (s.engine) {
+      cancelAnimationFrame(s.animFrame);
+      M.Events.off(s.engine);
+      M.Engine.clear(s.engine);
+    }
+    s.letters = [];
+    s.bird = null;
+    s.popups = [];
+    s.effects = createEffectsState();
+    s.settleTimer = 0;
+    s.isDragging = false;
+    s.combo = 0;
+    s.lastHitTime = 0;
+    s.victoryFireworkTimer = 0;
+
     const rect = canvas.parentElement!.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
     canvas.width = rect.width * dpr;
@@ -135,36 +191,34 @@ export default function AngryBirdsGame() {
     canvas.style.width = `${rect.width}px`;
     canvas.style.height = `${rect.height}px`;
 
-    const s = gs.current;
     s.canvasW = rect.width;
     s.canvasH = rect.height;
 
-    // Slingshot at bottom-center
     s.slingshotX = rect.width / 2;
     s.slingshotY = rect.height * GAME.slingshotYRatio;
     s.forkLeft = { x: s.slingshotX - 20, y: s.slingshotY - 50 };
     s.forkRight = { x: s.slingshotX + 20, y: s.slingshotY - 50 };
     s.anchor = { x: s.slingshotX, y: s.slingshotY - 46 };
 
-    // Physics engine
     s.engine = M.Engine.create({ gravity: { x: 0, y: 1, scale: 0.001 } });
 
-    // Invisible walls
     const wallL = M.Bodies.rectangle(-25, rect.height / 2, 50, rect.height * 3, {
-      isStatic: true,
-      label: "wall",
+      isStatic: true, label: "wall",
     });
     const wallR = M.Bodies.rectangle(rect.width + 25, rect.height / 2, 50, rect.height * 3, {
-      isStatic: true,
-      label: "wall",
+      isStatic: true, label: "wall",
     });
-    M.Composite.add(s.engine.world, [wallL, wallR]);
+    const ground = M.Bodies.rectangle(rect.width / 2, rect.height + 25, rect.width * 2, 50, {
+      isStatic: true, label: "ground",
+    });
+    M.Composite.add(s.engine.world, [wallL, wallR, ground]);
 
     createLetters();
     loadBird(0);
 
     M.Events.on(s.engine, "collisionStart", handleCollision);
     syncPhase("ready");
+    loopRunning.current = true;
     gameLoop();
   }
 
@@ -179,12 +233,10 @@ export default function AngryBirdsGame() {
     const text = "WE BUILD";
     const letterY = s.canvasH * GAME.lettersYRatio;
 
-    // Measure actual character widths using the same font we'll render with
     const measureCtx = canvas.getContext("2d")!;
     measureCtx.save();
     measureCtx.font = `bold ${GAME.fontSize}px system-ui, -apple-system, sans-serif`;
 
-    // Get measured widths for each character
     const chars: Array<{ ch: string; width: number }> = [];
     let totalW = 0;
     for (const ch of text) {
@@ -192,8 +244,6 @@ export default function AngryBirdsGame() {
         totalW += GAME.wordGap;
         chars.push({ ch, width: GAME.wordGap });
       } else {
-        // measureText in current (unscaled) context = canvas pixels
-        // Divide by DPR to get CSS pixels
         const dpr = window.devicePixelRatio || 1;
         const measured = measureCtx.measureText(ch).width / dpr;
         chars.push({ ch, width: measured });
@@ -203,7 +253,6 @@ export default function AngryBirdsGame() {
     totalW -= GAME.letterGap;
     measureCtx.restore();
 
-    // Position letters centered
     let x = (s.canvasW - totalW) / 2;
 
     for (const { ch, width } of chars) {
@@ -212,7 +261,6 @@ export default function AngryBirdsGame() {
         continue;
       }
 
-      // Physics body slightly narrower than visual for tight collision
       const bodyW = width * 0.9;
       const body = M.Bodies.rectangle(x + width / 2, letterY, bodyW, GAME.letterHeight, {
         isStatic: true,
@@ -223,7 +271,16 @@ export default function AngryBirdsGame() {
       });
       M.Composite.add(s.engine.world, body);
 
-      s.letters.push({ body, char: ch, hit: false, removed: false });
+      s.letters.push({
+        body,
+        char: ch,
+        hp: LETTER_MAX_HP,
+        shattered: false,
+        removed: false,
+        width,
+        shatterTime: 0,
+        cracks: [],
+      });
       x += width + GAME.letterGap;
     }
   }
@@ -255,9 +312,12 @@ export default function AngryBirdsGame() {
       s.bird = null;
     }
 
-    const allHit = s.letters.every((l) => l.hit);
-    if (allHit) {
+    s.combo = 0;
+
+    const allShattered = s.letters.every((l) => l.shattered);
+    if (allShattered) {
       syncPhase("victory");
+      s.victoryFireworkTimer = 0;
       return;
     }
 
@@ -279,74 +339,184 @@ export default function AngryBirdsGame() {
   function handleCollision(event: any) {
     const s = gs.current;
     const M = s.Matter;
+    const now = Date.now();
 
     for (const pair of event.pairs) {
       for (const body of [pair.bodyA, pair.bodyB]) {
-        if (body.label !== "letter" || !body.isStatic) continue;
+        if (body.label !== "letter") continue;
+
+        const letter = s.letters.find((l) => l.body === body);
+        if (!letter || letter.shattered) continue;
 
         const impactor = body === pair.bodyA ? pair.bodyB : pair.bodyA;
 
-        // Activate the letter
-        M.Body.setStatic(body, false);
+        // Calculate impact speed
+        const impactSpeed = Math.sqrt(
+          impactor.velocity.x ** 2 + impactor.velocity.y ** 2,
+        );
 
-        // Push it with impulse from impactor
-        const force = {
-          x: impactor.velocity.x * 0.004,
-          y: impactor.velocity.y * 0.004,
-        };
-        M.Body.applyForce(body, body.position, force);
-        M.Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.12);
+        // Determine damage: hard hit = instant kill, otherwise 1 HP
+        const isHardHit = impactSpeed >= HARD_HIT_SPEED;
+        const damage = isHardHit ? LETTER_MAX_HP : 1;
+        letter.hp = Math.max(0, letter.hp - damage);
 
-        // Mark scored
-        const letter = s.letters.find((l) => l.body === body);
-        if (letter && !letter.hit) {
-          letter.hit = true;
-          syncScore(s.score + 100);
-          spawnParticles(body.position.x, body.position.y, 8);
-          spawnPopup(body.position.x, body.position.y - 20, "+100");
+        const px = body.position.x;
+        const py = body.position.y;
+
+        // Combo tracking
+        if (now - s.lastHitTime < 500) {
+          s.combo++;
+        } else {
+          s.combo = 1;
+        }
+        s.lastHitTime = now;
+        const comboMultiplier = Math.min(s.combo, 4);
+
+        if (letter.hp <= 0) {
+          /* ═══════ SHATTER — letter is destroyed ═══════ */
+          letter.shattered = true;
+          letter.shatterTime = now;
+
+          // Make it dynamic so it falls away
+          if (body.isStatic) M.Body.setStatic(body, false);
+          const force = {
+            x: impactor.velocity.x * 0.005,
+            y: impactor.velocity.y * 0.005,
+          };
+          M.Body.applyForce(body, body.position, force);
+          M.Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.15);
+
+          // Score
+          const points = 100 * comboMultiplier;
+          syncScore(s.score + points);
+
+          // Heavy debris explosion
+          const newDebris = spawnDebris(px, py, letter.width, s.canvasH, "heavy");
+          s.effects = { ...s.effects, debris: [...s.effects.debris, ...newDebris] };
+
+          // Lots of sparks
+          const birdColor = BIRD_STYLES[s.birdIdx % BIRD_STYLES.length].fill;
+          const sparkCount = 16 + comboMultiplier * 5;
+          const newSparks = spawnSparks(px, py, sparkCount, birdColor);
+          s.effects = { ...s.effects, sparks: [...s.effects.sparks, ...newSparks] };
+
+          // Big shockwave
+          const newShockwave = spawnShockwave(px, py, 100 + comboMultiplier * 20);
+          s.effects = { ...s.effects, shockwaves: [...s.effects.shockwaves, newShockwave] };
+
+          // Bright flash
+          const newFlash = spawnFlash(px, py, 40 + comboMultiplier * 10);
+          s.effects = { ...s.effects, flashes: [...s.effects.flashes, newFlash] };
+
+          // Strong screen shake
+          const shakeIntensity = 6 + comboMultiplier * 3;
+          s.effects = { ...s.effects, shake: triggerShake(shakeIntensity) };
+
+          // Slow-motion on combos (x2+)
+          if (comboMultiplier >= 2) {
+            const { slowMo, slowMoTimer } = triggerSlowMo(0.35, 20 + comboMultiplier * 5);
+            s.effects = { ...s.effects, slowMo, slowMoTimer };
+          }
+
+          // Score popup
+          const popupText = comboMultiplier > 1
+            ? `+${points} x${comboMultiplier}!`
+            : `+${points}`;
+          const popupColor = comboMultiplier >= 3
+            ? "#FDE68A"
+            : comboMultiplier >= 2
+              ? "#C4B5FD"
+              : "#ffffff";
+          spawnPopup(px, py - 30, popupText, comboMultiplier, popupColor);
+
+          // Hard hit bonus popup
+          if (isHardHit && LETTER_MAX_HP > 1) {
+            spawnPopup(px, py - 60, "OBLITERATED!", 2, "#EF4444");
+          }
+        } else {
+          /* ═══════ CRACK — letter takes damage but survives ═══════ */
+
+          // Nudge it slightly (stays static for now, or becomes dynamic on 2nd hit)
+          if (letter.hp <= 1 && body.isStatic) {
+            // On last HP, make it wobbly (dynamic but heavy)
+            M.Body.setStatic(body, false);
+            M.Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.03);
+            const nudge = {
+              x: impactor.velocity.x * 0.001,
+              y: impactor.velocity.y * 0.001,
+            };
+            M.Body.applyForce(body, body.position, nudge);
+          }
+
+          // Add visible crack lines
+          const newCracks = Array.from({ length: 2 }, () => generateCrack(letter.width));
+          letter.cracks = [...letter.cracks, ...newCracks];
+
+          // Light debris chips
+          const chipDebris = spawnDebris(px, py, letter.width, s.canvasH, "light");
+          s.effects = { ...s.effects, debris: [...s.effects.debris, ...chipDebris] };
+
+          // Small sparks
+          const birdColor = BIRD_STYLES[s.birdIdx % BIRD_STYLES.length].fill;
+          const newSparks = spawnSparks(px, py, 6, birdColor);
+          s.effects = { ...s.effects, sparks: [...s.effects.sparks, ...newSparks] };
+
+          // Light shake
+          s.effects = { ...s.effects, shake: triggerShake(2) };
+
+          // Small flash
+          const smallFlash = spawnFlash(px, py, 15);
+          s.effects = { ...s.effects, flashes: [...s.effects.flashes, smallFlash] };
+
+          // Damage popup
+          const dmgText = letter.hp === 1 ? "CRACKING!" : "HIT!";
+          spawnPopup(px, py - 20, dmgText, 1, "rgba(255,200,100,0.9)");
+
+          // Score for hit (smaller)
+          syncScore(s.score + 25 * comboMultiplier);
         }
       }
     }
   }
 
-  /* ── Particles & popups ── */
+  /* ── Popups ── */
 
-  function spawnParticles(x: number, y: number, count: number) {
-    const s = gs.current;
-    const birdColor = BIRD_STYLES[s.birdIdx % BIRD_STYLES.length].fill;
-    for (let i = 0; i < count; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const speed = 1 + Math.random() * 3;
-      s.particles.push({
-        x,
-        y,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed - 2,
-        radius: 2 + Math.random() * 3,
-        color: birdColor,
-        life: 1,
-      });
-    }
-    if (s.particles.length > 80) {
-      s.particles = s.particles.slice(-80);
-    }
-  }
-
-  function spawnPopup(x: number, y: number, text: string) {
-    gs.current.popups.push({ x, y, text, life: 1 });
+  function spawnPopup(x: number, y: number, text: string, scale: number, color: string) {
+    gs.current.popups.push({ x, y, text, life: 1, scale: 0.8 + scale * 0.3, color });
   }
 
   /* ── Game loop ── */
 
   function gameLoop() {
+    if (!loopRunning.current) return;
+
     const s = gs.current;
     const M = s.Matter;
     const canvas = canvasRef.current;
     if (!canvas || !M || !s.engine) return;
 
+    // Determine time scale (slow-motion support)
+    const timeScale = s.effects.slowMo;
+
     // Update physics
     if (s.phase !== "loading" && s.phase !== "victory" && s.phase !== "gameover") {
-      M.Engine.update(s.engine, 1000 / 60);
+      M.Engine.update(s.engine, (1000 / 60) * timeScale);
+    }
+
+    // Bird trail while flying
+    if (s.phase === "flying" && s.bird && !s.bird.isStatic) {
+      const config = BIRD_STYLES[s.birdIdx % BIRD_STYLES.length];
+      const trailDot = spawnBirdTrail(
+        s.bird.position.x,
+        s.bird.position.y,
+        GAME.birdRadius,
+        config.fill,
+        config.glow,
+      );
+      s.effects = {
+        ...s.effects,
+        birdTrail: [...s.effects.birdTrail, trailDot].slice(-30),
+      };
     }
 
     // Check bird state
@@ -365,38 +535,61 @@ export default function AngryBirdsGame() {
       }
     }
 
-    // Check fallen letters
+    // Check fallen/escaped letters
+    const now = Date.now();
     for (const letter of s.letters) {
       if (letter.removed) continue;
       const { x, y } = letter.body.position;
-      if (y > s.canvasH + 120 || x < -120 || x > s.canvasW + 120) {
+      const gone =
+        y > s.canvasH + 80 ||
+        y < -200 ||
+        x < -80 ||
+        x > s.canvasW + 80 ||
+        (letter.shattered && now - letter.shatterTime > 3000);
+      if (gone) {
         letter.removed = true;
         M.Composite.remove(s.engine.world, letter.body);
       }
     }
 
-    // Check for delayed victory (all hit)
+    // Check for delayed victory
     if (
       s.phase === "flying" &&
-      s.letters.every((l) => l.hit) &&
+      s.letters.every((l) => l.shattered) &&
       s.letters.every((l) => l.removed || l.body.position.y > s.canvasH * 0.5)
     ) {
       syncPhase("victory");
+      s.victoryFireworkTimer = 0;
     }
 
-    // Update particles
-    s.particles = s.particles.filter((p) => {
-      p.x += p.vx;
-      p.y += p.vy;
-      p.vy += 0.08;
-      p.life -= 0.025;
-      return p.life > 0;
-    });
+    // Victory fireworks
+    if (s.phase === "victory") {
+      s.victoryFireworkTimer++;
+      // Spawn firework every ~20 frames for first 3 seconds
+      if (s.victoryFireworkTimer < 180 && s.victoryFireworkTimer % 18 === 0) {
+        const fx = s.canvasW * (0.15 + Math.random() * 0.7);
+        const fy = s.canvasH * (0.1 + Math.random() * 0.4);
+        const fw = spawnFirework(fx, fy);
+        s.effects = {
+          ...s.effects,
+          fireworks: [...s.effects.fireworks, fw],
+        };
+        // Accompanying flash + shake
+        s.effects = {
+          ...s.effects,
+          flashes: [...s.effects.flashes, spawnFlash(fx, fy, 50)],
+          shake: triggerShake(3),
+        };
+      }
+    }
+
+    // Update effects system
+    s.effects = updateEffects(s.effects);
 
     // Update popups
     s.popups = s.popups.filter((p) => {
-      p.y -= 0.8;
-      p.life -= 0.018;
+      p.y -= 1.2;
+      p.life -= 0.016;
       return p.life > 0;
     });
 
@@ -416,7 +609,28 @@ export default function AngryBirdsGame() {
 
     ctx.save();
     ctx.scale(dpr, dpr);
-    ctx.clearRect(0, 0, s.canvasW, s.canvasH);
+
+    // Screen shake
+    const { offsetX, offsetY } = s.effects.shake;
+    if (offsetX !== 0 || offsetY !== 0) {
+      ctx.translate(offsetX, offsetY);
+    }
+
+    ctx.clearRect(-10, -10, s.canvasW + 20, s.canvasH + 20);
+
+    // Slow-mo vignette overlay
+    if (s.effects.slowMo < 1 && s.effects.slowMoTimer > 0) {
+      const vigGrad = ctx.createRadialGradient(
+        s.canvasW / 2, s.canvasH / 2, s.canvasW * 0.3,
+        s.canvasW / 2, s.canvasH / 2, s.canvasW * 0.7,
+      );
+      vigGrad.addColorStop(0, "rgba(0, 0, 0, 0)");
+      vigGrad.addColorStop(1, "rgba(139, 92, 246, 0.08)");
+      ctx.fillStyle = vigGrad;
+      ctx.fillRect(0, 0, s.canvasW, s.canvasH);
+    }
+
+    renderEffects(ctx, s.effects);
 
     renderSlingshot(ctx);
 
@@ -435,16 +649,17 @@ export default function AngryBirdsGame() {
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.letterSpacing = "4px";
-    ctx.fillText("DIGITAL EXPERIENCES", s.canvasW / 2, s.canvasH * GAME.lettersYRatio + GAME.letterHeight / 2 + 50);
+    ctx.fillText(
+      "DIGITAL EXPERIENCES",
+      s.canvasW / 2,
+      s.canvasH * GAME.lettersYRatio + GAME.letterHeight / 2 + 50,
+    );
     ctx.letterSpacing = "0px";
 
-    if (s.bird && !s.bird.isStatic) {
-      renderBird(ctx);
-    } else if (s.bird) {
+    if (s.bird) {
       renderBird(ctx);
     }
 
-    renderParticles(ctx);
     renderPopups(ctx);
 
     ctx.restore();
@@ -454,7 +669,6 @@ export default function AngryBirdsGame() {
     const s = gs.current;
     ctx.lineCap = "round";
 
-    // Trunk
     ctx.strokeStyle = COLORS.slingshot;
     ctx.lineWidth = 8;
     ctx.beginPath();
@@ -462,20 +676,17 @@ export default function AngryBirdsGame() {
     ctx.lineTo(s.slingshotX, s.slingshotY - 28);
     ctx.stroke();
 
-    // Left fork
     ctx.lineWidth = 6;
     ctx.beginPath();
     ctx.moveTo(s.slingshotX, s.slingshotY - 24);
     ctx.lineTo(s.forkLeft.x, s.forkLeft.y);
     ctx.stroke();
 
-    // Right fork
     ctx.beginPath();
     ctx.moveTo(s.slingshotX, s.slingshotY - 24);
     ctx.lineTo(s.forkRight.x, s.forkRight.y);
     ctx.stroke();
 
-    // Fork tips (glowing)
     ctx.fillStyle = COLORS.slingshotLight;
     ctx.beginPath();
     ctx.arc(s.forkLeft.x, s.forkLeft.y, 5, 0, Math.PI * 2);
@@ -491,13 +702,11 @@ export default function AngryBirdsGame() {
     ctx.lineWidth = 3;
     ctx.lineCap = "round";
 
-    // Left band
     ctx.beginPath();
     ctx.moveTo(s.forkLeft.x, s.forkLeft.y);
     ctx.lineTo(bx, by);
     ctx.stroke();
 
-    // Right band
     ctx.beginPath();
     ctx.moveTo(s.forkRight.x, s.forkRight.y);
     ctx.lineTo(bx, by);
@@ -513,19 +722,11 @@ export default function AngryBirdsGame() {
     const vx0 = (s.anchor.x - bx) * GAME.launchPower;
     const vy0 = (s.anchor.y - by) * GAME.launchPower;
 
-    // Simulate trajectory with same gravity as Matter.js engine
-    const gScale = 0.001; // engine gravity scale
-    const gY = 1; // engine gravity y
-    let px = bx;
-    let py = by;
-    let vx = vx0;
-    let vy = vy0;
+    let px = bx, py = by, vx = vx0, vy = vy0;
 
     for (let step = 1; step < 160; step++) {
-      // Approximate Matter.js Verlet: gravity adds gY*gScale per step,
-      // but Matter.js uses deltaTimeSq factor. Empirically ~0.28 per step.
-      vy += gY * gScale * 277; // deltaTimeSq ≈ (16.667)^2 / 1000 ≈ 277
-      vx *= 0.99; // frictionAir default
+      vy += 0.001 * 277;
+      vx *= 0.99;
       vy *= 0.99;
       px += vx;
       py += vy;
@@ -544,25 +745,86 @@ export default function AngryBirdsGame() {
 
   function renderLetters(ctx: CanvasRenderingContext2D) {
     const s = gs.current;
+    const now = Date.now();
 
     for (const letter of s.letters) {
       if (letter.removed) continue;
 
       const { position, angle } = letter.body;
+
+      // Fade out shattered letters over 2s
+      let alpha = 1;
+      if (letter.shattered && letter.shatterTime > 0) {
+        const elapsed = now - letter.shatterTime;
+        alpha = Math.max(0, 1 - elapsed / 2000);
+        if (alpha <= 0) continue;
+      }
+
+      // Damage-based color tinting
+      const dmgRatio = 1 - letter.hp / LETTER_MAX_HP; // 0=pristine, 1=about to break
+
       ctx.save();
+      ctx.globalAlpha = alpha;
       ctx.translate(position.x, position.y);
       ctx.rotate(angle);
 
-      // Glow
-      ctx.shadowColor = letter.hit ? COLORS.letterActiveGlow : COLORS.letterGlow;
-      ctx.shadowBlur = letter.hit ? 25 : 12;
+      // Glow changes with damage
+      if (letter.shattered) {
+        ctx.shadowColor = COLORS.letterActiveGlow;
+        ctx.shadowBlur = 20;
+      } else if (dmgRatio > 0) {
+        // Shift glow from purple to red-orange as damage increases
+        const r = Math.round(139 + (239 - 139) * dmgRatio);
+        const g = Math.round(92 - 92 * dmgRatio);
+        const b = Math.round(246 - 178 * dmgRatio);
+        ctx.shadowColor = `rgba(${r}, ${g}, ${b}, ${0.5 + dmgRatio * 0.3})`;
+        ctx.shadowBlur = 12 + dmgRatio * 10;
+      } else {
+        ctx.shadowColor = COLORS.letterGlow;
+        ctx.shadowBlur = 12;
+      }
 
-      // Letter text
+      // Letter text — tint warm as it takes damage
       ctx.font = `bold ${GAME.fontSize}px system-ui, -apple-system, sans-serif`;
-      ctx.fillStyle = letter.hit ? "rgba(255,255,255,0.7)" : COLORS.letter;
+      if (letter.shattered) {
+        ctx.fillStyle = `rgba(255, 180, 180, ${0.4 * alpha})`;
+      } else if (dmgRatio > 0) {
+        const rr = Math.round(255);
+        const gg = Math.round(255 - 80 * dmgRatio);
+        const bb = Math.round(255 - 120 * dmgRatio);
+        ctx.fillStyle = `rgb(${rr}, ${gg}, ${bb})`;
+      } else {
+        ctx.fillStyle = COLORS.letter;
+      }
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       ctx.fillText(letter.char, 0, 0);
+
+      // Render crack lines (accumulate with each hit)
+      if (letter.cracks.length > 0) {
+        const crackAlpha = 0.2 + dmgRatio * 0.5;
+        ctx.strokeStyle = `rgba(239, 68, 68, ${crackAlpha * alpha})`;
+        ctx.lineWidth = 1 + dmgRatio;
+        ctx.lineCap = "round";
+
+        for (const crack of letter.cracks) {
+          ctx.beginPath();
+          ctx.moveTo(crack.x1, crack.y1);
+          ctx.lineTo(crack.x2, crack.y2);
+          ctx.lineTo(crack.x3, crack.y3);
+          ctx.stroke();
+        }
+      }
+
+      // Wobble glow for low-HP letters
+      if (letter.hp === 1 && !letter.shattered) {
+        const pulse = 0.15 + Math.sin(now * 0.015) * 0.1;
+        ctx.globalAlpha = pulse;
+        ctx.shadowBlur = 30;
+        ctx.shadowColor = "rgba(239, 68, 68, 0.8)";
+        ctx.fillStyle = "rgba(239, 68, 68, 0.3)";
+        ctx.fillText(letter.char, 0, 0);
+      }
 
       ctx.restore();
     }
@@ -574,19 +836,29 @@ export default function AngryBirdsGame() {
 
     const config = BIRD_STYLES[s.birdIdx % BIRD_STYLES.length];
     const { x, y } = s.bird.position;
+    const now = Date.now();
 
-    // Outer glow ring
+    const pulseRadius = GAME.birdRadius + 4 + Math.sin(now * 0.006) * 3;
+
     ctx.save();
     ctx.shadowColor = config.glow;
     ctx.shadowBlur = 25;
 
-    // Circle body
+    // Outer pulse ring
+    ctx.strokeStyle = config.glow;
+    ctx.lineWidth = 1.5;
+    ctx.globalAlpha = 0.3 + Math.sin(now * 0.008) * 0.15;
+    ctx.beginPath();
+    ctx.arc(x, y, pulseRadius, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+
+    // Body
     ctx.beginPath();
     ctx.arc(x, y, GAME.birdRadius, 0, Math.PI * 2);
     ctx.fillStyle = config.fill;
     ctx.fill();
 
-    // Border ring
     ctx.strokeStyle = "rgba(255,255,255,0.3)";
     ctx.lineWidth = 2;
     ctx.stroke();
@@ -599,28 +871,30 @@ export default function AngryBirdsGame() {
     ctx.fillText(config.emoji, x, y + 1);
   }
 
-  function renderParticles(ctx: CanvasRenderingContext2D) {
-    const s = gs.current;
-    for (const p of s.particles) {
-      ctx.globalAlpha = p.life;
-      ctx.fillStyle = p.color;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.radius * p.life, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.globalAlpha = 1;
-  }
-
   function renderPopups(ctx: CanvasRenderingContext2D) {
     const s = gs.current;
     for (const p of s.popups) {
-      ctx.globalAlpha = p.life;
-      ctx.font = "bold 16px system-ui, -apple-system, sans-serif";
-      ctx.fillStyle = "#ffffff";
+      ctx.save();
+      ctx.globalAlpha = Math.min(p.life * 1.5, 1);
+
+      const age = 1 - p.life;
+      const scaleAnim = age < 0.1 ? 0.5 + age * 5 * 0.5 : 1;
+      const finalScale = p.scale * scaleAnim;
+
+      ctx.translate(p.x, p.y);
+      ctx.scale(finalScale, finalScale);
+
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur = 12;
+
+      ctx.font = "bold 20px system-ui, -apple-system, sans-serif";
+      ctx.fillStyle = p.color;
       ctx.textAlign = "center";
-      ctx.fillText(p.text, p.x, p.y);
+      ctx.textBaseline = "middle";
+      ctx.fillText(p.text, 0, 0);
+
+      ctx.restore();
     }
-    ctx.globalAlpha = 1;
   }
 
   /* ───────────────────── Pointer events ───────────────────── */
@@ -650,17 +924,16 @@ export default function AngryBirdsGame() {
     const mx = e.clientX - rect.left;
     const my = e.clientY - rect.top;
 
-    // Constrain drag distance from anchor
     const dx = mx - s.anchor.x;
     const dy = my - s.anchor.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
     const clamped = Math.min(dist, GAME.maxDrag);
     const angle = Math.atan2(dy, dx);
 
-    const newX = s.anchor.x + Math.cos(angle) * clamped;
-    const newY = s.anchor.y + Math.sin(angle) * clamped;
-
-    M.Body.setPosition(s.bird, { x: newX, y: newY });
+    M.Body.setPosition(s.bird, {
+      x: s.anchor.x + Math.cos(angle) * clamped,
+      y: s.anchor.y + Math.sin(angle) * clamped,
+    });
   }, []);
 
   const handlePointerUp = useCallback(() => {
@@ -675,13 +948,11 @@ export default function AngryBirdsGame() {
     const dist = Math.sqrt(dx * dx + dy * dy);
 
     if (dist < 8) {
-      // Too close — snap back
       M.Body.setPosition(s.bird, { x: s.anchor.x, y: s.anchor.y });
       syncPhase("ready");
       return;
     }
 
-    // Launch!
     M.Body.setStatic(s.bird, false);
     M.Body.setVelocity(s.bird, {
       x: dx * GAME.launchPower,
@@ -694,27 +965,13 @@ export default function AngryBirdsGame() {
   /* ── Reset ── */
 
   function resetGame() {
-    const s = gs.current;
-    const M = s.Matter;
-
-    cancelAnimationFrame(s.animFrame);
-
-    if (s.engine && M) {
-      M.Events.off(s.engine);
-      M.Engine.clear(s.engine);
-    }
-
-    s.letters = [];
-    s.bird = null;
-    s.particles = [];
-    s.popups = [];
-    s.settleTimer = 0;
-    s.isDragging = false;
-    s.engine = null;
+    loopRunning.current = false;
+    cancelAnimationFrame(gs.current.animFrame);
 
     syncScore(0);
     syncBirdIdx(0);
 
+    // initGame() handles full cleanup + re-init
     initGame();
   }
 
@@ -730,7 +987,6 @@ export default function AngryBirdsGame() {
       initGame();
     });
 
-    // Resize handler — reset game on significant resize
     let resizeTimer: ReturnType<typeof setTimeout>;
     const onResize = () => {
       clearTimeout(resizeTimer);
@@ -742,6 +998,7 @@ export default function AngryBirdsGame() {
 
     return () => {
       mounted = false;
+      loopRunning.current = false;
       cancelAnimationFrame(stateRef.animFrame);
       window.removeEventListener("resize", onResize);
       clearTimeout(resizeTimer);
@@ -757,7 +1014,6 @@ export default function AngryBirdsGame() {
 
   return (
     <div className="absolute inset-0 z-10">
-      {/* Game canvas */}
       <canvas
         ref={canvasRef}
         className="absolute inset-0"
@@ -809,7 +1065,7 @@ export default function AngryBirdsGame() {
 
       {/* Victory */}
       {phase === "victory" && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-sm animate-in fade-in duration-500">
           <div className="text-center backdrop-blur-xl bg-white/[0.04] border border-white/10 rounded-2xl p-8 max-w-sm mx-4">
             <h2 className="text-3xl font-bold text-white mb-2">
               Challenges Demolished!
@@ -830,7 +1086,7 @@ export default function AngryBirdsGame() {
 
       {/* Game Over */}
       {phase === "gameover" && (
-        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/30 backdrop-blur-sm animate-in fade-in duration-500">
           <div className="text-center backdrop-blur-xl bg-white/[0.04] border border-white/10 rounded-2xl p-8 max-w-sm mx-4">
             <h2 className="text-2xl font-bold text-white mb-2">Nice Try!</h2>
             <p className="text-white/50 mb-1">Some letters remain&hellip;</p>
