@@ -10,10 +10,9 @@ import type { Company } from "@/lib/types";
 
 interface BentoCardProps {
   readonly company: Company;
-  readonly dragConstraintsRef: React.RefObject<HTMLDivElement | null>;
 }
 
-export default function BentoCard({ company, dragConstraintsRef }: BentoCardProps) {
+export default function BentoCard({ company }: BentoCardProps) {
   const detail = projectContent[company.slug];
   const [isDragging, setIsDragging] = useState(false);
   const wasDragged = useRef(false);
@@ -37,13 +36,13 @@ export default function BentoCard({ company, dragConstraintsRef }: BentoCardProp
       variants={bentoChild}
       className="aspect-square relative"
       drag
-      dragConstraints={dragConstraintsRef}
-      dragElastic={0.15}
+      dragSnapToOrigin
+      dragElastic={0.6}
       dragMomentum={false}
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      whileDrag={{ scale: 1.08, zIndex: 50, rotate: Math.random() > 0.5 ? 3 : -3 }}
-      style={{ cursor: isDragging ? "grabbing" : "grab" }}
+      whileDrag={{ scale: 1.08, zIndex: 50, rotate: Math.random() > 0.5 ? 3 : -3, boxShadow: "0 20px 60px rgba(0,0,0,0.4)" }}
+      style={{ cursor: isDragging ? "grabbing" : "grab", touchAction: "none" }}
     >
       <Link
         href={`/projects/${company.slug}`}

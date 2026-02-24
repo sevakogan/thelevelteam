@@ -1,6 +1,5 @@
 "use client";
 
-import { useRef } from "react";
 import { motion } from "framer-motion";
 import { bentoStagger } from "@/lib/animations";
 import ScrollTextReveal from "@/components/ui/ScrollTextReveal";
@@ -12,8 +11,6 @@ interface PortfolioSectionProps {
 }
 
 export default function PortfolioSection({ companies }: PortfolioSectionProps) {
-  const gridRef = useRef<HTMLDivElement>(null);
-
   return (
     <section id="portfolio" className="relative py-16 md:py-24">
       <div className="max-w-5xl mx-auto px-6">
@@ -43,20 +40,19 @@ export default function PortfolioSection({ companies }: PortfolioSectionProps) {
           </motion.p>
         </div>
 
-        {/* 3x3 square grid — drag boundary */}
+        {/* 3x3 puzzle box — drag boundary with extra room */}
         <motion.div
-          ref={gridRef}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-50px" }}
           variants={bentoStagger}
-          className="grid grid-cols-2 sm:grid-cols-3 gap-4"
+          data-lenis-prevent
+          className="relative grid grid-cols-2 sm:grid-cols-3 gap-4 p-6 -m-6 rounded-3xl border border-dashed border-white/[0.06]"
         >
           {companies.map((company) => (
             <BentoCard
               key={company.id}
               company={company}
-              dragConstraintsRef={gridRef}
             />
           ))}
         </motion.div>
