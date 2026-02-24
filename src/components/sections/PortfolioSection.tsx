@@ -11,23 +11,12 @@ interface PortfolioSectionProps {
   companies: Company[];
 }
 
-type BentoSize = "large" | "medium" | "small";
-
-const LARGE_SLUGS = new Set(["kashflow", "sim4hire"]);
-const MEDIUM_SLUGS = new Set(["crownvault", "revenuflow", "wecare-drive"]);
-
-function getBentoSize(slug: string): BentoSize {
-  if (LARGE_SLUGS.has(slug)) return "large";
-  if (MEDIUM_SLUGS.has(slug)) return "medium";
-  return "small";
-}
-
 export default function PortfolioSection({ companies }: PortfolioSectionProps) {
   const gridRef = useRef<HTMLDivElement>(null);
 
   return (
     <section id="portfolio" className="relative py-16 md:py-24">
-      <div className="max-w-6xl mx-auto px-6">
+      <div className="max-w-5xl mx-auto px-6">
         {/* Section header */}
         <div className="mb-14">
           <motion.div
@@ -54,20 +43,19 @@ export default function PortfolioSection({ companies }: PortfolioSectionProps) {
           </motion.p>
         </div>
 
-        {/* Bento grid — acts as drag boundary */}
+        {/* 3x3 square grid — drag boundary */}
         <motion.div
           ref={gridRef}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-50px" }}
           variants={bentoStagger}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+          className="grid grid-cols-2 sm:grid-cols-3 gap-4"
         >
           {companies.map((company) => (
             <BentoCard
               key={company.id}
               company={company}
-              size={getBentoSize(company.slug)}
               dragConstraintsRef={gridRef}
             />
           ))}
