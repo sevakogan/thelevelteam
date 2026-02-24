@@ -2,6 +2,7 @@
 
 import { motion, useScroll, useTransform } from "framer-motion";
 import AuroraBackground from "@/components/ui/AuroraBackground";
+import FloatingOrbs from "@/components/ui/FloatingOrbs";
 import ScrollTextReveal from "@/components/ui/ScrollTextReveal";
 import MagneticButton from "@/components/ui/MagneticButton";
 import Logo from "@/components/ui/Logo";
@@ -17,6 +18,7 @@ export default function HeroSection() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       <AuroraBackground />
+      <FloatingOrbs />
 
       <motion.div
         style={{ y: heroY, opacity: heroOpacity }}
