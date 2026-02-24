@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { motion } from "framer-motion";
 import { bentoStagger } from "@/lib/animations";
 import ScrollTextReveal from "@/components/ui/ScrollTextReveal";
@@ -22,6 +23,8 @@ function getBentoSize(slug: string): BentoSize {
 }
 
 export default function PortfolioSection({ companies }: PortfolioSectionProps) {
+  const gridRef = useRef<HTMLDivElement>(null);
+
   return (
     <section id="portfolio" className="relative py-16 md:py-24">
       <div className="max-w-6xl mx-auto px-6">
@@ -40,10 +43,20 @@ export default function PortfolioSection({ companies }: PortfolioSectionProps) {
             mode="word"
             className="text-3xl md:text-5xl font-bold text-white"
           />
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.5 }}
+            className="text-sm text-brand-muted mt-3"
+          >
+            Drag to rearrange · Hover for details · Click to explore
+          </motion.p>
         </div>
 
-        {/* Bento grid */}
+        {/* Bento grid — acts as drag boundary */}
         <motion.div
+          ref={gridRef}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-50px" }}
@@ -55,6 +68,7 @@ export default function PortfolioSection({ companies }: PortfolioSectionProps) {
               key={company.id}
               company={company}
               size={getBentoSize(company.slug)}
+              dragConstraintsRef={gridRef}
             />
           ))}
         </motion.div>
