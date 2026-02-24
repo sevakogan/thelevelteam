@@ -266,4 +266,202 @@ export const projectContent: Record<string, ProjectDetail> = {
       "Karbon Agency runs on GoHighLevel for appointment scheduling, CRM pipeline management, and automated follow-up sequences. The GHL integration powers the booking calendar, manages lead nurturing workflows, and tracks conversion from initial contact to signed client.",
     clientIndustry: "Sim Racing & Motorsport",
   },
+
+  alamedahospice: {
+    slug: "alamedahospice",
+    headline: "Compassionate Hospice Care, Online",
+    longDescription:
+      "Alameda Care Hospice is a marketing website designed to connect families with compassionate end-of-life care services. The site features scroll-triggered GSAP animations, a streamlined contact form with CRM integration, and content that communicates trust and professionalism.\n\nBuilt with Next.js and GSAP for cinematic scroll experiences, the site balances emotional sensitivity with modern web design. Every section animates into view as the visitor scrolls, creating an engaging yet respectful experience that drives contact form submissions.",
+    features: [
+      {
+        title: "GSAP Scroll Animations",
+        description: "Cinematic scroll-triggered animations that guide visitors through the site with smooth, purposeful motion.",
+        icon: "refresh",
+      },
+      {
+        title: "Contact Form & CRM",
+        description: "Streamlined contact form integrated with CRM for immediate lead capture and follow-up workflows.",
+        icon: "message",
+      },
+      {
+        title: "Responsive Design",
+        description: "Fully responsive across all devices with a calming, professional aesthetic.",
+        icon: "device",
+      },
+      {
+        title: "SEO Optimized",
+        description: "Structured content and metadata optimized for local hospice care search visibility.",
+        icon: "search",
+      },
+    ],
+    screenshots: [
+      { src: "/screenshots/alamedahospice/hero.png", alt: "Alameda Hospice landing page", caption: "Landing page with scroll animations" },
+      { src: "/screenshots/alamedahospice/services.png", alt: "Services section", caption: "Hospice care services overview" },
+      { src: "/screenshots/alamedahospice/mobile.png", alt: "Mobile view", caption: "Mobile-responsive design" },
+    ],
+    outcomes: [
+      "Cinematic GSAP scroll animations throughout",
+      "CRM-integrated contact form for lead capture",
+      "Accessible, WCAG-conscious design",
+      "Fast static generation with Next.js",
+    ],
+    usesGHL: false,
+    clientIndustry: "Healthcare & Hospice",
+  },
+
+  kashflow: {
+    slug: "kashflow",
+    headline: "Invoicing & Payments Made Simple",
+    longDescription:
+      "KashFlow is a B2B invoicing, quoting, and payment platform that helps businesses create professional invoices, track payments, and manage clients — all from a single dashboard. With Stripe integration for seamless payment processing and PDF generation for polished documents, KashFlow streamlines the entire billing workflow.\n\nThe platform supports creating and sending invoices, generating quotes that convert to invoices, tracking payment status, and managing a client database. Image compression keeps uploads fast, and the clean UI makes financial management accessible to non-technical users.",
+    features: [
+      {
+        title: "Invoice & Quote Builder",
+        description: "Create professional invoices and quotes with line items, taxes, discounts, and custom branding.",
+        icon: "document",
+      },
+      {
+        title: "Stripe Payments",
+        description: "Accept payments directly through invoices with Stripe integration for cards and bank transfers.",
+        icon: "card",
+      },
+      {
+        title: "PDF Generation",
+        description: "One-click PDF export of invoices and quotes with professional formatting.",
+        icon: "download",
+      },
+      {
+        title: "Client Management",
+        description: "Maintain a client database with contact info, payment history, and outstanding balances.",
+        icon: "users",
+      },
+      {
+        title: "Payment Tracking",
+        description: "Real-time status tracking for all invoices — draft, sent, viewed, paid, and overdue.",
+        icon: "trending",
+      },
+      {
+        title: "Image Compression",
+        description: "Automatic image optimization for logos and attachments to keep everything fast.",
+        icon: "image",
+      },
+    ],
+    screenshots: [
+      { src: "/screenshots/kashflow/hero.png", alt: "KashFlow dashboard", caption: "Invoice management dashboard" },
+      { src: "/screenshots/kashflow/invoice.png", alt: "Invoice builder", caption: "Professional invoice builder" },
+      { src: "/screenshots/kashflow/mobile.png", alt: "Mobile view", caption: "Mobile-friendly interface" },
+    ],
+    outcomes: [
+      "End-to-end invoicing with Stripe payment processing",
+      "Professional PDF generation for invoices and quotes",
+      "Client management with payment history tracking",
+      "Image compression for fast, optimized uploads",
+    ],
+    usesGHL: false,
+    clientIndustry: "Business & Finance",
+  },
+
+  "s4m-leaderboard": {
+    slug: "s4m-leaderboard",
+    headline: "Real-Time Racing Leaderboards",
+    longDescription:
+      "S4M Leaderboard is a multi-event racing platform built for Sims 4 Motorsports that powers real-time leaderboards, event management, and racer engagement. Event organizers create races, racers check in via QR codes, and results update live on a public leaderboard.\n\nThe platform features an admin dashboard for managing events and racers, AI-powered event descriptions generated by Claude, Twilio SMS notifications for race updates, and Excel export for post-event reporting. Built to handle the energy and pace of live racing events.",
+    features: [
+      {
+        title: "Live Leaderboard",
+        description: "Real-time race results displayed on a public leaderboard with automatic ranking and timing.",
+        icon: "chart",
+      },
+      {
+        title: "QR Code Check-In",
+        description: "Racers scan QR codes to check into events — fast, contactless, and error-free.",
+        icon: "qr",
+      },
+      {
+        title: "AI Event Descriptions",
+        description: "Claude AI generates engaging event descriptions and race recaps automatically.",
+        icon: "message",
+      },
+      {
+        title: "SMS Notifications",
+        description: "Twilio-powered SMS alerts for race updates, results, and upcoming event reminders.",
+        icon: "notification",
+      },
+      {
+        title: "Admin Dashboard",
+        description: "Full event management with racer registration, heat scheduling, and result entry.",
+        icon: "grid",
+      },
+      {
+        title: "Excel Export",
+        description: "One-click export of race results and standings for post-event reporting and analysis.",
+        icon: "download",
+      },
+    ],
+    screenshots: [
+      { src: "/screenshots/s4m-leaderboard/hero.png", alt: "S4M Leaderboard", caption: "Live race leaderboard" },
+      { src: "/screenshots/s4m-leaderboard/dashboard.png", alt: "Admin dashboard", caption: "Event management dashboard" },
+      { src: "/screenshots/s4m-leaderboard/mobile.png", alt: "Mobile view", caption: "Mobile race results" },
+    ],
+    outcomes: [
+      "Real-time leaderboard with live race results",
+      "QR code check-in system for event day",
+      "AI-generated event descriptions via Claude",
+      "SMS notifications and Excel reporting",
+    ],
+    usesGHL: false,
+    clientIndustry: "Sim Racing & Events",
+  },
+
+  sim4hire: {
+    slug: "sim4hire",
+    headline: "We Bring the Race to You",
+    longDescription:
+      "Sim4Hire is the marketing site for a Miami-based racing simulator rental and event company. The site showcases a fleet of full-motion racing simulators available for corporate events, birthday parties, brand activations, and private gatherings.\n\nBuilt with Astro for blazing-fast static performance, the site features a fleet gallery, service packages, event testimonials, and a contact form powered by Twilio and Resend for instant notifications. The site connects to S4M Leaderboard for live race results during events.",
+    features: [
+      {
+        title: "Fleet Showcase",
+        description: "Gallery of full-motion racing simulators with specs, photos, and availability details.",
+        icon: "grid",
+      },
+      {
+        title: "Event Packages",
+        description: "Service tiers for corporate events, private parties, brand activations, and tournaments.",
+        icon: "calendar",
+      },
+      {
+        title: "Contact & Booking",
+        description: "Contact form with Twilio SMS and Resend email notifications for instant lead capture.",
+        icon: "message",
+      },
+      {
+        title: "Testimonials",
+        description: "Client testimonials and event photos showcasing real activations and satisfied customers.",
+        icon: "star",
+      },
+      {
+        title: "Live Race Integration",
+        description: "Connects to S4M Leaderboard for real-time race results during simulator events.",
+        icon: "trending",
+      },
+      {
+        title: "Blazing Fast",
+        description: "Built with Astro for zero-JavaScript static pages that load instantly on any device.",
+        icon: "lightning",
+      },
+    ],
+    screenshots: [
+      { src: "/screenshots/sim4hire/hero.png", alt: "Sim4Hire landing", caption: "Racing simulator rental site" },
+      { src: "/screenshots/sim4hire/fleet.png", alt: "Simulator fleet", caption: "Full-motion simulator fleet" },
+      { src: "/screenshots/sim4hire/mobile.png", alt: "Mobile view", caption: "Mobile-optimized experience" },
+    ],
+    outcomes: [
+      "Static Astro site with near-instant load times",
+      "Twilio + Resend for multi-channel lead notifications",
+      "Live leaderboard integration with S4M platform",
+      "Responsive design optimized for event bookings",
+    ],
+    usesGHL: false,
+    clientIndustry: "Entertainment & Events",
+  },
 };
