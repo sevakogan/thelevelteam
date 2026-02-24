@@ -123,7 +123,7 @@ export const FALLBACK_COMPANIES: Company[] = [
   },
   {
     id: "8",
-    name: "S4M Leaderboard",
+    name: "Sim Racing Leaderboards",
     slug: "s4m-leaderboard",
     tagline:
       "Multi-event racing leaderboard platform with real-time results, QR code check-in, and AI-powered event descriptions.",
@@ -140,7 +140,7 @@ export const FALLBACK_COMPANIES: Company[] = [
   },
   {
     id: "9",
-    name: "Sim4Hire",
+    name: "SimsForHire",
     slug: "sim4hire",
     tagline:
       "Racing simulator rental and event company. Full-motion racing simulators for corporate events, parties, and activations.",

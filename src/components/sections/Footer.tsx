@@ -13,15 +13,21 @@ const serviceLinks = [
 
 export default function Footer() {
   return (
-    <footer className="bg-brand-darker border-t border-brand-border/50">
-      <div className="max-w-5xl mx-auto px-6 py-12 md:py-16">
+    <footer className="relative bg-brand-darker border-t border-glass-border">
+      {/* Gradient top accent */}
+      <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-accent-blue/30 to-transparent" />
+
+      <div className="max-w-5xl mx-auto px-6 py-14 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {/* Company */}
           <div>
             <div className="flex items-center gap-2 mb-4">
               <Logo size={24} />
               <span className="text-white font-semibold">
-                TheLevel<span className="bg-gradient-to-r from-accent-blue to-accent-purple bg-clip-text text-transparent">Team</span>
+                TheLevel
+                <span className="bg-gradient-to-r from-accent-blue to-accent-purple bg-clip-text text-transparent">
+                  Team
+                </span>
               </span>
             </div>
             <p className="text-sm text-brand-muted leading-relaxed">
@@ -65,31 +71,19 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-brand-border/30 mt-12 pt-8">
+        <div className="border-t border-glass-border mt-12 pt-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-brand-muted">
             <div className="flex items-center gap-2">
               <Logo size={16} />
               <p>&copy; {new Date().getFullYear()} TheLevelTeam</p>
             </div>
             <div className="flex items-center gap-6">
-              <a href="/#services" className="hover:text-white transition-colors">
-                Services
-              </a>
-              <a href="/#portfolio" className="hover:text-white transition-colors">
-                Portfolio
-              </a>
-              <a href="/#about" className="hover:text-white transition-colors">
-                About
-              </a>
-              <a href="/#contact" className="hover:text-white transition-colors">
-                Contact
-              </a>
-              <a href="/privacy" className="hover:text-white transition-colors">
-                Privacy
-              </a>
-              <a href="/terms" className="hover:text-white transition-colors">
-                Terms
-              </a>
+              <a href="/#services" className="hover:text-white transition-colors">Services</a>
+              <a href="/#portfolio" className="hover:text-white transition-colors">Portfolio</a>
+              <a href="/#about" className="hover:text-white transition-colors">About</a>
+              <a href="/#contact" className="hover:text-white transition-colors">Contact</a>
+              <a href="/privacy" className="hover:text-white transition-colors">Privacy</a>
+              <a href="/terms" className="hover:text-white transition-colors">Terms</a>
             </div>
           </div>
         </div>

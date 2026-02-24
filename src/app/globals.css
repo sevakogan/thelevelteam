@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Light mode (default when no .dark class) */
+/* ── Light mode (default when no .dark class) ── */
 :root {
   --background: #FFFFFF;
   --foreground: #1a1a1a;
@@ -11,9 +11,13 @@
   --brand-card: #FFFFFF;
   --brand-border: #E5E5EA;
   --brand-muted: #6B6B80;
+  --glass-bg: rgba(255, 255, 255, 0.6);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-shadow: rgba(0, 0, 0, 0.04);
+  --noise-opacity: 0.03;
 }
 
-/* Dark mode */
+/* ── Dark mode ── */
 .dark {
   --background: #0A0A0F;
   --foreground: #ededed;
@@ -22,6 +26,10 @@
   --brand-card: #12121a;
   --brand-border: #1e1e2e;
   --brand-muted: #8888a0;
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: rgba(59, 130, 246, 0.05);
+  --noise-opacity: 0.04;
 }
 
 body {
@@ -30,24 +38,79 @@ body {
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
 }
 
+/* ── Selection ── */
 ::selection {
   background: rgba(59, 130, 246, 0.3);
   color: #fff;
 }
 
-::-webkit-scrollbar {
-  width: 6px;
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--brand-dark); }
+::-webkit-scrollbar-thumb { background: var(--brand-border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #3B82F6; }
+
+/* ── Lenis smooth scroll ── */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+
+/* ── Aurora keyframes ── */
+@keyframes aurora-shift {
+  0% { transform: translate(0%, 0%) rotate(0deg) scale(1); }
+  25% { transform: translate(10%, -15%) rotate(90deg) scale(1.1); }
+  50% { transform: translate(-5%, 10%) rotate(180deg) scale(0.95); }
+  75% { transform: translate(15%, 5%) rotate(270deg) scale(1.05); }
+  100% { transform: translate(0%, 0%) rotate(360deg) scale(1); }
 }
 
-::-webkit-scrollbar-track {
-  background: var(--brand-dark);
+@keyframes aurora-drift {
+  0% { transform: translate(0%, 0%) rotate(0deg); }
+  33% { transform: translate(-10%, 15%) rotate(120deg); }
+  66% { transform: translate(10%, -10%) rotate(240deg); }
+  100% { transform: translate(0%, 0%) rotate(360deg); }
 }
 
-::-webkit-scrollbar-thumb {
-  background: var(--brand-border);
-  border-radius: 3px;
+/* ── Marquee ── */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #3B82F6;
+.animate-marquee {
+  animation: marquee var(--marquee-speed, 30s) linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* ── Noise texture overlay ── */
+.noise-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: var(--noise-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* ── Marquee fade edges ── */
+.marquee-mask {
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 10%,
+    black 90%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 10%,
+    black 90%,
+    transparent 100%
+  );
 }

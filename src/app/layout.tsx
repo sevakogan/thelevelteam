@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import LeadModalProvider from "@/components/marketing/LeadModalProvider";
+import SmoothScrollProvider from "@/components/ui/SmoothScrollProvider";
 import "./globals.css";
 
 const geistSans = localFont({
@@ -55,7 +56,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-brand-dark`}
       >
-        <LeadModalProvider>{children}</LeadModalProvider>
+        <SmoothScrollProvider>
+          <LeadModalProvider>{children}</LeadModalProvider>
+        </SmoothScrollProvider>
+        <div className="noise-overlay" aria-hidden="true" />
       </body>
     </html>
   );

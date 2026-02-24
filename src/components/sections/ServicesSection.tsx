@@ -1,7 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { staggerContainer, fadeInUp } from "@/lib/animations";
+import { staggerContainer, blurIn } from "@/lib/animations";
+import ScrollTextReveal from "@/components/ui/ScrollTextReveal";
+import GlassCard from "@/components/ui/GlassCard";
 import FeatureIcon from "@/components/ui/FeatureIcon";
 
 const services = [
@@ -51,40 +53,24 @@ const services = [
 
 export default function ServicesSection() {
   return (
-    <section id="services" className="relative py-12 md:py-20">
+    <section id="services" className="relative py-16 md:py-24">
       <div className="max-w-5xl mx-auto px-6">
         {/* Section header */}
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          className="mb-12"
-        >
+        <div className="mb-14">
           <motion.div
-            variants={fadeInUp}
-            className="flex items-center gap-3 mb-4"
-          >
-            <motion.div
-              initial={{ width: 0 }}
-              whileInView={{ width: 48 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="h-[1px] bg-gradient-to-r from-accent-blue to-transparent"
-            />
-            <span className="text-accent-blue text-sm font-medium uppercase tracking-widest">
-              Services
-            </span>
-          </motion.div>
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ width: 0 }}
+            whileInView={{ width: 48 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="text-3xl md:text-4xl font-bold text-white"
-          >
-            What We Do
-          </motion.h2>
-        </motion.div>
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="h-[1px] bg-gradient-to-r from-accent-blue to-transparent mb-4"
+          />
+          <ScrollTextReveal
+            text="What We Do"
+            as="h2"
+            mode="word"
+            className="text-3xl md:text-5xl font-bold text-white"
+          />
+        </div>
 
         {/* Services grid */}
         <motion.div
@@ -92,37 +78,23 @@ export default function ServicesSection() {
           whileInView="visible"
           viewport={{ once: true, margin: "-50px" }}
           variants={staggerContainer}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"
         >
           {services.map((svc) => (
-            <motion.div
-              key={svc.title}
-              variants={fadeInUp}
-              className="group relative rounded-2xl p-6 md:p-8 bg-brand-card border border-brand-border hover:border-white/[0.12] transition-all duration-500"
-            >
-              {/* Icon */}
-              <div
-                className="w-12 h-12 rounded-xl flex items-center justify-center mb-5"
-                style={{ backgroundColor: `${svc.color}10` }}
-              >
-                <FeatureIcon icon={svc.icon} color={svc.color} size={24} />
-              </div>
-
-              {/* Content */}
-              <h3 className="text-lg font-semibold text-white mb-2">
-                {svc.title}
-              </h3>
-              <p className="text-sm text-brand-muted leading-relaxed">
-                {svc.description}
-              </p>
-
-              {/* Subtle hover glow */}
-              <div
-                className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                style={{
-                  background: `radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), ${svc.color}06, transparent 40%)`,
-                }}
-              />
+            <motion.div key={svc.title} variants={blurIn}>
+              <GlassCard hoverGlow={svc.color}>
+                <div
+                  className="w-11 h-11 rounded-xl flex items-center justify-center mb-5"
+                  style={{
+                    background: `linear-gradient(135deg, ${svc.color}15, ${svc.color}08)`,
+                    border: `1px solid ${svc.color}20`,
+                  }}
+                >
+                  <FeatureIcon icon={svc.icon} color={svc.color} size={22} />
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-2">{svc.title}</h3>
+                <p className="text-sm text-brand-muted leading-relaxed">{svc.description}</p>
+              </GlassCard>
             </motion.div>
           ))}
         </motion.div>

@@ -26,6 +26,10 @@ const config: Config = {
           emerald: "#10B981",
           pink: "#EC4899",
         },
+        glass: {
+          bg: "var(--glass-bg)",
+          border: "var(--glass-border)",
+        },
       },
       fontFamily: {
         sans: ["var(--font-geist-sans)"],
@@ -35,6 +39,7 @@ const config: Config = {
         glow: "0 0 20px rgba(59, 130, 246, 0.3)",
         "glow-purple": "0 0 20px rgba(139, 92, 246, 0.3)",
         "glow-lg": "0 0 40px rgba(59, 130, 246, 0.2)",
+        glass: "0 8px 32px var(--glass-shadow)",
       },
       keyframes: {
         "fade-up": {
