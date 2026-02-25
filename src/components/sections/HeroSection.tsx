@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import dynamic from "next/dynamic";
 import { motion, useScroll, useTransform } from "framer-motion";
 import AuroraBackground from "@/components/ui/AuroraBackground";
@@ -18,6 +19,11 @@ export default function HeroSection() {
   const heroOpacity = useTransform(scrollY, [0, 500], [1, 0]);
   const heroY = useTransform(scrollY, [0, 500], [0, 120]);
 
+  const scrollToServices = useCallback(() => {
+    const el = document.getElementById("services");
+    if (el) el.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
   return (
     <section className="relative min-h-screen overflow-hidden">
       <AuroraBackground />
@@ -25,10 +31,10 @@ export default function HeroSection() {
       {/* Interactive game — fills the hero */}
       <AngryBirdsGame />
 
-      {/* Logo badge — top center, above game */}
+      {/* Logo badge — positioned over the WE BUILD letters */}
       <motion.div
         style={{ opacity: heroOpacity }}
-        className="absolute top-6 inset-x-0 z-20 flex justify-center pointer-events-none"
+        className="absolute top-[18%] inset-x-0 z-20 flex justify-center pointer-events-none"
       >
         <motion.div
           initial={{ opacity: 0, scale: 0 }}
@@ -41,6 +47,37 @@ export default function HeroSection() {
           </div>
         </motion.div>
       </motion.div>
+
+      {/* Clickable WE BUILD zone — scrolls to next section */}
+      <motion.button
+        onClick={scrollToServices}
+        style={{ opacity: heroOpacity }}
+        className="absolute top-[20%] left-1/2 -translate-x-1/2 z-[15] w-[70%] max-w-2xl h-[18%] cursor-pointer group"
+        aria-label="Scroll to services"
+      >
+        {/* Subtle hover glow to hint it's clickable */}
+        <div className="absolute inset-0 rounded-2xl bg-white/0 group-hover:bg-white/[0.02] transition-colors duration-500" />
+        {/* Animated down-arrow hint on hover */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          className="absolute -bottom-2 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-40 transition-opacity duration-300"
+        >
+          <motion.svg
+            animate={{ y: [0, 6, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="white"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M6 9l6 6 6-6" />
+          </motion.svg>
+        </motion.div>
+      </motion.button>
 
       {/* Bottom area — CTA + scroll, below the game zone */}
       <motion.div
