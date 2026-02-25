@@ -13,7 +13,17 @@ export const GAME = {
   settleSpeed: 0.4,
   settleFrames: 80,
   hitRadius: 90,
+  morphInterval: 180, // frames between text morphs (~3 seconds at 60fps)
 } as const;
+
+// Phrases the hero text cycles through
+export const MORPH_PHRASES = [
+  "WE BUILD",
+  "WE DESIGN",
+  "WE CREATE",
+  "WE LAUNCH",
+  "WE SCALE",
+] as const;
 
 export const BIRD_STYLES = [
   { fill: "#3B82F6", glow: "rgba(59,130,246,0.6)", emoji: "\u{1F680}" },
@@ -30,7 +40,7 @@ export const COLORS = {
   letter: "#ffffff",
   letterGlow: "rgba(139, 92, 246, 0.5)",
   letterActiveGlow: "rgba(239, 68, 68, 0.8)",
-  subtitle: "rgba(136, 136, 160, 0.25)",
+  subtitle: "rgba(200, 205, 220, 0.5)",
   trajectory: "rgba(255, 255, 255, 0.1)",
 } as const;
 

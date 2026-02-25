@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
-import { GAME, BIRD_STYLES, COLORS } from "./config";
+import { GAME, BIRD_STYLES, COLORS, MORPH_PHRASES } from "./config";
 import {
   createEffectsState,
   updateEffects,
@@ -91,6 +91,11 @@ interface GameState {
   combo: number;
   lastHitTime: number;
   victoryFireworkTimer: number;
+  morphIndex: number;
+  morphTimer: number;
+  morphFade: number; // 0 = invisible, 1 = fully visible
+  morphDirection: "in" | "out";
+  morphLocked: boolean; // true once player launches first bird
 }
 
 /* ───────────── Crack generation helper ───────────── */
@@ -140,6 +145,11 @@ export default function AngryBirdsGame() {
     combo: 0,
     lastHitTime: 0,
     victoryFireworkTimer: 0,
+    morphIndex: 0,
+    morphTimer: 0,
+    morphFade: 1,
+    morphDirection: "in",
+    morphLocked: false,
   });
 
   /* ── State sync helpers ── */
@@ -183,6 +193,11 @@ export default function AngryBirdsGame() {
     s.combo = 0;
     s.lastHitTime = 0;
     s.victoryFireworkTimer = 0;
+    s.morphIndex = 0;
+    s.morphTimer = 0;
+    s.morphFade = 1;
+    s.morphDirection = "in";
+    s.morphLocked = false;
 
     const rect = canvas.parentElement!.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
@@ -213,7 +228,7 @@ export default function AngryBirdsGame() {
     });
     M.Composite.add(s.engine.world, [wallL, wallR, ground]);
 
-    createLetters();
+    createLetters(MORPH_PHRASES[0]);
     loadBird(0);
 
     M.Events.on(s.engine, "collisionStart", handleCollision);
@@ -224,13 +239,11 @@ export default function AngryBirdsGame() {
 
   /* ── Letter bodies ── */
 
-  function createLetters() {
+  function createLetters(text: string = "WE BUILD") {
     const M = gs.current.Matter;
     const s = gs.current;
     const canvas = canvasRef.current;
     if (!canvas) return;
-
-    const text = "WE BUILD";
     const letterY = s.canvasH * GAME.lettersYRatio;
 
     const measureCtx = canvas.getContext("2d")!;
@@ -583,6 +596,30 @@ export default function AngryBirdsGame() {
       }
     }
 
+    // ── Morph text cycling (only before user starts playing) ──
+    if (!s.morphLocked) {
+      if (s.morphDirection === "in" && s.morphFade < 1) {
+        s.morphFade = Math.min(1, s.morphFade + 0.04);
+      } else if (s.morphDirection === "out") {
+        s.morphFade = Math.max(0, s.morphFade - 0.04);
+        if (s.morphFade <= 0) {
+          s.morphIndex = (s.morphIndex + 1) % MORPH_PHRASES.length;
+          for (const l of s.letters) {
+            if (!l.removed) M.Composite.remove(s.engine.world, l.body);
+          }
+          s.letters = [];
+          createLetters(MORPH_PHRASES[s.morphIndex]);
+          s.morphDirection = "in";
+        }
+      } else {
+        s.morphTimer++;
+        if (s.morphTimer >= GAME.morphInterval) {
+          s.morphDirection = "out";
+          s.morphTimer = 0;
+        }
+      }
+    }
+
     // Update effects system
     s.effects = updateEffects(s.effects);
 
@@ -752,13 +789,13 @@ export default function AngryBirdsGame() {
 
       const { position, angle } = letter.body;
 
-      // Fade out shattered letters over 2s
-      let alpha = 1;
+      // Morph fade + shatter fade
+      let alpha = s.morphFade;
       if (letter.shattered && letter.shatterTime > 0) {
         const elapsed = now - letter.shatterTime;
-        alpha = Math.max(0, 1 - elapsed / 2000);
-        if (alpha <= 0) continue;
+        alpha *= Math.max(0, 1 - elapsed / 2000);
       }
+      if (alpha <= 0) continue;
 
       // Damage-based color tinting
       const dmgRatio = 1 - letter.hp / LETTER_MAX_HP; // 0=pristine, 1=about to break
@@ -960,6 +997,8 @@ export default function AngryBirdsGame() {
     });
     syncPhase("flying");
     s.settleTimer = 0;
+    s.morphLocked = true;
+    s.morphFade = 1;
   }, []);
 
   /* ── Reset ── */

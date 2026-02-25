@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import dynamic from "next/dynamic";
 import { motion, useScroll, useTransform } from "framer-motion";
 import AuroraBackground from "@/components/ui/AuroraBackground";
@@ -13,15 +13,27 @@ const AngryBirdsGame = dynamic(
   { ssr: false },
 );
 
+const BreakoutGame = dynamic(
+  () => import("@/components/game/BreakoutGame"),
+  { ssr: false },
+);
+
+type GameMode = "birds" | "breakout";
+
 export default function HeroSection() {
   const { openModal } = useLeadModal();
   const { scrollY } = useScroll();
   const heroOpacity = useTransform(scrollY, [0, 500], [1, 0]);
   const heroY = useTransform(scrollY, [0, 500], [0, 120]);
+  const [activeGame, setActiveGame] = useState<GameMode>("birds");
 
   const scrollToServices = useCallback(() => {
     const el = document.getElementById("services");
     if (el) el.scrollIntoView({ behavior: "smooth" });
+  }, []);
+
+  const toggleGame = useCallback(() => {
+    setActiveGame((g) => (g === "birds" ? "breakout" : "birds"));
   }, []);
 
   return (
@@ -29,12 +41,12 @@ export default function HeroSection() {
       <AuroraBackground />
 
       {/* Interactive game — fills the hero */}
-      <AngryBirdsGame />
+      {activeGame === "birds" ? <AngryBirdsGame /> : <BreakoutGame />}
 
-      {/* Logo badge — positioned over the WE BUILD letters */}
+      {/* Logo badge — above the WE BUILD letters */}
       <motion.div
         style={{ opacity: heroOpacity }}
-        className="absolute top-[18%] inset-x-0 z-20 flex justify-center pointer-events-none"
+        className="absolute top-[8%] inset-x-0 z-20 flex justify-center pointer-events-none"
       >
         <motion.div
           initial={{ opacity: 0, scale: 0 }}
@@ -78,6 +90,25 @@ export default function HeroSection() {
           </motion.svg>
         </motion.div>
       </motion.button>
+
+      {/* Game toggle — bottom-left corner */}
+      <motion.div
+        style={{ opacity: heroOpacity }}
+        className="absolute bottom-24 left-4 z-30"
+      >
+        <motion.button
+          onClick={toggleGame}
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.95 }}
+          className="flex items-center gap-2 px-3.5 py-2 rounded-full bg-glass-bg backdrop-blur-xl border border-glass-border text-white/60 hover:text-white transition-colors duration-300 text-xs"
+          aria-label={`Switch to ${activeGame === "birds" ? "Breakout" : "Slingshot"} game`}
+        >
+          <span className="text-base">{activeGame === "birds" ? "🧱" : "🎯"}</span>
+          <span className="tracking-wide uppercase">
+            {activeGame === "birds" ? "Breakout" : "Slingshot"}
+          </span>
+        </motion.button>
+      </motion.div>
 
       {/* Bottom area — CTA + scroll, below the game zone */}
       <motion.div
