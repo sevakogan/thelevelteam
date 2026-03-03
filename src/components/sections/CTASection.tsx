@@ -81,33 +81,46 @@ export default function CTASection() {
   );
 
   return (
-    <section id="contact" className="relative py-20 md:py-32 overflow-hidden">
+    <section id="contact" className="relative py-24 md:py-36 overflow-hidden">
       {/* Aurora accent */}
       <div
         className="absolute inset-0 flex items-center justify-center pointer-events-none"
         aria-hidden="true"
       >
-        <div className="w-[800px] h-[400px] rounded-full bg-accent-purple/[0.05] blur-[120px]" />
+        <div className="w-[900px] h-[500px] rounded-full bg-accent-blue/[0.06] blur-[140px]" />
       </div>
 
       <div className="relative z-10 max-w-5xl mx-auto px-6">
+        {/* Section label */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-4"
+        >
+          <span className="inline-block px-4 py-1.5 rounded-full border border-accent-blue/30 bg-accent-blue/10 text-accent-blue text-xs font-medium tracking-wider uppercase">
+            Contact Us
+          </span>
+        </motion.div>
+
         {/* Heading */}
-        <div className="text-center mb-12">
+        <div className="text-center mb-14">
           <ScrollTextReveal
-            text="Ready to Grow Your Business?"
+            text="Let's Start Your Project"
             as="h2"
             mode="word"
-            className="text-3xl md:text-5xl font-bold text-white mb-6"
+            className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6"
           />
           <motion.p
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
             variants={blurIn}
-            className="text-brand-muted text-base md:text-lg max-w-xl mx-auto leading-relaxed"
+            className="text-brand-muted text-lg md:text-xl max-w-2xl mx-auto leading-relaxed"
           >
-            Let&apos;s build a strategy tailored to your goals. Fill out the
-            form below and we&apos;ll be in touch within 24 hours.
+            Fill out the form below and our team will get back to you within 24
+            hours to discuss your goals.
           </motion.p>
         </div>
 
@@ -117,10 +130,10 @@ export default function CTASection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="max-w-lg mx-auto"
+          className="max-w-xl mx-auto"
         >
           {formState === "success" ? (
-            <div className="text-center py-12 rounded-2xl bg-brand-darker/50 border border-brand-border">
+            <div className="text-center py-14 rounded-2xl bg-brand-darker/60 border border-brand-border backdrop-blur-sm">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
                 <svg
                   className="w-8 h-8 text-green-400"
@@ -136,7 +149,9 @@ export default function CTASection() {
                   />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Thank you!</h3>
+              <h3 className="text-2xl font-bold text-white mb-2">
+                Thank you!
+              </h3>
               <p className="text-brand-muted text-sm mb-6">
                 We&apos;ve received your inquiry and will be in touch within 24
                 hours.
@@ -151,33 +166,33 @@ export default function CTASection() {
           ) : (
             <form
               onSubmit={handleSubmit}
-              className="space-y-4 p-8 rounded-2xl bg-brand-darker/50 border border-brand-border"
+              className="space-y-5 p-8 md:p-10 rounded-2xl bg-brand-darker/60 border border-brand-border backdrop-blur-sm"
             >
               <input
                 type="text"
-                placeholder="Your name"
+                placeholder="Your name *"
                 value={form.name}
                 onChange={(e) => updateField("name", e.target.value)}
                 required
-                className="w-full px-4 py-3 rounded-lg bg-brand-darker border border-brand-border text-white text-sm placeholder:text-brand-muted/50 focus:outline-none focus:border-accent-blue transition-colors"
+                className="w-full px-4 py-3.5 rounded-lg bg-brand-darker border border-brand-border text-white text-sm placeholder:text-brand-muted/50 focus:outline-none focus:border-accent-blue transition-colors"
               />
 
               <input
                 type="email"
-                placeholder="Email address"
+                placeholder="Email address *"
                 value={form.email}
                 onChange={(e) => updateField("email", e.target.value)}
                 required
-                className="w-full px-4 py-3 rounded-lg bg-brand-darker border border-brand-border text-white text-sm placeholder:text-brand-muted/50 focus:outline-none focus:border-accent-blue transition-colors"
+                className="w-full px-4 py-3.5 rounded-lg bg-brand-darker border border-brand-border text-white text-sm placeholder:text-brand-muted/50 focus:outline-none focus:border-accent-blue transition-colors"
               />
 
               <input
                 type="tel"
-                placeholder="Phone number (e.g. 415-555-1234)"
+                placeholder="Phone number * (e.g. 415-555-1234)"
                 value={form.phone}
                 onChange={(e) => updateField("phone", e.target.value)}
                 required
-                className="w-full px-4 py-3 rounded-lg bg-brand-darker border border-brand-border text-white text-sm placeholder:text-brand-muted/50 focus:outline-none focus:border-accent-blue transition-colors"
+                className="w-full px-4 py-3.5 rounded-lg bg-brand-darker border border-brand-border text-white text-sm placeholder:text-brand-muted/50 focus:outline-none focus:border-accent-blue transition-colors"
               />
 
               <textarea
@@ -185,35 +200,39 @@ export default function CTASection() {
                 value={form.message}
                 onChange={(e) => updateField("message", e.target.value)}
                 rows={3}
-                className="w-full px-4 py-3 rounded-lg bg-brand-darker border border-brand-border text-white text-sm placeholder:text-brand-muted/50 focus:outline-none focus:border-accent-blue transition-colors resize-none"
+                className="w-full px-4 py-3.5 rounded-lg bg-brand-darker border border-brand-border text-white text-sm placeholder:text-brand-muted/50 focus:outline-none focus:border-accent-blue transition-colors resize-none"
               />
 
-              {/* SMS & Email Consent */}
-              <div className="space-y-3 pt-2">
-                <label className="flex items-start gap-3 text-xs text-brand-muted cursor-pointer">
+              {/* SMS & Email Consent — highlighted box */}
+              <div className="rounded-lg border border-accent-blue/20 bg-accent-blue/[0.04] p-4 space-y-3">
+                <p className="text-xs font-medium text-white/80 uppercase tracking-wider">
+                  Communication Preferences
+                </p>
+
+                <label className="flex items-start gap-3 text-sm text-brand-muted cursor-pointer">
                   <input
                     type="checkbox"
                     checked={form.smsConsent}
                     onChange={(e) =>
                       updateField("smsConsent", e.target.checked)
                     }
-                    className="mt-0.5 rounded border-brand-border bg-brand-darker text-accent-blue focus:ring-accent-blue"
+                    className="mt-0.5 w-4 h-4 rounded border-brand-border bg-brand-darker text-accent-blue focus:ring-accent-blue"
                   />
                   <span>
-                    I agree to receive SMS messages from The Level Team. Msg &amp;
-                    data rates may apply. Reply STOP to opt out. Msg frequency
-                    varies.
+                    I agree to receive SMS messages from The Level Team. Msg
+                    &amp; data rates may apply. Msg frequency varies. Reply STOP
+                    to opt out.
                   </span>
                 </label>
 
-                <label className="flex items-start gap-3 text-xs text-brand-muted cursor-pointer">
+                <label className="flex items-start gap-3 text-sm text-brand-muted cursor-pointer">
                   <input
                     type="checkbox"
                     checked={form.emailConsent}
                     onChange={(e) =>
                       updateField("emailConsent", e.target.checked)
                     }
-                    className="mt-0.5 rounded border-brand-border bg-brand-darker text-accent-blue focus:ring-accent-blue"
+                    className="mt-0.5 w-4 h-4 rounded border-brand-border bg-brand-darker text-accent-blue focus:ring-accent-blue"
                   />
                   <span>
                     I agree to receive email updates. Unsubscribe anytime.
@@ -222,18 +241,18 @@ export default function CTASection() {
               </div>
 
               {/* Privacy & Terms links */}
-              <p className="text-[11px] text-brand-muted/60 leading-relaxed">
+              <p className="text-xs text-brand-muted/70 leading-relaxed">
                 By submitting this form you agree to our{" "}
                 <Link
                   href="/privacy"
-                  className="underline hover:text-brand-muted transition-colors"
+                  className="underline hover:text-white transition-colors"
                 >
                   Privacy Policy
                 </Link>{" "}
                 and{" "}
                 <Link
                   href="/terms"
-                  className="underline hover:text-brand-muted transition-colors"
+                  className="underline hover:text-white transition-colors"
                 >
                   Terms of Service
                 </Link>
@@ -241,7 +260,7 @@ export default function CTASection() {
               </p>
 
               {errorMessage && (
-                <p className="text-red-400 text-xs">{errorMessage}</p>
+                <p className="text-red-400 text-sm">{errorMessage}</p>
               )}
 
               <motion.button
@@ -249,7 +268,7 @@ export default function CTASection() {
                 disabled={formState === "submitting"}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="w-full py-3 rounded-full bg-gradient-to-r from-accent-blue to-accent-purple text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-4 rounded-full bg-gradient-to-r from-accent-blue to-accent-purple text-white font-medium text-base disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-accent-blue/20"
               >
                 {formState === "submitting" ? "Sending..." : "Get in Touch"}
               </motion.button>
@@ -263,14 +282,14 @@ export default function CTASection() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="text-center mt-6"
+          className="text-center mt-8"
         >
-          <span className="text-xs text-brand-muted/50">
+          <span className="text-sm text-brand-muted/50">
             or email us directly at{" "}
           </span>
           <a
             href="mailto:info@thelevelteam.com"
-            className="text-xs text-brand-muted hover:text-white transition-colors relative group"
+            className="text-sm text-brand-muted hover:text-white transition-colors relative group"
           >
             info@thelevelteam.com
             <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-accent-blue group-hover:w-full transition-all duration-300" />
