@@ -1,1 +1,1 @@
-export { GET, POST } from '@seva-widgets/sms-automation/api/settings/setup';
+export { GET, POST } from '@/lib/sms-automation/api/settings/setup/route';

@@ -6,7 +6,7 @@ import {
   SMSDashboard,
   CampaignManager,
   SettingsPanel,
-} from '@seva-widgets/sms-automation/components';
+} from '@/lib/sms-automation/components';
 
 type Tab = 'dashboard' | 'campaigns' | 'settings';
 
