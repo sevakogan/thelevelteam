@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, type Variants } from "framer-motion";
-import { staggerContainer, blurIn } from "@/lib/animations";
+import { staggerContainer, blurIn, flipInX, flipInY } from "@/lib/animations";
 import ScrollTextReveal from "@/components/ui/ScrollTextReveal";
 import FeatureIcon from "@/components/ui/FeatureIcon";
 
@@ -74,31 +74,14 @@ const slideUp: Variants = {
   },
 };
 
-const slideLeft: Variants = {
-  hidden: { opacity: 0, x: -40 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: { duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] as const },
-  },
-};
-
-const scaleReveal: Variants = {
-  hidden: { opacity: 0, scale: 0.92 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: { type: "spring", stiffness: 180, damping: 22 },
-  },
-};
 
 const cardVariants: ReadonlyArray<Variants> = [
-  blurIn,       // 01
-  slideLeft,    // 02
+  flipInX,      // 01 — wide
+  flipInY,      // 02 — tall
   slideUp,      // 03
-  scaleReveal,  // 04
-  blurIn,       // 05
-  slideUp,      // 06
+  flipInX,      // 04
+  blurIn,       // 05 — wide
+  flipInY,      // 06
 ];
 
 /* ── Pad index to 2-digit number ── */
@@ -153,11 +136,14 @@ export default function ServicesSection() {
           viewport={{ once: true, margin: "-80px" }}
           variants={staggerContainer}
           className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5 auto-rows-auto"
+          style={{ perspective: 1200 }}
         >
           {services.map((svc, i) => (
             <motion.article
               key={svc.title}
               variants={cardVariants[i]}
+              whileHover={{ rotateY: 2, rotateX: -2, scale: 1.02, transition: { duration: 0.3 } }}
+              style={{ transformStyle: "preserve-3d" }}
               className={`
                 group relative
                 ${gridSpans[i]}
@@ -182,7 +168,7 @@ export default function ServicesSection() {
               </span>
 
               {/* Icon */}
-              <div className="relative z-10 mb-5">
+              <div className="relative z-10 mb-5" style={{ transform: "translateZ(30px)" }}>
                 <div
                   className="w-12 h-12 flex items-center justify-center border"
                   style={{
@@ -195,7 +181,7 @@ export default function ServicesSection() {
               </div>
 
               {/* Title */}
-              <h3 className="relative z-10 font-display text-xl md:text-2xl font-bold text-white mb-3 tracking-tight">
+              <h3 className="relative z-10 font-display text-xl md:text-2xl font-bold text-white mb-3 tracking-tight" style={{ transform: "translateZ(20px)" }}>
                 {svc.title}
               </h3>
 

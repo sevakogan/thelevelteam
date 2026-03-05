@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { staggerContainer } from "@/lib/animations";
+import { staggerContainer, cascade3D } from "@/lib/animations";
 import ScrollTextReveal from "@/components/ui/ScrollTextReveal";
 import FeatureIcon from "@/components/ui/FeatureIcon";
 
@@ -39,19 +39,6 @@ const steps = [
     color: "#06B6D4",
   },
 ];
-
-const stepReveal = {
-  hidden: { opacity: 0, y: 40 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.7,
-      delay: i * 0.18,
-      ease: [0.25, 0.46, 0.45, 0.94] as const,
-    },
-  }),
-};
 
 const lineGrow = {
   hidden: { scaleX: 0 },
@@ -114,12 +101,14 @@ export default function ProcessSection() {
           viewport={{ once: true, margin: "-80px" }}
           variants={staggerContainer}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-0"
+          style={{ perspective: 1200 }}
         >
           {steps.map((step, i) => (
             <motion.div
               key={step.number}
               custom={i}
-              variants={stepReveal}
+              variants={cascade3D}
+              whileHover={{ rotateX: -3, y: -4, transition: { duration: 0.3 } }}
               className="relative group"
             >
               {/* Connector arrow between steps (desktop, between cards) */}
@@ -146,18 +135,18 @@ export default function ProcessSection() {
               {/* Card */}
               <div
                 className="relative lg:mx-3 p-6 pt-16 bg-brand-darker/60 border border-brand-border transition-colors duration-300 hover:border-white/20"
-                style={{ borderTopColor: step.color, borderTopWidth: "3px" }}
+                style={{ borderTopColor: step.color, borderTopWidth: "3px", transformStyle: "preserve-3d" }}
               >
                 {/* Large dramatic step number (faded behind) */}
                 <span
                   className="absolute -top-2 left-4 font-display text-[120px] md:text-[140px] leading-none font-black select-none pointer-events-none opacity-[0.06]"
-                  style={{ color: step.color }}
+                  style={{ color: step.color, transform: "translateZ(-20px)" }}
                 >
                   {step.number}
                 </span>
 
                 {/* Content */}
-                <div className="relative z-10">
+                <div className="relative z-10" style={{ transform: "translateZ(15px)" }}>
                   <div className="flex items-center gap-3 mb-4">
                     <div
                       className="flex h-10 w-10 shrink-0 items-center justify-center border"

@@ -111,3 +111,63 @@ export const bentoChild: Variants = {
     transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] as const },
   },
 };
+
+/* ── 3D variants ── */
+
+/** Card flips in from the top like a falling domino */
+export const flipInX: Variants = {
+  hidden: { opacity: 0, rotateX: -60, y: 30 },
+  visible: {
+    opacity: 1,
+    rotateX: 0,
+    y: 0,
+    transition: { duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] as const },
+  },
+};
+
+/** Card rotates in from the left edge */
+export const flipInY: Variants = {
+  hidden: { opacity: 0, rotateY: -40, x: -30 },
+  visible: {
+    opacity: 1,
+    rotateY: 0,
+    x: 0,
+    transition: { duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] as const },
+  },
+};
+
+/** Element rises toward the viewer with depth */
+export const riseToward: Variants = {
+  hidden: { opacity: 0, scale: 0.7, z: -200 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    z: 0,
+    transition: { duration: 0.9, ease: [0.16, 1, 0.3, 1] as const },
+  },
+};
+
+/** Cascading 3D entrance — stagger-ready with custom delay */
+export const cascade3D = {
+  hidden: { opacity: 0, rotateX: -45, y: 60, scale: 0.9 },
+  visible: (i: number) => ({
+    opacity: 1,
+    rotateX: 0,
+    y: 0,
+    scale: 1,
+    transition: {
+      duration: 0.8,
+      delay: i * 0.15,
+      ease: [0.25, 0.46, 0.45, 0.94] as const,
+    },
+  }),
+};
+
+/** Stagger container with perspective context */
+export const perspective3DContainer: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.12, delayChildren: 0.1 },
+  },
+};

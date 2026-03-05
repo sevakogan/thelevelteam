@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { staggerContainer, blurIn } from "@/lib/animations";
+import { staggerContainer, flipInX } from "@/lib/animations";
 import ScrollTextReveal from "@/components/ui/ScrollTextReveal";
 import AnimatedCounter from "@/components/ui/AnimatedCounter";
 
@@ -23,7 +23,10 @@ export default function SocialProofSection() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 flex items-center justify-center select-none"
       >
-        <span className="font-display text-[12rem] md:text-[20rem] lg:text-[28rem] font-black uppercase tracking-tighter text-white/[0.02] leading-none">
+        <span
+          className="font-display text-[12rem] md:text-[20rem] lg:text-[28rem] font-black uppercase tracking-tighter text-white/[0.02] leading-none"
+          style={{ transform: "translateZ(-80px) scale(1.1)" }}
+        >
           RESULTS
         </span>
       </div>
@@ -49,11 +52,13 @@ export default function SocialProofSection() {
           viewport={{ once: true, margin: "-50px" }}
           variants={staggerContainer}
           className="grid grid-cols-2 md:grid-cols-4 gap-y-10 md:gap-y-0"
+          style={{ perspective: 1000, transformStyle: "preserve-3d" }}
         >
           {metrics.map((m, index) => (
             <motion.div
               key={m.label}
-              variants={blurIn}
+              variants={flipInX}
+              whileHover={{ rotateX: -5, scale: 1.05, transition: { duration: 0.3 } }}
               className={`text-center ${
                 index < metrics.length - 1
                   ? "md:border-r md:border-brand-border/40"

@@ -95,12 +95,12 @@ export default function CTASection() {
 
       <div className="relative z-10 max-w-5xl mx-auto px-6">
         {/* Two-column layout: heading left, form right */}
-        <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-start">
+        <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-start" style={{ perspective: 1200 }}>
           {/* Left — Heading & info */}
           <div className="md:sticky md:top-32">
             <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, x: -20, rotateY: 5 }}
+              whileInView={{ opacity: 1, x: 0, rotateY: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
@@ -148,8 +148,8 @@ export default function CTASection() {
 
           {/* Right — Form */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, rotateY: -8, x: 30 }}
+            whileInView={{ opacity: 1, rotateY: 0, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
@@ -175,6 +175,7 @@ export default function CTASection() {
               <form
                 onSubmit={handleSubmit}
                 className="space-y-4 p-8 md:p-10 rounded-2xl bg-brand-card border border-brand-border"
+                style={{ transformStyle: "preserve-3d" }}
               >
                 <div className="grid grid-cols-2 gap-4">
                   <input
@@ -257,6 +258,7 @@ export default function CTASection() {
                   disabled={formState === "submitting"}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
+                  style={{ transform: "translateZ(10px)" }}
                   className="w-full py-4 rounded-xl bg-gradient-to-r from-accent-blue to-accent-purple text-white font-display font-semibold text-base disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-accent-blue/20 tracking-wide"
                 >
                   {formState === "submitting" ? "Sending..." : "Get in Touch"}

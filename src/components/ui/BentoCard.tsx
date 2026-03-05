@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { useRef, useState, useCallback } from "react";
 import CompanyIcon from "@/components/ui/CompanyIcon";
+import TiltCard from "@/components/ui/TiltCard";
 import { bentoChild } from "@/lib/animations";
 import { projectContent } from "@/lib/projectContent";
 import type { Company } from "@/lib/types";
@@ -44,12 +45,20 @@ export default function BentoCard({ company }: BentoCardProps) {
       whileDrag={{ scale: 1.08, zIndex: 50, rotate: Math.random() > 0.5 ? 3 : -3, boxShadow: "0 20px 60px rgba(0,0,0,0.4)" }}
       style={{ cursor: isDragging ? "grabbing" : "grab", touchAction: "none" }}
     >
-      <Link
-        href={`/projects/${company.slug}`}
-        onClick={handleClick}
-        draggable={false}
-        className="group relative block h-full rounded-2xl overflow-hidden bg-glass-bg backdrop-blur-xl border border-glass-border shadow-glass transition-all duration-500 hover:border-white/20"
+      <TiltCard
+        maxTilt={8}
+        perspective={1000}
+        glare={true}
+        glareOpacity={0.12}
+        hoverScale={1.0}
+        className="h-full"
       >
+        <Link
+          href={`/projects/${company.slug}`}
+          onClick={handleClick}
+          draggable={false}
+          className="group relative block h-full rounded-2xl overflow-hidden bg-glass-bg backdrop-blur-xl border border-glass-border shadow-glass transition-all duration-500 hover:border-white/20"
+        >
         {/* Gradient glow on hover */}
         <div
           className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
@@ -190,6 +199,7 @@ export default function BentoCard({ company }: BentoCardProps) {
           </div>
         </div>
       </Link>
+      </TiltCard>
     </motion.div>
   );
 }

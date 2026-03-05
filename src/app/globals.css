@@ -114,3 +114,41 @@ html.lenis, html.lenis body { height: auto; }
     transparent 100%
   );
 }
+
+/* ── 3D depth utilities ── */
+.preserve-3d { transform-style: preserve-3d; }
+.perspective-800 { perspective: 800px; }
+.perspective-1000 { perspective: 1000px; }
+.perspective-1200 { perspective: 1200px; }
+
+/* Floating depth layer for background watermarks */
+.depth-recede {
+  transform: translateZ(-60px) scale(1.08);
+}
+
+/* Pop-forward layer for interactive elements */
+.depth-forward {
+  transform: translateZ(20px);
+}
+
+/* 3D hover lift with shadow */
+.hover-3d {
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.hover-3d:hover {
+  transform: translateZ(30px) rotateX(-2deg);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5),
+              0 10px 20px -6px rgba(59, 130, 246, 0.08);
+}
+
+/* Subtle float animation for decorative 3D elements */
+@keyframes float-3d {
+  0%, 100% { transform: translateZ(0px) translateY(0px) rotateX(0deg); }
+  50% { transform: translateZ(15px) translateY(-8px) rotateX(2deg); }
+}
+
+.animate-float-3d {
+  animation: float-3d 6s ease-in-out infinite;
+}
