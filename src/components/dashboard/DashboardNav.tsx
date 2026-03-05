@@ -16,10 +16,11 @@ interface NavItem {
 }
 
 const navItems: readonly NavItem[] = [
-  { label: "Dashboard", href: "/dashboard" },
-  { label: "Widgets", href: "/dashboard/widgets" },
+  { label: "Home", href: "/dashboard" },
   { label: "Leads", href: "/dashboard/leads", notify: true },
   { label: "Marketing", href: "/dashboard/marketing", notify: true },
+  { label: "Billing", href: "/dashboard/billing" },
+  { label: "Widgets", href: "/dashboard/widgets" },
 ];
 
 export function DashboardNav() {
