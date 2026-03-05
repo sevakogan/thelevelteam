@@ -247,7 +247,9 @@ export default function AngryBirdsGame() {
     const letterY = s.canvasH * GAME.lettersYRatio;
 
     const measureCtx = canvas.getContext("2d")!;
+    const dpr = window.devicePixelRatio || 1;
     measureCtx.save();
+    measureCtx.scale(dpr, dpr);
     measureCtx.font = `bold ${GAME.fontSize}px system-ui, -apple-system, sans-serif`;
 
     const chars: Array<{ ch: string; width: number }> = [];
@@ -257,8 +259,7 @@ export default function AngryBirdsGame() {
         totalW += GAME.wordGap;
         chars.push({ ch, width: GAME.wordGap });
       } else {
-        const dpr = window.devicePixelRatio || 1;
-        const measured = measureCtx.measureText(ch).width / dpr;
+        const measured = measureCtx.measureText(ch).width;
         chars.push({ ch, width: measured });
         totalW += measured + GAME.letterGap;
       }

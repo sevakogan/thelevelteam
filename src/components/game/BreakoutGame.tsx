@@ -112,6 +112,7 @@ function createBricks(
   const dpr = window.devicePixelRatio || 1;
 
   ctx.save();
+  ctx.scale(dpr, dpr);
   ctx.font = `bold ${BREAKOUT.fontSize}px system-ui, -apple-system, sans-serif`;
 
   const chars: Array<{ ch: string; width: number }> = [];
@@ -121,7 +122,7 @@ function createBricks(
       totalW += 30;
       chars.push({ ch, width: 30 });
     } else {
-      const measured = ctx.measureText(ch).width / dpr;
+      const measured = ctx.measureText(ch).width;
       chars.push({ ch, width: measured });
       totalW += measured + BREAKOUT.brickPaddingX;
     }
