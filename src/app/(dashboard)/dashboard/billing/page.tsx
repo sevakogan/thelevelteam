@@ -7,7 +7,7 @@ export default function BillingPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white mb-1">Invoicing & Billing</h1>
+        <h1 className="text-2xl font-bold text-white mb-1">Company Billing</h1>
         <p className="text-brand-muted text-sm">
           Create invoices and manage billing for your clients.
         </p>

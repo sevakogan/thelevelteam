@@ -21,7 +21,7 @@ interface AppSection {
 
 const apps: readonly AppSection[] = [
   {
-    title: "TheLevelTeam Management",
+    title: "LevelTeam",
     description: "Leads, marketing, and client outreach",
     color: "#8B5CF6",
     icon: (
@@ -36,8 +36,8 @@ const apps: readonly AppSection[] = [
     ],
   },
   {
-    title: "Invoicing & Billing",
-    description: "Create invoices and charge clients across projects",
+    title: "Company Billing",
+    description: "Invoice and charge clients across all projects",
     color: "#10B981",
     icon: (
       <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -65,15 +65,7 @@ const apps: readonly AppSection[] = [
 ];
 
 export default function DashboardPage() {
-  const { profile, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="text-center py-20">
-        <p className="text-brand-muted text-sm">Loading...</p>
-      </div>
-    );
-  }
+  const { profile } = useAuth();
 
   return (
     <div>
