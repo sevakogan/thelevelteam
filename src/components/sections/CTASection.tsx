@@ -2,7 +2,6 @@
 
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { blurIn } from "@/lib/animations";
 import Link from "next/link";
 
 type FormState = "idle" | "submitting" | "success" | "error";
@@ -99,8 +98,8 @@ export default function CTASection() {
           {/* Left — Heading & info */}
           <div className="md:sticky md:top-32">
             <motion.div
-              initial={{ opacity: 0, x: -20, rotateY: 5 }}
-              whileInView={{ opacity: 1, x: 0, rotateY: 0 }}
+              initial={{ x: -20, rotateY: 5 }}
+              whileInView={{ x: 0, rotateY: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
@@ -115,20 +114,20 @@ export default function CTASection() {
             </motion.div>
 
             <motion.p
-              initial="hidden"
-              whileInView="visible"
+              initial={{ filter: "blur(12px)" }}
+              whileInView={{ filter: "blur(0px)" }}
               viewport={{ once: true }}
-              variants={blurIn}
+              transition={{ duration: 0.8, ease: "easeOut" }}
               className="text-brand-muted text-lg leading-relaxed mb-8"
             >
               Fill out the form and our team will get back to you within 24 hours to discuss your goals.
             </motion.p>
 
             <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
+              initial={{ y: 10 }}
+              whileInView={{ y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: 0.4 }}
+              transition={{ delay: 0.4, duration: 0.4 }}
               className="space-y-3"
             >
               <a href="mailto:info@thelevelteam.com" className="flex items-center gap-3 text-sm text-brand-muted hover:text-white transition-colors group">
@@ -146,10 +145,10 @@ export default function CTASection() {
             </motion.div>
           </div>
 
-          {/* Right — Form */}
+          {/* Right — Form (NO opacity:0 initial — must be visible to crawlers for Twilio 10DLC CTA verification) */}
           <motion.div
-            initial={{ opacity: 0, rotateY: -8, x: 30 }}
-            whileInView={{ opacity: 1, rotateY: 0, x: 0 }}
+            initial={{ rotateY: -8, x: 30 }}
+            whileInView={{ rotateY: 0, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
           >
@@ -213,9 +212,9 @@ export default function CTASection() {
                   className="w-full px-4 py-3.5 rounded-lg bg-brand-darker border border-brand-border text-white text-sm placeholder:text-brand-muted/50 focus:outline-none focus:border-accent-blue transition-colors resize-none"
                 />
 
-                {/* Consent */}
-                <div className="rounded-lg border border-accent-blue/15 bg-accent-blue/[0.03] p-4 space-y-3">
-                  <p className="font-display text-xs font-medium text-white/80 uppercase tracking-widest">
+                {/* SMS & Email Consent — prominent for Twilio 10DLC verification */}
+                <div id="sms-consent" className="rounded-xl border-2 border-accent-blue/25 bg-accent-blue/[0.05] p-5 space-y-4">
+                  <p className="font-display text-sm font-semibold text-white uppercase tracking-widest">
                     Communication Preferences
                   </p>
 
@@ -224,10 +223,10 @@ export default function CTASection() {
                       type="checkbox"
                       checked={form.smsConsent}
                       onChange={(e) => updateField("smsConsent", e.target.checked)}
-                      className="mt-0.5 w-4 h-4 rounded border-brand-border bg-brand-darker text-accent-blue focus:ring-accent-blue"
+                      className="mt-0.5 w-5 h-5 rounded border-brand-border bg-brand-darker text-accent-blue focus:ring-accent-blue flex-shrink-0"
                     />
-                    <span>
-                      I agree to receive SMS messages from The Level Team. Msg &amp; data rates may apply. Msg frequency varies. Reply STOP to opt out.
+                    <span className="leading-relaxed">
+                      I agree to receive recurring automated marketing SMS/MMS messages from TheLevelTeam at the phone number provided. Consent is not a condition of purchase. Msg &amp; data rates may apply. Msg frequency varies (up to 10 msgs/month). Reply STOP to cancel, HELP for help.
                     </span>
                   </label>
 
@@ -236,9 +235,9 @@ export default function CTASection() {
                       type="checkbox"
                       checked={form.emailConsent}
                       onChange={(e) => updateField("emailConsent", e.target.checked)}
-                      className="mt-0.5 w-4 h-4 rounded border-brand-border bg-brand-darker text-accent-blue focus:ring-accent-blue"
+                      className="mt-0.5 w-5 h-5 rounded border-brand-border bg-brand-darker text-accent-blue focus:ring-accent-blue flex-shrink-0"
                     />
-                    <span>I agree to receive email updates. Unsubscribe anytime.</span>
+                    <span className="leading-relaxed">I agree to receive email updates from TheLevelTeam. Unsubscribe anytime.</span>
                   </label>
                 </div>
 

@@ -58,6 +58,10 @@ export default function RootLayout({
             __html: `(function(){try{var t=localStorage.getItem("tlt-theme");if(t==="light"){document.documentElement.classList.remove("dark")}else if(!t&&window.matchMedia("(prefers-color-scheme:light)").matches){document.documentElement.classList.remove("dark")}}catch(e){}})()`,
           }}
         />
+        {/* noscript: ensure animated content visible for crawlers/Twilio */}
+        <noscript>
+          <style>{`[style*="opacity: 0"],[style*="opacity:0"]{opacity:1!important}[style*="transform"]{transform:none!important}[style*="filter: blur"]{filter:none!important}`}</style>
+        </noscript>
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${syne.variable} antialiased bg-brand-dark`}
