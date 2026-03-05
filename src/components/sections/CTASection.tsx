@@ -3,7 +3,6 @@
 import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { blurIn } from "@/lib/animations";
-import ScrollTextReveal from "@/components/ui/ScrollTextReveal";
 import Link from "next/link";
 
 type FormState = "idle" | "submitting" | "success" | "error";
@@ -82,219 +81,190 @@ export default function CTASection() {
 
   return (
     <section id="contact" className="relative py-24 md:py-36 overflow-hidden">
-      {/* Aurora accent */}
-      <div
-        className="absolute inset-0 flex items-center justify-center pointer-events-none"
-        aria-hidden="true"
-      >
-        <div className="w-[900px] h-[500px] rounded-full bg-accent-blue/[0.06] blur-[140px]" />
+      {/* Watermark */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none" aria-hidden="true">
+        <span className="font-display text-[10rem] md:text-[16rem] font-800 text-white/[0.02] tracking-tighter">
+          CONTACT
+        </span>
+      </div>
+
+      {/* Subtle aurora */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
+        <div className="w-[900px] h-[500px] rounded-full bg-accent-blue/[0.04] blur-[140px]" />
       </div>
 
       <div className="relative z-10 max-w-5xl mx-auto px-6">
-        {/* Section label */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-4"
-        >
-          <span className="inline-block px-4 py-1.5 rounded-full border border-accent-blue/30 bg-accent-blue/10 text-accent-blue text-xs font-medium tracking-wider uppercase">
-            Contact Us
-          </span>
-        </motion.div>
-
-        {/* Heading */}
-        <div className="text-center mb-14">
-          <ScrollTextReveal
-            text="Let's Start Your Project"
-            as="h2"
-            mode="word"
-            className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6"
-          />
-          <motion.p
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={blurIn}
-            className="text-brand-muted text-lg md:text-xl max-w-2xl mx-auto leading-relaxed"
-          >
-            Fill out the form below and our team will get back to you within 24
-            hours to discuss your goals.
-          </motion.p>
-        </div>
-
-        {/* Inline Contact Form */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="max-w-xl mx-auto"
-        >
-          {formState === "success" ? (
-            <div className="text-center py-14 rounded-2xl bg-brand-darker/60 border border-brand-border backdrop-blur-sm">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
-                <svg
-                  className="w-8 h-8 text-green-400"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 13l4 4L19 7"
-                  />
-                </svg>
-              </div>
-              <h3 className="text-2xl font-bold text-white mb-2">
-                Thank you!
-              </h3>
-              <p className="text-brand-muted text-sm mb-6">
-                We&apos;ve received your inquiry and will be in touch within 24
-                hours.
-              </p>
-              <button
-                onClick={() => setFormState("idle")}
-                className="px-6 py-2.5 rounded-full bg-gradient-to-r from-accent-blue to-accent-purple text-white text-sm font-medium"
-              >
-                Send Another
-              </button>
-            </div>
-          ) : (
-            <form
-              onSubmit={handleSubmit}
-              className="space-y-5 p-8 md:p-10 rounded-2xl bg-brand-darker/60 border border-brand-border backdrop-blur-sm"
+        {/* Two-column layout: heading left, form right */}
+        <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-start">
+          {/* Left — Heading & info */}
+          <div className="md:sticky md:top-32">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
             >
-              <input
-                type="text"
-                placeholder="Your name *"
-                value={form.name}
-                onChange={(e) => updateField("name", e.target.value)}
-                required
-                className="w-full px-4 py-3.5 rounded-lg bg-brand-darker border border-brand-border text-white text-sm placeholder:text-brand-muted/50 focus:outline-none focus:border-accent-blue transition-colors"
-              />
+              <div className="w-12 h-[2px] bg-accent-blue mb-6" />
+              <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight mb-6 leading-[1.1]">
+                Let&apos;s Start
+                <br />
+                <span className="bg-gradient-to-r from-accent-blue to-accent-purple bg-clip-text text-transparent">
+                  Your Project
+                </span>
+              </h2>
+            </motion.div>
 
-              <input
-                type="email"
-                placeholder="Email address *"
-                value={form.email}
-                onChange={(e) => updateField("email", e.target.value)}
-                required
-                className="w-full px-4 py-3.5 rounded-lg bg-brand-darker border border-brand-border text-white text-sm placeholder:text-brand-muted/50 focus:outline-none focus:border-accent-blue transition-colors"
-              />
+            <motion.p
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={blurIn}
+              className="text-brand-muted text-lg leading-relaxed mb-8"
+            >
+              Fill out the form and our team will get back to you within 24 hours to discuss your goals.
+            </motion.p>
 
-              <input
-                type="tel"
-                placeholder="Phone number * (e.g. 415-555-1234)"
-                value={form.phone}
-                onChange={(e) => updateField("phone", e.target.value)}
-                required
-                className="w-full px-4 py-3.5 rounded-lg bg-brand-darker border border-brand-border text-white text-sm placeholder:text-brand-muted/50 focus:outline-none focus:border-accent-blue transition-colors"
-              />
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 }}
+              className="space-y-3"
+            >
+              <a href="mailto:info@thelevelteam.com" className="flex items-center gap-3 text-sm text-brand-muted hover:text-white transition-colors group">
+                <span className="w-8 h-8 rounded-lg bg-brand-card border border-brand-border flex items-center justify-center group-hover:border-accent-blue/30 transition-colors">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                </span>
+                info@thelevelteam.com
+              </a>
+              <a href="tel:+13157109796" className="flex items-center gap-3 text-sm text-brand-muted hover:text-white transition-colors group">
+                <span className="w-8 h-8 rounded-lg bg-brand-card border border-brand-border flex items-center justify-center group-hover:border-accent-blue/30 transition-colors">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                </span>
+                (315) 710-9796
+              </a>
+            </motion.div>
+          </div>
 
-              <textarea
-                placeholder="Tell us about your project (optional)"
-                value={form.message}
-                onChange={(e) => updateField("message", e.target.value)}
-                rows={3}
-                className="w-full px-4 py-3.5 rounded-lg bg-brand-darker border border-brand-border text-white text-sm placeholder:text-brand-muted/50 focus:outline-none focus:border-accent-blue transition-colors resize-none"
-              />
+          {/* Right — Form */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            {formState === "success" ? (
+              <div className="text-center py-14 rounded-2xl bg-brand-card border border-brand-border">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
+                  <svg className="w-8 h-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h3 className="font-display text-2xl font-bold text-white mb-2">Thank you!</h3>
+                <p className="text-brand-muted text-sm mb-6">
+                  We&apos;ve received your inquiry and will be in touch within 24 hours.
+                </p>
+                <button
+                  onClick={() => setFormState("idle")}
+                  className="px-6 py-2.5 rounded-full bg-gradient-to-r from-accent-blue to-accent-purple text-white text-sm font-medium"
+                >
+                  Send Another
+                </button>
+              </div>
+            ) : (
+              <form
+                onSubmit={handleSubmit}
+                className="space-y-4 p-8 md:p-10 rounded-2xl bg-brand-card border border-brand-border"
+              >
+                <div className="grid grid-cols-2 gap-4">
+                  <input
+                    type="text"
+                    placeholder="Name *"
+                    value={form.name}
+                    onChange={(e) => updateField("name", e.target.value)}
+                    required
+                    className="w-full px-4 py-3.5 rounded-lg bg-brand-darker border border-brand-border text-white text-sm placeholder:text-brand-muted/50 focus:outline-none focus:border-accent-blue transition-colors"
+                  />
+                  <input
+                    type="tel"
+                    placeholder="Phone *"
+                    value={form.phone}
+                    onChange={(e) => updateField("phone", e.target.value)}
+                    required
+                    className="w-full px-4 py-3.5 rounded-lg bg-brand-darker border border-brand-border text-white text-sm placeholder:text-brand-muted/50 focus:outline-none focus:border-accent-blue transition-colors"
+                  />
+                </div>
 
-              {/* SMS & Email Consent — highlighted box */}
-              <div className="rounded-lg border border-accent-blue/20 bg-accent-blue/[0.04] p-4 space-y-3">
-                <p className="text-xs font-medium text-white/80 uppercase tracking-wider">
-                  Communication Preferences
+                <input
+                  type="email"
+                  placeholder="Email address *"
+                  value={form.email}
+                  onChange={(e) => updateField("email", e.target.value)}
+                  required
+                  className="w-full px-4 py-3.5 rounded-lg bg-brand-darker border border-brand-border text-white text-sm placeholder:text-brand-muted/50 focus:outline-none focus:border-accent-blue transition-colors"
+                />
+
+                <textarea
+                  placeholder="Tell us about your project (optional)"
+                  value={form.message}
+                  onChange={(e) => updateField("message", e.target.value)}
+                  rows={4}
+                  className="w-full px-4 py-3.5 rounded-lg bg-brand-darker border border-brand-border text-white text-sm placeholder:text-brand-muted/50 focus:outline-none focus:border-accent-blue transition-colors resize-none"
+                />
+
+                {/* Consent */}
+                <div className="rounded-lg border border-accent-blue/15 bg-accent-blue/[0.03] p-4 space-y-3">
+                  <p className="font-display text-xs font-medium text-white/80 uppercase tracking-widest">
+                    Communication Preferences
+                  </p>
+
+                  <label className="flex items-start gap-3 text-sm text-brand-muted cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={form.smsConsent}
+                      onChange={(e) => updateField("smsConsent", e.target.checked)}
+                      className="mt-0.5 w-4 h-4 rounded border-brand-border bg-brand-darker text-accent-blue focus:ring-accent-blue"
+                    />
+                    <span>
+                      I agree to receive SMS messages from The Level Team. Msg &amp; data rates may apply. Msg frequency varies. Reply STOP to opt out.
+                    </span>
+                  </label>
+
+                  <label className="flex items-start gap-3 text-sm text-brand-muted cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={form.emailConsent}
+                      onChange={(e) => updateField("emailConsent", e.target.checked)}
+                      className="mt-0.5 w-4 h-4 rounded border-brand-border bg-brand-darker text-accent-blue focus:ring-accent-blue"
+                    />
+                    <span>I agree to receive email updates. Unsubscribe anytime.</span>
+                  </label>
+                </div>
+
+                <p className="text-xs text-brand-muted/60 leading-relaxed">
+                  By submitting this form you agree to our{" "}
+                  <Link href="/privacy" className="underline hover:text-white transition-colors">Privacy Policy</Link>{" "}
+                  and{" "}
+                  <Link href="/terms" className="underline hover:text-white transition-colors">Terms of Service</Link>.
                 </p>
 
-                <label className="flex items-start gap-3 text-sm text-brand-muted cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={form.smsConsent}
-                    onChange={(e) =>
-                      updateField("smsConsent", e.target.checked)
-                    }
-                    className="mt-0.5 w-4 h-4 rounded border-brand-border bg-brand-darker text-accent-blue focus:ring-accent-blue"
-                  />
-                  <span>
-                    I agree to receive SMS messages from The Level Team. Msg
-                    &amp; data rates may apply. Msg frequency varies. Reply STOP
-                    to opt out.
-                  </span>
-                </label>
+                {errorMessage && (
+                  <p className="text-red-400 text-sm">{errorMessage}</p>
+                )}
 
-                <label className="flex items-start gap-3 text-sm text-brand-muted cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={form.emailConsent}
-                    onChange={(e) =>
-                      updateField("emailConsent", e.target.checked)
-                    }
-                    className="mt-0.5 w-4 h-4 rounded border-brand-border bg-brand-darker text-accent-blue focus:ring-accent-blue"
-                  />
-                  <span>
-                    I agree to receive email updates. Unsubscribe anytime.
-                  </span>
-                </label>
-              </div>
-
-              {/* Privacy & Terms links */}
-              <p className="text-xs text-brand-muted/70 leading-relaxed">
-                By submitting this form you agree to our{" "}
-                <Link
-                  href="/privacy"
-                  className="underline hover:text-white transition-colors"
+                <motion.button
+                  type="submit"
+                  disabled={formState === "submitting"}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full py-4 rounded-xl bg-gradient-to-r from-accent-blue to-accent-purple text-white font-display font-semibold text-base disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-accent-blue/20 tracking-wide"
                 >
-                  Privacy Policy
-                </Link>{" "}
-                and{" "}
-                <Link
-                  href="/terms"
-                  className="underline hover:text-white transition-colors"
-                >
-                  Terms of Service
-                </Link>
-                .
-              </p>
-
-              {errorMessage && (
-                <p className="text-red-400 text-sm">{errorMessage}</p>
-              )}
-
-              <motion.button
-                type="submit"
-                disabled={formState === "submitting"}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full py-4 rounded-full bg-gradient-to-r from-accent-blue to-accent-purple text-white font-medium text-base disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-accent-blue/20"
-              >
-                {formState === "submitting" ? "Sending..." : "Get in Touch"}
-              </motion.button>
-            </form>
-          )}
-        </motion.div>
-
-        {/* Email fallback */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.4 }}
-          className="text-center mt-8"
-        >
-          <span className="text-sm text-brand-muted/50">
-            or email us directly at{" "}
-          </span>
-          <a
-            href="mailto:info@thelevelteam.com"
-            className="text-sm text-brand-muted hover:text-white transition-colors relative group"
-          >
-            info@thelevelteam.com
-            <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-accent-blue group-hover:w-full transition-all duration-300" />
-          </a>
-        </motion.div>
+                  {formState === "submitting" ? "Sending..." : "Get in Touch"}
+                </motion.button>
+              </form>
+            )}
+          </motion.div>
+        </div>
       </div>
     </section>
   );

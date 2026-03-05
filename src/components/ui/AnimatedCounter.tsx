@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { CSSProperties, useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 
 interface AnimatedCounterProps {
@@ -9,7 +9,12 @@ interface AnimatedCounterProps {
   prefix?: string;
   label: string;
   duration?: number;
+  numberClassName?: string;
+  numberStyle?: CSSProperties;
 }
+
+const defaultNumberClassName =
+  "text-3xl md:text-4xl font-bold bg-gradient-to-r from-accent-blue to-accent-purple bg-clip-text text-transparent";
 
 export default function AnimatedCounter({
   target,
@@ -17,6 +22,8 @@ export default function AnimatedCounter({
   prefix = "",
   label,
   duration = 2,
+  numberClassName,
+  numberStyle,
 }: AnimatedCounterProps) {
   const [count, setCount] = useState(0);
   const ref = useRef(null);
@@ -48,7 +55,7 @@ export default function AnimatedCounter({
       animate={isInView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.5 }}
     >
-      <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-accent-blue to-accent-purple bg-clip-text text-transparent">
+      <div className={numberClassName ?? defaultNumberClassName} style={numberStyle}>
         {prefix}
         {count}
         {suffix}

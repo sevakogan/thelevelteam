@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Syne } from "next/font/google";
 import LeadModalProvider from "@/components/marketing/LeadModalProvider";
 import SmoothScrollProvider from "@/components/ui/SmoothScrollProvider";
 import "./globals.css";
@@ -13,6 +14,11 @@ const geistMono = localFont({
   src: "./fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
   weight: "100 900",
+});
+const syne = Syne({
+  subsets: ["latin"],
+  variable: "--font-syne",
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -54,7 +60,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-brand-dark`}
+        className={`${geistSans.variable} ${geistMono.variable} ${syne.variable} antialiased bg-brand-dark`}
       >
         <SmoothScrollProvider>
           <LeadModalProvider>{children}</LeadModalProvider>

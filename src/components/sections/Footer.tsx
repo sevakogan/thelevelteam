@@ -13,17 +13,24 @@ const serviceLinks = [
 
 export default function Footer() {
   return (
-    <footer className="relative bg-brand-darker border-t border-glass-border">
+    <footer className="relative bg-brand-darker border-t border-glass-border overflow-hidden">
       {/* Gradient top accent */}
       <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-accent-blue/30 to-transparent" />
 
-      <div className="max-w-5xl mx-auto px-6 py-14 md:py-16">
+      {/* Large watermark */}
+      <div className="absolute bottom-0 right-0 pointer-events-none select-none" aria-hidden="true">
+        <span className="font-display text-[12rem] md:text-[18rem] font-800 leading-none text-white/[0.015] tracking-tighter translate-x-8 translate-y-12 block">
+          TLT
+        </span>
+      </div>
+
+      <div className="relative z-10 max-w-5xl mx-auto px-6 py-14 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {/* Company */}
           <div>
             <div className="flex items-center gap-2 mb-4">
               <Logo size={24} />
-              <span className="text-white font-semibold">
+              <span className="font-display text-white font-semibold tracking-tight">
                 TheLevel
                 <span className="bg-gradient-to-r from-accent-blue to-accent-purple bg-clip-text text-transparent">
                   Team
@@ -38,14 +45,17 @@ export default function Footer() {
 
           {/* Services */}
           <div>
-            <h4 className="text-white font-semibold text-sm mb-4">Services</h4>
+            <h4 className="font-display text-white font-semibold text-xs uppercase tracking-widest mb-5">
+              Services
+            </h4>
             <ul className="space-y-2.5">
               {serviceLinks.map((service) => (
                 <li key={service}>
                   <a
                     href="/#services"
-                    className="text-sm text-brand-muted hover:text-white transition-colors"
+                    className="text-sm text-brand-muted hover:text-white transition-colors duration-200 flex items-center gap-2 group"
                   >
+                    <span className="w-1 h-1 rounded-full bg-brand-muted/40 group-hover:bg-accent-blue transition-colors duration-200" />
                     {service}
                   </a>
                 </li>
@@ -55,17 +65,31 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h4 className="text-white font-semibold text-sm mb-4">Contact</h4>
-            <ul className="space-y-2.5 text-sm text-brand-muted">
+            <h4 className="font-display text-white font-semibold text-xs uppercase tracking-widest mb-5">
+              Contact
+            </h4>
+            <ul className="space-y-3 text-sm text-brand-muted">
               <li>
                 <a
                   href="mailto:info@thelevelteam.com"
-                  className="hover:text-white transition-colors"
+                  className="hover:text-white transition-colors group"
                 >
-                  info@thelevelteam.com
+                  <span className="border-b border-brand-border group-hover:border-accent-blue transition-colors duration-200">
+                    info@thelevelteam.com
+                  </span>
                 </a>
               </li>
-              <li>United States</li>
+              <li>
+                <a
+                  href="tel:+13157109796"
+                  className="hover:text-white transition-colors group"
+                >
+                  <span className="border-b border-brand-border group-hover:border-accent-blue transition-colors duration-200">
+                    (315) 710-9796
+                  </span>
+                </a>
+              </li>
+              <li className="text-brand-muted/60">United States</li>
             </ul>
           </div>
         </div>
@@ -75,13 +99,14 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-brand-muted">
             <div className="flex items-center gap-2">
               <Logo size={16} />
-              <p>&copy; {new Date().getFullYear()} TheLevelTeam</p>
+              <p className="font-display text-xs tracking-wide">&copy; {new Date().getFullYear()} TheLevelTeam LLC</p>
             </div>
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-6 text-xs">
               <a href="/#services" className="hover:text-white transition-colors">Services</a>
               <a href="/#portfolio" className="hover:text-white transition-colors">Portfolio</a>
               <a href="/#about" className="hover:text-white transition-colors">About</a>
               <a href="/#contact" className="hover:text-white transition-colors">Contact</a>
+              <span className="w-px h-3 bg-brand-border" />
               <a href="/privacy" className="hover:text-white transition-colors">Privacy</a>
               <a href="/terms" className="hover:text-white transition-colors">Terms</a>
             </div>

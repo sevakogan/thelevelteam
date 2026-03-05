@@ -34,6 +34,7 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-geist-sans)"],
         mono: ["var(--font-geist-mono)"],
+        display: ["var(--font-syne)", "var(--font-geist-sans)"],
       },
       boxShadow: {
         glow: "0 0 20px rgba(59, 130, 246, 0.3)",
