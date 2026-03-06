@@ -250,7 +250,7 @@ export default function CustomerDetailPage() {
         <div className="flex gap-2">
           <button
             onClick={handleSendRequest}
-            className="px-3 py-2 rounded-lg bg-accent hover:bg-accent-hover text-foreground text-sm font-medium transition-colors"
+            className="px-3 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors"
           >
             Send Request
           </button>
@@ -279,7 +279,7 @@ export default function CustomerDetailPage() {
 
       {/* Toast */}
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-lg bg-accent text-foreground text-sm font-medium shadow-ios-lg">
+        <div className="fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-lg bg-accent text-white text-sm font-medium shadow-ios-lg">
           {toast}
         </div>
       )}

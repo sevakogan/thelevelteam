@@ -122,7 +122,7 @@ export default function SMSWidgetPage() {
                 <button
                   onClick={() => setSettingsToken(tokenInput)}
                   disabled={!tokenInput}
-                  className="px-4 py-2 rounded-lg bg-accent-blue text-foreground text-sm font-medium hover:bg-accent-blue/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-blue/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   Unlock
                 </button>

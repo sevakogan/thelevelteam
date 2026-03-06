@@ -85,7 +85,7 @@ export function DashboardNav() {
               {profile.email}
             </span>
           )}
-          <ThemeToggle />
+          {profile?.role === "admin" && <ThemeToggle />}
 
           {/* Account dropdown */}
           <div className="relative" ref={dropdownRef}>

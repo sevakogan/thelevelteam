@@ -238,7 +238,7 @@ export default function CustomerForm({
               <button
                 type="submit"
                 disabled={saving}
-                className="flex-1 px-4 py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-foreground text-sm font-medium transition-colors disabled:opacity-50"
+                className="flex-1 px-4 py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors disabled:opacity-50"
               >
                 {saving ? "Saving..." : "Save"}
               </button>

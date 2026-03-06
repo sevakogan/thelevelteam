@@ -14,33 +14,33 @@
   --foreground: #000000;
   --surface: #FFFFFF;
   --surface-secondary: #F2F2F7;
-  --surface-tertiary: #FFFFFF;
+  --surface-tertiary: #E5E5EA;
 
   /* Navigation */
   --nav-bg: rgba(249, 249, 249, 0.94);
-  --nav-border: rgba(60, 60, 67, 0.12);
+  --nav-border: rgba(60, 60, 67, 0.29);
 
   /* Separators */
-  --separator: rgba(60, 60, 67, 0.12);
+  --separator: rgba(60, 60, 67, 0.29);
   --separator-opaque: #C6C6C8;
 
-  /* Text */
+  /* Text — iOS uses rgba(60,60,67) at varying opacities */
   --text-primary: #000000;
-  --text-secondary: #3C3C43;
-  --text-tertiary: #3C3C4399;
-  --text-quaternary: #3C3C434D;
+  --text-secondary: #6C6C70;
+  --text-tertiary: #AEAEB2;
+  --text-quaternary: #C7C7CC;
 
   /* Brand mapping (for backward compat) */
   --brand-dark: #FFFFFF;
   --brand-darker: #F2F2F7;
   --brand-card: #FFFFFF;
-  --brand-border: rgba(60, 60, 67, 0.12);
-  --brand-muted: #3C3C43;
+  --brand-border: rgba(60, 60, 67, 0.29);
+  --brand-muted: #8E8E93;
 
   /* Glass (vibrancy) */
   --glass-bg: rgba(255, 255, 255, 0.72);
-  --glass-border: rgba(60, 60, 67, 0.08);
-  --glass-shadow: rgba(0, 0, 0, 0.04);
+  --glass-border: rgba(60, 60, 67, 0.12);
+  --glass-shadow: rgba(0, 0, 0, 0.06);
 
   /* System Colors */
   --accent: #007AFF;
@@ -54,7 +54,7 @@
   --purple: #AF52DE;
   --pink: #FF2D55;
 
-  /* Fill (iOS-style tinted backgrounds) */
+  /* Fill (iOS-style tinted backgrounds for inputs/controls) */
   --fill: rgba(120, 120, 128, 0.2);
   --fill-secondary: rgba(120, 120, 128, 0.16);
   --fill-tertiary: rgba(120, 120, 128, 0.12);

@@ -188,7 +188,7 @@ export default function AdminPage() {
                 cancelEdit();
                 setEditing(null);
               }}
-              className="px-4 py-2 rounded-lg bg-accent-blue text-foreground text-sm hover:shadow-glow transition-shadow"
+              className="px-4 py-2 rounded-lg bg-accent text-white text-sm hover:shadow-glow transition-shadow"
             >
               + New Company
             </button>

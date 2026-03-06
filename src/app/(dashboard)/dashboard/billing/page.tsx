@@ -199,7 +199,7 @@ export default function BillingPage() {
               setEditingCustomer(null);
               setShowForm(true);
             }}
-            className="px-4 py-2 rounded-ios bg-accent hover:bg-accent-hover text-foreground text-[13px] font-medium transition-colors cursor-pointer"
+            className="px-4 py-2 rounded-ios bg-accent hover:bg-accent-hover text-white text-[13px] font-medium transition-colors cursor-pointer"
           >
             New Customer
           </button>
@@ -234,7 +234,7 @@ export default function BillingPage() {
               setEditingCustomer(null);
               setShowForm(true);
             }}
-            className="px-4 py-2 rounded-ios bg-accent hover:bg-accent-hover text-foreground text-[13px] font-medium transition-colors cursor-pointer"
+            className="px-4 py-2 rounded-ios bg-accent hover:bg-accent-hover text-white text-[13px] font-medium transition-colors cursor-pointer"
           >
             New Customer
           </button>
