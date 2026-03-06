@@ -52,22 +52,22 @@ export default function SMSWidgetPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-white">SMS Automation</h1>
+        <h1 className="text-2xl font-bold text-foreground">SMS Automation</h1>
         <p className="text-brand-muted text-sm mt-1">
           Manage SMS conversations, drip campaigns, and integration settings
         </p>
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex gap-1 border-b border-brand-border">
+      <div className="flex gap-1 border-b border-separator">
         {TABS.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
               activeTab === tab.key
-                ? 'text-white border-accent-blue'
-                : 'text-brand-muted border-transparent hover:text-white hover:border-brand-border'
+                ? 'text-foreground border-accent-blue'
+                : 'text-brand-muted border-transparent hover:text-foreground hover:border-brand-border'
             }`}
           >
             {tab.label}
@@ -99,8 +99,8 @@ export default function SMSWidgetPage() {
               onClose={() => setSettingsToken('')}
             />
           ) : (
-            <div className="max-w-md mx-auto mt-8 p-6 rounded-xl border border-brand-border bg-brand-card">
-              <h3 className="text-lg font-semibold text-white mb-4">
+            <div className="max-w-md mx-auto mt-8 p-6 rounded-xl border border-separator bg-brand-card">
+              <h3 className="text-lg font-semibold text-foreground mb-4">
                 Enter Admin Password
               </h3>
               <p className="text-brand-muted text-sm mb-4">
@@ -117,12 +117,12 @@ export default function SMSWidgetPage() {
                     }
                   }}
                   placeholder="Admin password"
-                  className="flex-1 px-3 py-2 rounded-lg border border-brand-border bg-brand-dark text-white text-sm placeholder:text-brand-muted focus:outline-none focus:border-accent-blue"
+                  className="flex-1 px-3 py-2 rounded-lg border border-separator bg-brand-dark text-foreground text-sm placeholder:text-brand-muted focus:outline-none focus:border-accent-blue"
                 />
                 <button
                   onClick={() => setSettingsToken(tokenInput)}
                   disabled={!tokenInput}
-                  className="px-4 py-2 rounded-lg bg-accent-blue text-white text-sm font-medium hover:bg-accent-blue/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="px-4 py-2 rounded-lg bg-accent-blue text-foreground text-sm font-medium hover:bg-accent-blue/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   Unlock
                 </button>

@@ -2,74 +2,149 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Light mode (default when no .dark class) ── */
+/* ══════════════════════════════════════════════
+   Apple iOS Design System — TheLevelTeam
+   Day (Light) + Night (Dark) themes
+   ══════════════════════════════════════════════ */
+
+/* ── iOS Day (Light Mode) ── */
 :root {
-  --background: #FFFFFF;
-  --foreground: #1a1a1a;
+  /* Backgrounds (grouped table style) */
+  --background: #F2F2F7;
+  --foreground: #000000;
+  --surface: #FFFFFF;
+  --surface-secondary: #F2F2F7;
+  --surface-tertiary: #FFFFFF;
+
+  /* Navigation */
+  --nav-bg: rgba(249, 249, 249, 0.94);
+  --nav-border: rgba(60, 60, 67, 0.12);
+
+  /* Separators */
+  --separator: rgba(60, 60, 67, 0.12);
+  --separator-opaque: #C6C6C8;
+
+  /* Text */
+  --text-primary: #000000;
+  --text-secondary: #3C3C43;
+  --text-tertiary: #3C3C4399;
+  --text-quaternary: #3C3C434D;
+
+  /* Brand mapping (for backward compat) */
   --brand-dark: #FFFFFF;
-  --brand-darker: #F5F5F7;
+  --brand-darker: #F2F2F7;
   --brand-card: #FFFFFF;
-  --brand-border: #E5E5EA;
-  --brand-muted: #6B6B80;
-  --glass-bg: rgba(255, 255, 255, 0.6);
-  --glass-border: rgba(0, 0, 0, 0.08);
+  --brand-border: rgba(60, 60, 67, 0.12);
+  --brand-muted: #3C3C43;
+
+  /* Glass (vibrancy) */
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-border: rgba(60, 60, 67, 0.08);
   --glass-shadow: rgba(0, 0, 0, 0.04);
-  --noise-opacity: 0.03;
+
+  /* System Colors */
+  --accent: #007AFF;
+  --accent-hover: #0066D6;
+  --destructive: #FF3B30;
+  --success: #34C759;
+  --warning: #FF9500;
+  --orange: #FF9500;
+  --yellow: #FFCC00;
+  --teal: #5AC8FA;
+  --purple: #AF52DE;
+  --pink: #FF2D55;
+
+  /* Fill (iOS-style tinted backgrounds) */
+  --fill: rgba(120, 120, 128, 0.2);
+  --fill-secondary: rgba(120, 120, 128, 0.16);
+  --fill-tertiary: rgba(120, 120, 128, 0.12);
+
+  /* Misc */
+  --radius: 12px;
+  --radius-lg: 16px;
+  --noise-opacity: 0;
 }
 
-/* ── Dark mode ── */
+/* ── iOS Night (Dark Mode) ── */
 .dark {
-  --background: #0A0A0F;
-  --foreground: #ededed;
-  --brand-dark: #0A0A0F;
-  --brand-darker: #060609;
-  --brand-card: #12121a;
-  --brand-border: #1e1e2e;
-  --brand-muted: #8888a0;
-  --glass-bg: rgba(255, 255, 255, 0.03);
-  --glass-border: rgba(255, 255, 255, 0.08);
-  --glass-shadow: rgba(59, 130, 246, 0.05);
-  --noise-opacity: 0.04;
+  /* Backgrounds */
+  --background: #000000;
+  --foreground: #FFFFFF;
+  --surface: #1C1C1E;
+  --surface-secondary: #2C2C2E;
+  --surface-tertiary: #3A3A3C;
+
+  /* Navigation */
+  --nav-bg: rgba(22, 22, 22, 0.94);
+  --nav-border: rgba(84, 84, 88, 0.65);
+
+  /* Separators */
+  --separator: rgba(84, 84, 88, 0.65);
+  --separator-opaque: #38383A;
+
+  /* Text */
+  --text-primary: #FFFFFF;
+  --text-secondary: #EBEBF5;
+  --text-tertiary: #EBEBF599;
+  --text-quaternary: #EBEBF54D;
+
+  /* Brand mapping */
+  --brand-dark: #000000;
+  --brand-darker: #000000;
+  --brand-card: #1C1C1E;
+  --brand-border: rgba(84, 84, 88, 0.65);
+  --brand-muted: #8E8E93;
+
+  /* Glass (vibrancy) */
+  --glass-bg: rgba(30, 30, 30, 0.72);
+  --glass-border: rgba(84, 84, 88, 0.36);
+  --glass-shadow: rgba(0, 0, 0, 0.24);
+
+  /* System Colors (brighter for OLED) */
+  --accent: #0A84FF;
+  --accent-hover: #409CFF;
+  --destructive: #FF453A;
+  --success: #30D158;
+  --warning: #FF9F0A;
+  --orange: #FF9F0A;
+  --yellow: #FFD60A;
+  --teal: #64D2FF;
+  --purple: #BF5AF2;
+  --pink: #FF375F;
+
+  /* Fill */
+  --fill: rgba(120, 120, 128, 0.36);
+  --fill-secondary: rgba(120, 120, 128, 0.32);
+  --fill-tertiary: rgba(120, 120, 128, 0.24);
+
+  /* Misc */
+  --noise-opacity: 0;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ── Selection ── */
 ::selection {
-  background: rgba(59, 130, 246, 0.3);
+  background: var(--accent);
   color: #fff;
 }
 
-/* ── Scrollbar ── */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: var(--brand-dark); }
-::-webkit-scrollbar-thumb { background: var(--brand-border); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #3B82F6; }
+/* ── iOS-style scrollbar (thin, minimal) ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--separator-opaque); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: var(--brand-muted); }
 
 /* ── Lenis smooth scroll ── */
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
-
-/* ── Aurora keyframes ── */
-@keyframes aurora-shift {
-  0% { transform: translate(0%, 0%) rotate(0deg) scale(1); }
-  25% { transform: translate(10%, -15%) rotate(90deg) scale(1.1); }
-  50% { transform: translate(-5%, 10%) rotate(180deg) scale(0.95); }
-  75% { transform: translate(15%, 5%) rotate(270deg) scale(1.05); }
-  100% { transform: translate(0%, 0%) rotate(360deg) scale(1); }
-}
-
-@keyframes aurora-drift {
-  0% { transform: translate(0%, 0%) rotate(0deg); }
-  33% { transform: translate(-10%, 15%) rotate(120deg); }
-  66% { transform: translate(10%, -10%) rotate(240deg); }
-  100% { transform: translate(0%, 0%) rotate(360deg); }
-}
 
 /* ── Marquee ── */
 @keyframes marquee {
@@ -85,70 +160,40 @@ html.lenis, html.lenis body { height: auto; }
   animation-play-state: paused;
 }
 
-/* ── Noise texture overlay ── */
-.noise-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  pointer-events: none;
-  opacity: var(--noise-opacity);
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  background-size: 256px 256px;
-}
-
 /* ── Marquee fade edges ── */
 .marquee-mask {
-  mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    black 10%,
-    black 90%,
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0%,
-    black 10%,
-    black 90%,
-    transparent 100%
-  );
+  mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%);
 }
 
-/* ── 3D depth utilities ── */
-.preserve-3d { transform-style: preserve-3d; }
-.perspective-800 { perspective: 800px; }
-.perspective-1000 { perspective: 1000px; }
-.perspective-1200 { perspective: 1200px; }
-
-/* Floating depth layer for background watermarks */
-.depth-recede {
-  transform: translateZ(-60px) scale(1.08);
+/* ── iOS-style transitions ── */
+.ios-transition {
+  transition: all 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
-/* Pop-forward layer for interactive elements */
-.depth-forward {
-  transform: translateZ(20px);
+/* ── iOS grouped section ── */
+.ios-section {
+  background: var(--surface);
+  border-radius: var(--radius);
+  overflow: hidden;
 }
 
-/* 3D hover lift with shadow */
-.hover-3d {
-  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-              box-shadow 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+/* ── iOS inset separator ── */
+.ios-separator {
+  height: 0.5px;
+  background: var(--separator);
+  margin-left: 16px;
 }
 
-.hover-3d:hover {
-  transform: translateZ(30px) rotateX(-2deg);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5),
-              0 10px 20px -6px rgba(59, 130, 246, 0.08);
+/* ── iOS cell hover ── */
+.ios-cell {
+  transition: background 0.15s ease;
+}
+.ios-cell:active {
+  background: var(--fill-tertiary);
 }
 
-/* Subtle float animation for decorative 3D elements */
-@keyframes float-3d {
-  0%, 100% { transform: translateZ(0px) translateY(0px) rotateX(0deg); }
-  50% { transform: translateZ(15px) translateY(-8px) rotateX(2deg); }
-}
-
-.animate-float-3d {
-  animation: float-3d 6s ease-in-out infinite;
+/* ── Noise overlay (disabled in iOS theme) ── */
+.noise-overlay {
+  display: none;
 }

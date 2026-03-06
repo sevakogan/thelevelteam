@@ -55,14 +55,14 @@ export function AssignPipelineBar({
     <div className="border border-purple-500/30 bg-purple-500/5 rounded-xl px-4 py-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <span className="text-sm text-white font-medium">
+          <span className="text-sm text-foreground font-medium">
             {selectedCount} client{selectedCount !== 1 ? "s" : ""} selected
           </span>
           {!open && (
             <button
               type="button"
               onClick={() => setOpen(true)}
-              className="flex items-center gap-2 text-xs font-medium text-white bg-purple-500 hover:bg-purple-500/80 px-4 py-1.5 rounded-lg transition-colors"
+              className="flex items-center gap-2 text-xs font-medium text-foreground bg-purple-500 hover:bg-purple-500/80 px-4 py-1.5 rounded-lg transition-colors"
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 4.5v15m6-15v15m-10.875 0h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H4.125C3.504 4.5 3 5.004 3 5.625v12.75c0 .621.504 1.125 1.125 1.125z" />
@@ -75,7 +75,7 @@ export function AssignPipelineBar({
           <button
             type="button"
             onClick={onClear}
-            className="text-xs text-brand-muted hover:text-white transition-colors"
+            className="text-xs text-brand-muted hover:text-foreground transition-colors"
           >
             Clear selection
           </button>
@@ -122,14 +122,14 @@ export function AssignPipelineBar({
                         }`}
                       >
                         {isSelected && (
-                          <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg className="w-3 h-3 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                           </svg>
                         )}
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <span className="text-sm text-white font-medium">
+                        <span className="text-sm text-foreground font-medium">
                           {pipeline.name}
                         </span>
                       </div>
@@ -146,7 +146,7 @@ export function AssignPipelineBar({
                 <button
                   type="button"
                   onClick={handleCancel}
-                  className="text-xs text-brand-muted hover:text-white transition-colors px-3 py-1.5"
+                  className="text-xs text-brand-muted hover:text-foreground transition-colors px-3 py-1.5"
                 >
                   Cancel
                 </button>
@@ -156,7 +156,7 @@ export function AssignPipelineBar({
                   disabled={picked.size === 0}
                   className={`text-xs font-medium px-4 py-1.5 rounded-lg transition-colors ${
                     picked.size > 0
-                      ? "text-white bg-purple-500 hover:bg-purple-500/80"
+                      ? "text-foreground bg-purple-500 hover:bg-purple-500/80"
                       : "text-brand-muted/60 bg-brand-border/30 cursor-not-allowed"
                   }`}
                 >

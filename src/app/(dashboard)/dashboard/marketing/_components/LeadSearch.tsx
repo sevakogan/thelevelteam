@@ -37,7 +37,7 @@ export function LeadSearch({ filters, onChange, resultCount, totalCount }: LeadS
   const clearAll = useCallback(() => onChange(EMPTY_FILTERS), [onChange]);
 
   return (
-    <div className="border border-brand-border rounded-xl overflow-hidden bg-brand-border/5">
+    <div className="border border-separator rounded-xl overflow-hidden bg-brand-border/5">
       <div className="px-3 py-2.5 flex items-center gap-3">
         {/* Search icon */}
         <svg
@@ -64,7 +64,7 @@ export function LeadSearch({ filters, onChange, resultCount, totalCount }: LeadS
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
           placeholder="Search by name, phone, or email..."
-          className="flex-1 text-sm text-white bg-transparent outline-none placeholder:text-brand-muted/60"
+          className="flex-1 text-sm text-foreground bg-transparent outline-none placeholder:text-brand-muted/60"
         />
 
         {/* Result count badge */}
@@ -79,7 +79,7 @@ export function LeadSearch({ filters, onChange, resultCount, totalCount }: LeadS
           <button
             type="button"
             onClick={clearAll}
-            className="text-[10px] text-brand-muted/80 hover:text-white transition-colors shrink-0"
+            className="text-[10px] text-brand-muted/80 hover:text-foreground transition-colors shrink-0"
           >
             Clear
           </button>
@@ -133,7 +133,7 @@ function StatusPill({
 }) {
   const activeStyle = color
     ? STATUS_PILL_COLORS[color] ?? STATUS_PILL_COLORS.blue
-    : "bg-white/10 text-white border-white/20";
+    : "bg-ios-fill text-foreground border-white/20";
 
   return (
     <button

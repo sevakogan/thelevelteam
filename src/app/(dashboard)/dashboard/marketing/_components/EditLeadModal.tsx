@@ -86,17 +86,17 @@ export function EditLeadModal({
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-lg bg-[#0f1117] border border-brand-border rounded-2xl shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-lg bg-[#0f1117] border border-separator rounded-ios-lg shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-brand-border">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-separator">
           <div className="flex items-center gap-2">
             <PencilIcon className="w-4 h-4 text-accent-blue" />
-            <h3 className="text-lg font-bold text-white">Edit Lead</h3>
+            <h3 className="text-lg font-bold text-foreground">Edit Lead</h3>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="text-brand-muted hover:text-white transition-colors p-1"
+            className="text-brand-muted hover:text-foreground transition-colors p-1"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
@@ -151,7 +151,7 @@ export function EditLeadModal({
               value={draft.notes ?? ""}
               onChange={(e) => updateField("notes", e.target.value || null)}
               rows={2}
-              className="w-full text-sm text-white bg-transparent border border-brand-border rounded-lg px-3 py-2 focus:border-accent-blue outline-none resize-none placeholder:text-brand-muted/60"
+              className="w-full text-sm text-foreground bg-transparent border border-separator rounded-lg px-3 py-2 focus:border-accent-blue outline-none resize-none placeholder:text-brand-muted/60"
               placeholder="Notes..."
             />
           </div>
@@ -203,7 +203,7 @@ export function EditLeadModal({
                         : "border-brand-muted/40"
                     }`}>
                       {isAssigned && (
-                        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="w-3 h-3 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                         </svg>
                       )}
@@ -274,7 +274,7 @@ export function EditLeadModal({
           </div>
 
           {/* Meta info */}
-          <div className="flex items-center gap-4 text-[10px] text-brand-muted/60 pt-1 border-t border-brand-border/30">
+          <div className="flex items-center gap-4 text-[10px] text-brand-muted/60 pt-1 border-t border-separator/30">
             <span>Source: {lead.source}</span>
             <span>Created: {new Date(lead.created_at).toLocaleDateString()}</span>
             <span>Updated: {new Date(lead.updated_at).toLocaleDateString()}</span>
@@ -282,7 +282,7 @@ export function EditLeadModal({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-brand-border bg-brand-border/5">
+        <div className="flex items-center justify-between px-6 py-4 border-t border-separator bg-brand-border/5">
           <button
             type="button"
             onClick={handleDelete}
@@ -294,14 +294,14 @@ export function EditLeadModal({
             <button
               type="button"
               onClick={onClose}
-              className="text-sm text-brand-muted hover:text-white transition-colors px-4 py-2 rounded-lg border border-brand-border hover:border-brand-muted/50"
+              className="text-sm text-brand-muted hover:text-foreground transition-colors px-4 py-2 rounded-lg border border-separator hover:border-brand-muted/50"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={save}
-              className="text-sm font-medium text-white bg-accent-blue hover:bg-accent-blue/80 px-5 py-2 rounded-lg transition-colors"
+              className="text-sm font-medium text-foreground bg-accent-blue hover:bg-accent-blue/80 px-5 py-2 rounded-lg transition-colors"
             >
               Save Changes
             </button>
@@ -382,7 +382,7 @@ const ModalField = forwardRef<
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full text-sm text-white bg-transparent border border-brand-border rounded-lg px-3 py-2 outline-none placeholder:text-brand-muted/60 focus:border-accent-blue transition-colors"
+        className="w-full text-sm text-foreground bg-transparent border border-separator rounded-lg px-3 py-2 outline-none placeholder:text-brand-muted/60 focus:border-accent-blue transition-colors"
       />
     </div>
   );

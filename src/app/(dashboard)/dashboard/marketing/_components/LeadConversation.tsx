@@ -150,7 +150,7 @@ export function LeadConversation({
 
   if (!lead) {
     return (
-      <div className="border border-brand-border rounded-xl flex items-center justify-center h-full min-h-[400px]">
+      <div className="border border-separator rounded-xl flex items-center justify-center h-full min-h-[400px]">
         <div className="text-center px-6">
           <div className="w-10 h-10 rounded-full bg-brand-border/20 flex items-center justify-center mx-auto mb-3">
             <SmsIcon className="w-5 h-5 text-brand-muted/60" />
@@ -163,9 +163,9 @@ export function LeadConversation({
   }
 
   return (
-    <div className="border border-brand-border rounded-xl overflow-hidden flex flex-col h-full min-h-[400px]">
+    <div className="border border-separator rounded-xl overflow-hidden flex flex-col h-full min-h-[400px]">
       {/* Header — lead info + tab selector */}
-      <div className="px-4 py-2.5 border-b border-brand-border bg-brand-border/10">
+      <div className="px-4 py-2.5 border-b border-separator bg-brand-border/10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 min-w-0">
             <div className="w-7 h-7 rounded-full bg-accent-blue/20 flex items-center justify-center shrink-0">
@@ -174,7 +174,7 @@ export function LeadConversation({
               </span>
             </div>
             <div className="min-w-0">
-              <p className="text-sm text-white font-medium truncate">{lead.name}</p>
+              <p className="text-sm text-foreground font-medium truncate">{lead.name}</p>
               <p className="text-[10px] text-brand-muted truncate">
                 {activeTab === "sms" ? lead.phone : activeTab === "email" ? lead.email : `${assignedCampaigns.length} campaigns`}
               </p>
@@ -329,7 +329,7 @@ function CampaignsPanel({
           return (
             <div
               key={cid}
-              className="rounded-lg border border-brand-border/30 bg-brand-border/5 px-3 py-2.5"
+              className="rounded-lg border border-separator/30 bg-brand-border/5 px-3 py-2.5"
             >
               <div className="flex items-center gap-2">
                 <MegaphoneIcon className="w-3.5 h-3.5 text-brand-muted/60" />
@@ -373,7 +373,7 @@ function CampaignCard({
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2 min-w-0">
           <MegaphoneIcon className="w-3.5 h-3.5 text-purple-400 shrink-0" />
-          <span className="text-xs font-medium text-white truncate">
+          <span className="text-xs font-medium text-foreground truncate">
             {campaign.name}
           </span>
         </div>
@@ -418,7 +418,7 @@ function CampaignCard({
 
       {/* Consent warning */}
       {!channelMatch && (
-        <div className="mt-2 pt-2 border-t border-brand-border/20">
+        <div className="mt-2 pt-2 border-t border-separator/20">
           <p className="text-[9px] text-red-400/60">
             {campaign.channel === "sms" && !canReceiveSms && "Lead has no SMS consent or phone number"}
             {campaign.channel === "email" && !canReceiveEmail && "Lead has no email consent or email address"}
@@ -459,16 +459,16 @@ function MessageBubble({
             ? isSms
               ? "bg-green-600/20 border border-green-500/20"
               : "bg-accent-blue/20 border border-accent-blue/20"
-            : "bg-brand-border/20 border border-brand-border/40"
+            : "bg-brand-border/20 border border-separator/40"
         }`}
       >
         {message.subject && (
-          <p className="text-[11px] font-semibold mb-0.5 text-white">
+          <p className="text-[11px] font-semibold mb-0.5 text-foreground">
             {message.subject}
           </p>
         )}
         <p className={`text-xs leading-relaxed ${
-          outbound ? "text-white/90" : "text-brand-muted"
+          outbound ? "text-foreground/90" : "text-brand-muted"
         }`}>
           {message.body}
         </p>
@@ -502,7 +502,7 @@ function SmsCompose({
   const segmentCount = charCount <= 160 ? 1 : Math.ceil(charCount / 153);
 
   return (
-    <div className="border-t border-brand-border bg-brand-border/5 px-3 py-2.5">
+    <div className="border-t border-separator bg-brand-border/5 px-3 py-2.5">
       <div className="flex items-end gap-2">
         <div className="flex-1">
           <textarea
@@ -516,7 +516,7 @@ function SmsCompose({
             }}
             rows={2}
             disabled={disabled}
-            className="w-full text-xs text-white bg-transparent border border-brand-border rounded-lg px-3 py-2 focus:border-green-400/60 outline-none resize-none placeholder:text-brand-muted/60 disabled:opacity-40"
+            className="w-full text-xs text-foreground bg-transparent border border-separator rounded-lg px-3 py-2 focus:border-green-400/60 outline-none resize-none placeholder:text-brand-muted/60 disabled:opacity-40"
             placeholder={disabled ? "SMS not available" : "Type a message... (Enter to send)"}
           />
           {charCount > 0 && (
@@ -531,7 +531,7 @@ function SmsCompose({
           disabled={!value.trim() || sending || disabled}
           className="shrink-0 w-8 h-8 rounded-lg bg-green-600 hover:bg-green-500 disabled:bg-brand-border/30 disabled:cursor-not-allowed flex items-center justify-center transition-colors mb-0.5"
         >
-          <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19V5m0 0l-4 4m4-4l4 4" />
           </svg>
         </button>
@@ -560,13 +560,13 @@ function EmailCompose({
   readonly disabled: boolean;
 }) {
   return (
-    <div className="border-t border-brand-border bg-brand-border/5 px-3 py-2.5 space-y-1.5">
+    <div className="border-t border-separator bg-brand-border/5 px-3 py-2.5 space-y-1.5">
       <input
         type="text"
         value={subject}
         onChange={(e) => onSubjectChange(e.target.value)}
         disabled={disabled}
-        className="w-full text-xs text-white bg-transparent border border-brand-border rounded-lg px-3 py-1.5 focus:border-accent-blue/60 outline-none placeholder:text-brand-muted/60 disabled:opacity-40"
+        className="w-full text-xs text-foreground bg-transparent border border-separator rounded-lg px-3 py-1.5 focus:border-accent-blue/60 outline-none placeholder:text-brand-muted/60 disabled:opacity-40"
         placeholder={disabled ? "Email not available" : "Subject..."}
       />
       <div className="flex items-end gap-2">
@@ -575,7 +575,7 @@ function EmailCompose({
           onChange={(e) => onBodyChange(e.target.value)}
           rows={3}
           disabled={disabled}
-          className="flex-1 text-xs text-white bg-transparent border border-brand-border rounded-lg px-3 py-2 focus:border-accent-blue/60 outline-none resize-none placeholder:text-brand-muted/60 disabled:opacity-40"
+          className="flex-1 text-xs text-foreground bg-transparent border border-separator rounded-lg px-3 py-2 focus:border-accent-blue/60 outline-none resize-none placeholder:text-brand-muted/60 disabled:opacity-40"
           placeholder="Write your email..."
         />
         <button
@@ -584,7 +584,7 @@ function EmailCompose({
           disabled={!subject.trim() || !body.trim() || sending || disabled}
           className="shrink-0 w-8 h-8 rounded-lg bg-accent-blue hover:bg-accent-blue/80 disabled:bg-brand-border/30 disabled:cursor-not-allowed flex items-center justify-center transition-colors mb-0.5"
         >
-          <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="w-4 h-4 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19V5m0 0l-4 4m4-4l4 4" />
           </svg>
         </button>

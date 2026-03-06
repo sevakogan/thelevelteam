@@ -65,15 +65,15 @@ export default function CustomerForm({
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-end">
       <div className="absolute inset-0 bg-black/50" onClick={onCancel} />
-      <div className="relative w-full max-w-lg h-full bg-brand-dark border-l border-brand-border overflow-y-auto">
+      <div className="relative w-full max-w-lg h-full bg-surface border-l border-separator overflow-y-auto">
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-white">
+            <h2 className="text-xl font-bold text-foreground">
               {customer ? "Edit Customer" : "New Customer"}
             </h2>
             <button
               onClick={onCancel}
-              className="text-brand-muted hover:text-white transition-colors"
+              className="text-brand-muted hover:text-foreground transition-colors cursor-pointer"
             >
               <svg
                 className="w-5 h-5"
@@ -101,7 +101,7 @@ export default function CustomerForm({
                 type="text"
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-white/5 border border-brand-border text-white text-sm focus:outline-none focus:border-indigo-500"
+                className="w-full px-3 py-2 rounded-lg bg-ios-fill-tertiary border border-separator text-foreground text-sm focus:outline-none focus:border-accent"
                 placeholder="Acme Corp"
               />
               {errors.company_name && (
@@ -118,7 +118,7 @@ export default function CustomerForm({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={3}
-                className="w-full px-3 py-2 rounded-lg bg-white/5 border border-brand-border text-white text-sm focus:outline-none focus:border-indigo-500 resize-none"
+                className="w-full px-3 py-2 rounded-lg bg-ios-fill-tertiary border border-separator text-foreground text-sm focus:outline-none focus:border-accent resize-none"
                 placeholder="Web development services"
               />
             </div>
@@ -134,7 +134,7 @@ export default function CustomerForm({
                 min="0"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-white/5 border border-brand-border text-white text-sm focus:outline-none focus:border-indigo-500"
+                className="w-full px-3 py-2 rounded-lg bg-ios-fill-tertiary border border-separator text-foreground text-sm focus:outline-none focus:border-accent"
                 placeholder="500.00"
               />
               {errors.amount && (
@@ -151,7 +151,7 @@ export default function CustomerForm({
                 type="button"
                 onClick={() => setRecurring(!recurring)}
                 className={`relative w-11 h-6 rounded-full transition-colors ${
-                  recurring ? "bg-indigo-500" : "bg-white/10"
+                  recurring ? "bg-accent" : "bg-ios-fill"
                 }`}
               >
                 <span
@@ -171,7 +171,7 @@ export default function CustomerForm({
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-white/5 border border-brand-border text-white text-sm focus:outline-none focus:border-indigo-500"
+                className="w-full px-3 py-2 rounded-lg bg-ios-fill-tertiary border border-separator text-foreground text-sm focus:outline-none focus:border-accent"
                 placeholder="client@example.com"
               />
             </div>
@@ -185,13 +185,13 @@ export default function CustomerForm({
                 type="tel"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-white/5 border border-brand-border text-white text-sm focus:outline-none focus:border-indigo-500"
+                className="w-full px-3 py-2 rounded-lg bg-ios-fill-tertiary border border-separator text-foreground text-sm focus:outline-none focus:border-accent"
                 placeholder="(555) 123-4567"
               />
             </div>
 
             {/* Divider */}
-            <div className="h-px bg-brand-border my-2" />
+            <div className="h-px bg-separator my-2" />
 
             {/* Contract Toggle */}
             <div className="flex items-center justify-between">
@@ -202,7 +202,7 @@ export default function CustomerForm({
                 type="button"
                 onClick={() => setContractEnabled(!contractEnabled)}
                 className={`relative w-11 h-6 rounded-full transition-colors ${
-                  contractEnabled ? "bg-indigo-500" : "bg-white/10"
+                  contractEnabled ? "bg-accent" : "bg-ios-fill"
                 }`}
               >
                 <span
@@ -223,7 +223,7 @@ export default function CustomerForm({
                   value={contractContent}
                   onChange={(e) => setContractContent(e.target.value)}
                   rows={6}
-                  className="w-full px-3 py-2 rounded-lg bg-white/5 border border-brand-border text-white text-sm focus:outline-none focus:border-indigo-500 resize-none"
+                  className="w-full px-3 py-2 rounded-lg bg-ios-fill-tertiary border border-separator text-foreground text-sm focus:outline-none focus:border-accent resize-none"
                   placeholder="Enter contract terms and conditions..."
                 />
               </div>
@@ -238,14 +238,14 @@ export default function CustomerForm({
               <button
                 type="submit"
                 disabled={saving}
-                className="flex-1 px-4 py-2.5 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium transition-colors disabled:opacity-50"
+                className="flex-1 px-4 py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-foreground text-sm font-medium transition-colors disabled:opacity-50"
               >
                 {saving ? "Saving..." : "Save"}
               </button>
               <button
                 type="button"
                 onClick={onCancel}
-                className="px-4 py-2.5 rounded-lg border border-brand-border text-brand-muted hover:text-white text-sm font-medium transition-colors"
+                className="px-4 py-2.5 rounded-lg border border-separator text-brand-muted hover:text-foreground text-sm font-medium transition-colors"
               >
                 Cancel
               </button>

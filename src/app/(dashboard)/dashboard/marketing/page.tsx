@@ -377,7 +377,7 @@ export default function MarketingPage() {
       {/* ─── Header + Stats ──────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Marketing</h1>
+          <h1 className="text-2xl font-bold text-foreground">Marketing</h1>
           <p className="text-brand-muted text-sm mt-1">
             Manage leads, campaigns, and messaging
           </p>
@@ -391,7 +391,7 @@ export default function MarketingPage() {
       </div>
 
       {/* ─── Tab Navigation ──────────────────────────────────── */}
-      <div className="flex items-center justify-between border-b border-brand-border">
+      <div className="flex items-center justify-between border-b border-separator">
         <div className="flex items-center gap-1 overflow-x-auto">
           <TabButton
             active={activeTab === "leads"}
@@ -426,7 +426,7 @@ export default function MarketingPage() {
           <button
             type="button"
             onClick={() => setShowAddLead(true)}
-            className="flex items-center gap-2 text-sm font-medium text-white bg-accent-blue hover:bg-accent-blue/80 px-4 py-2 rounded-lg transition-colors shadow-lg shadow-accent-blue/20 mb-2 shrink-0"
+            className="flex items-center gap-2 text-sm font-medium text-foreground bg-accent-blue hover:bg-accent-blue/80 px-4 py-2 rounded-lg transition-colors shadow-lg shadow-accent-blue/20 mb-2 shrink-0"
           >
             <PlusIcon className="w-4 h-4" />
             Add Lead
@@ -436,7 +436,7 @@ export default function MarketingPage() {
           <button
             type="button"
             onClick={addCampaign}
-            className="flex items-center gap-2 text-sm font-medium text-white bg-accent-blue hover:bg-accent-blue/80 px-4 py-2 rounded-lg transition-colors shadow-lg shadow-accent-blue/20 mb-2 shrink-0"
+            className="flex items-center gap-2 text-sm font-medium text-foreground bg-accent-blue hover:bg-accent-blue/80 px-4 py-2 rounded-lg transition-colors shadow-lg shadow-accent-blue/20 mb-2 shrink-0"
           >
             <PlusIcon className="w-4 h-4" />
             New Campaign
@@ -446,7 +446,7 @@ export default function MarketingPage() {
           <button
             type="button"
             onClick={addAutomationRule}
-            className="flex items-center gap-2 text-sm font-medium text-white bg-accent-blue hover:bg-accent-blue/80 px-4 py-2 rounded-lg transition-colors shadow-lg shadow-accent-blue/20 mb-2 shrink-0"
+            className="flex items-center gap-2 text-sm font-medium text-foreground bg-accent-blue hover:bg-accent-blue/80 px-4 py-2 rounded-lg transition-colors shadow-lg shadow-accent-blue/20 mb-2 shrink-0"
           >
             <PlusIcon className="w-4 h-4" />
             New Rule
@@ -546,7 +546,7 @@ export default function MarketingPage() {
                 onUpdate={updateCampaign}
               />
             ) : (
-              <div className="border border-brand-border rounded-xl flex items-center justify-center py-20">
+              <div className="border border-separator rounded-xl flex items-center justify-center py-20">
                 <p className="text-brand-muted text-sm">
                   Select or create a campaign to get started
                 </p>
@@ -611,8 +611,8 @@ function TabButton({
       onClick={onClick}
       className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors relative shrink-0 ${
         active
-          ? "text-white"
-          : "text-brand-muted hover:text-white"
+          ? "text-foreground"
+          : "text-brand-muted hover:text-foreground"
       }`}
     >
       {icon}

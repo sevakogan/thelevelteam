@@ -295,15 +295,15 @@ export function LeadKanban({
   );
 
   return (
-    <div className="border border-brand-border rounded-xl overflow-hidden">
+    <div className="border border-separator rounded-xl overflow-hidden">
       {/* Header with pipeline tabs */}
-      <div className="px-4 py-2.5 border-b border-brand-border bg-brand-border/10">
+      <div className="px-4 py-2.5 border-b border-separator bg-brand-border/10">
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
             <svg className="w-4 h-4 text-accent-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 4.5v15m6-15v15m-10.875 0h15.75c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H4.125C3.504 4.5 3 5.004 3 5.625v12.75c0 .621.504 1.125 1.125 1.125z" />
             </svg>
-            <span className="text-sm text-white font-medium">Pipeline</span>
+            <span className="text-sm text-foreground font-medium">Pipeline</span>
             <span className="text-xs text-brand-muted">{pipelineLeads.length} leads</span>
           </div>
           <div className="flex items-center gap-2">
@@ -401,7 +401,7 @@ export function LeadKanban({
                   if (e.key === "Escape") { setAddingPipeline(false); setNewPipelineName(""); }
                 }}
                 placeholder="Pipeline name..."
-                className="text-xs text-white bg-transparent border border-accent-blue/30 rounded-lg px-2 py-1 outline-none w-28 placeholder:text-brand-muted/60"
+                className="text-xs text-foreground bg-transparent border border-accent-blue/30 rounded-lg px-2 py-1 outline-none w-28 placeholder:text-brand-muted/60"
               />
               <button
                 type="button"
@@ -413,7 +413,7 @@ export function LeadKanban({
               <button
                 type="button"
                 onClick={() => { setAddingPipeline(false); setNewPipelineName(""); }}
-                className="text-[10px] text-brand-muted hover:text-white transition-colors"
+                className="text-[10px] text-brand-muted hover:text-foreground transition-colors"
               >
                 Cancel
               </button>
@@ -465,7 +465,7 @@ export function LeadKanban({
                 }`}
               >
                 {/* Column header */}
-                <div className="px-3 py-2.5 border-b border-brand-border/30 flex items-center justify-between group">
+                <div className="px-3 py-2.5 border-b border-separator/30 flex items-center justify-between group">
                   <div className="flex items-center gap-2 flex-1 min-w-0">
                     {editMode ? (
                       <div className="flex items-center gap-1.5 shrink-0">
@@ -562,13 +562,13 @@ export function LeadKanban({
                   if (e.key === "Escape") { setAddingColumn(false); setNewColLabel(""); }
                 }}
                 placeholder="Stage name..."
-                className="w-full text-xs text-white bg-transparent border-b border-accent-blue/30 outline-none py-1 placeholder:text-brand-muted/60"
+                className="w-full text-xs text-foreground bg-transparent border-b border-accent-blue/30 outline-none py-1 placeholder:text-brand-muted/60"
               />
               <div className="flex items-center justify-end gap-2 mt-2">
                 <button
                   type="button"
                   onClick={() => { setAddingColumn(false); setNewColLabel(""); }}
-                  className="text-[10px] text-brand-muted hover:text-white transition-colors"
+                  className="text-[10px] text-brand-muted hover:text-foreground transition-colors"
                 >
                   Cancel
                 </button>
@@ -613,13 +613,13 @@ function LeadCard({
       onDragStart={canDrag ? onDragStart : undefined}
       onDragEnd={canDrag ? onDragEnd : undefined}
       onClick={onClick}
-      className={`rounded-lg border border-brand-border/40 bg-[#0f1117] px-3 py-2 group transition-all hover:border-brand-muted/30 cursor-pointer ${
+      className={`rounded-lg border border-separator/40 bg-[#0f1117] px-3 py-2 group transition-all hover:border-brand-muted/30 cursor-pointer ${
         canDrag ? "active:cursor-grabbing" : ""
       } ${isDragging ? "opacity-30 scale-95" : ""}`}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
-          <p className="text-xs font-medium text-white truncate">{lead.name}</p>
+          <p className="text-xs font-medium text-foreground truncate">{lead.name}</p>
           {lead.company && (
             <p className="text-[10px] text-brand-muted truncate mt-0.5">{lead.company}</p>
           )}
@@ -686,7 +686,7 @@ function PipelineNameEditor({
         if (e.key === "Enter" && draft.trim()) onSave(draft.trim());
         if (e.key === "Escape") onCancel();
       }}
-      className="text-xs font-medium text-white bg-transparent border border-accent-blue/30 rounded-lg px-2 py-1 outline-none w-28"
+      className="text-xs font-medium text-foreground bg-transparent border border-accent-blue/30 rounded-lg px-2 py-1 outline-none w-28"
     />
   );
 }
@@ -713,7 +713,7 @@ function ColumnLabelEditor({
       onChange={(e) => onChange(e.target.value)}
       onBlur={onDone}
       onKeyDown={(e) => e.key === "Enter" && onDone()}
-      className="text-xs font-semibold text-white bg-transparent border-b border-accent-blue/40 outline-none py-0 w-full min-w-0"
+      className="text-xs font-semibold text-foreground bg-transparent border-b border-accent-blue/40 outline-none py-0 w-full min-w-0"
     />
   );
 }

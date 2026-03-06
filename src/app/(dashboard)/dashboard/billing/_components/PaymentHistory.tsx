@@ -31,8 +31,8 @@ function formatDate(dateStr: string): string {
 export default function PaymentHistory({ payments }: PaymentHistoryProps) {
   if (payments.length === 0) {
     return (
-      <div className="rounded-2xl bg-brand-dark border border-brand-border p-8 text-center">
-        <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-white/5 text-brand-muted mx-auto mb-4">
+      <div className="rounded-ios-lg bg-surface border border-separator p-8 text-center">
+        <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-ios-fill-tertiary text-brand-muted mx-auto mb-4">
           <svg
             className="w-6 h-6"
             fill="none"
@@ -63,7 +63,7 @@ export default function PaymentHistory({ payments }: PaymentHistoryProps) {
     <div>
       {/* Summary */}
       <div className="grid grid-cols-2 gap-4 mb-4">
-        <div className="rounded-xl bg-brand-dark border border-brand-border p-4">
+        <div className="rounded-xl bg-surface border border-separator p-4">
           <p className="text-xs text-brand-muted uppercase tracking-wider mb-1">
             Total Received
           </p>
@@ -72,7 +72,7 @@ export default function PaymentHistory({ payments }: PaymentHistoryProps) {
           </p>
         </div>
         {totalFailed > 0 && (
-          <div className="rounded-xl bg-brand-dark border border-brand-border p-4">
+          <div className="rounded-xl bg-surface border border-separator p-4">
             <p className="text-xs text-brand-muted uppercase tracking-wider mb-1">
               Failed
             </p>
@@ -84,10 +84,10 @@ export default function PaymentHistory({ payments }: PaymentHistoryProps) {
       </div>
 
       {/* Table */}
-      <div className="rounded-2xl bg-brand-dark border border-brand-border overflow-hidden">
+      <div className="rounded-ios-lg bg-surface border border-separator overflow-hidden">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-brand-border">
+            <tr className="border-b border-separator">
               <th className="text-left px-4 py-3 text-xs font-medium text-brand-muted uppercase tracking-wider">
                 Date
               </th>
@@ -106,12 +106,12 @@ export default function PaymentHistory({ payments }: PaymentHistoryProps) {
             {payments.map((p) => (
               <tr
                 key={p.id}
-                className="border-b border-brand-border/50 last:border-0"
+                className="border-b border-separator/50 last:border-0"
               >
-                <td className="px-4 py-3 text-white text-sm">
+                <td className="px-4 py-3 text-foreground text-sm">
                   {formatDate(p.paid_at)}
                 </td>
-                <td className="px-4 py-3 text-right text-white text-sm font-medium">
+                <td className="px-4 py-3 text-right text-foreground text-sm font-medium">
                   {formatAmount(p.amount)}
                 </td>
                 <td className="px-4 py-3 text-brand-muted text-sm hidden sm:table-cell">

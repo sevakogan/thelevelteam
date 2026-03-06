@@ -36,9 +36,9 @@ export function CampaignEditor({ campaign, onUpdate }: CampaignEditorProps) {
   );
 
   return (
-    <div className="border border-brand-border rounded-xl overflow-hidden">
+    <div className="border border-separator rounded-xl overflow-hidden">
       {/* Campaign header */}
-      <div className="px-4 py-3 border-b border-brand-border bg-brand-border/10">
+      <div className="px-4 py-3 border-b border-separator bg-brand-border/10">
         <div className="flex items-center justify-between mb-3">
           {editingName ? (
             <input
@@ -48,14 +48,14 @@ export function CampaignEditor({ campaign, onUpdate }: CampaignEditorProps) {
               onChange={(e) => updateName(e.target.value)}
               onBlur={() => setEditingName(false)}
               onKeyDown={(e) => e.key === "Enter" && setEditingName(false)}
-              className="text-lg font-bold text-white bg-transparent border-b border-accent-blue outline-none py-0.5"
+              className="text-lg font-bold text-foreground bg-transparent border-b border-accent-blue outline-none py-0.5"
             />
           ) : (
             <button
               onClick={() => setEditingName(true)}
               className="flex items-center gap-2 group"
             >
-              <h2 className="text-lg font-bold text-white">{campaign.name}</h2>
+              <h2 className="text-lg font-bold text-foreground">{campaign.name}</h2>
               <PencilIcon className="w-3.5 h-3.5 text-brand-muted opacity-0 group-hover:opacity-100 transition-opacity" />
             </button>
           )}
@@ -378,13 +378,13 @@ function FlowColumn({
   return (
     <div>
       <div className="flex items-center justify-between mb-5">
-        <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+        <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
           {icon}
           {title}
         </h3>
         <button
           onClick={onAddStep}
-          className="flex items-center gap-1 text-xs font-medium text-accent-blue hover:text-accent-purple transition-colors px-2 py-1 rounded-lg border border-brand-border hover:border-accent-blue/40"
+          className="flex items-center gap-1 text-xs font-medium text-accent-blue hover:text-accent-purple transition-colors px-2 py-1 rounded-lg border border-separator hover:border-accent-blue/40"
         >
           <PlusIcon className="w-3 h-3" />
           Add
@@ -419,7 +419,7 @@ function FlowColumn({
                       onClick={(e) => { e.stopPropagation(); moveStep(index, "up"); }}
                       disabled={isFirst}
                       className={`p-0 leading-none transition-colors ${
-                        isFirst ? "text-brand-muted/30 cursor-default" : "text-brand-muted/60 hover:text-white cursor-pointer"
+                        isFirst ? "text-brand-muted/30 cursor-default" : "text-brand-muted/60 hover:text-foreground cursor-pointer"
                       }`}
                       title="Move up"
                     >
@@ -435,7 +435,7 @@ function FlowColumn({
                       onClick={(e) => { e.stopPropagation(); moveStep(index, "down"); }}
                       disabled={isLast}
                       className={`p-0 leading-none transition-colors ${
-                        isLast ? "text-brand-muted/30 cursor-default" : "text-brand-muted/60 hover:text-white cursor-pointer"
+                        isLast ? "text-brand-muted/30 cursor-default" : "text-brand-muted/60 hover:text-foreground cursor-pointer"
                       }`}
                       title="Move down"
                     >
@@ -474,7 +474,7 @@ function FlowColumn({
                       <button
                         type="button"
                         onClick={() => onEditStep(step.id)}
-                        className="text-sm text-white font-medium hover:text-accent-blue transition-colors"
+                        className="text-sm text-foreground font-medium hover:text-accent-blue transition-colors"
                       >
                         {step.label}
                       </button>
@@ -567,7 +567,7 @@ function StepForm({
           type="text"
           value={step.label}
           onChange={(e) => onUpdate(step.id, "label", e.target.value)}
-          className="flex-1 text-sm text-white font-medium bg-transparent border-b border-brand-border focus:border-accent-blue outline-none px-0 py-0.5"
+          className="flex-1 text-sm text-foreground font-medium bg-transparent border-b border-separator focus:border-accent-blue outline-none px-0 py-0.5"
           placeholder="Step name"
         />
         <input
@@ -583,7 +583,7 @@ function StepForm({
         value={step.description}
         onChange={(e) => onUpdate(step.id, "description", e.target.value)}
         rows={2}
-        className="w-full text-xs text-brand-muted leading-relaxed bg-transparent border border-brand-border rounded-md px-2 py-1.5 focus:border-accent-blue outline-none resize-none"
+        className="w-full text-xs text-brand-muted leading-relaxed bg-transparent border border-separator rounded-md px-2 py-1.5 focus:border-accent-blue outline-none resize-none"
         placeholder="Message content..."
       />
 
@@ -599,7 +599,7 @@ function StepForm({
         <button
           type="button"
           onClick={onDone}
-          className="text-[11px] font-medium text-accent-blue hover:text-accent-purple transition-colors px-3 py-1 rounded-md border border-brand-border hover:border-accent-blue/40"
+          className="text-[11px] font-medium text-accent-blue hover:text-accent-purple transition-colors px-3 py-1 rounded-md border border-separator hover:border-accent-blue/40"
         >
           Done
         </button>

@@ -12,6 +12,11 @@ const config: Config = {
       colors: {
         foreground: "var(--foreground)",
         background: "var(--background)",
+        surface: {
+          DEFAULT: "var(--surface)",
+          secondary: "var(--surface-secondary)",
+          tertiary: "var(--surface-tertiary)",
+        },
         brand: {
           dark: "var(--brand-dark)",
           darker: "var(--brand-darker)",
@@ -20,11 +25,30 @@ const config: Config = {
           muted: "var(--brand-muted)",
         },
         accent: {
-          blue: "#3B82F6",
-          purple: "#8B5CF6",
-          cyan: "#06B6D4",
-          emerald: "#10B981",
-          pink: "#EC4899",
+          DEFAULT: "var(--accent)",
+          hover: "var(--accent-hover)",
+          blue: "var(--accent)",
+          purple: "var(--purple)",
+          cyan: "var(--teal)",
+          emerald: "var(--success)",
+          pink: "var(--pink)",
+        },
+        ios: {
+          blue: "var(--accent)",
+          red: "var(--destructive)",
+          green: "var(--success)",
+          orange: "var(--orange)",
+          yellow: "var(--yellow)",
+          teal: "var(--teal)",
+          purple: "var(--purple)",
+          pink: "var(--pink)",
+          fill: "var(--fill)",
+          "fill-secondary": "var(--fill-secondary)",
+          "fill-tertiary": "var(--fill-tertiary)",
+        },
+        separator: {
+          DEFAULT: "var(--separator)",
+          opaque: "var(--separator-opaque)",
         },
         glass: {
           bg: "var(--glass-bg)",
@@ -36,7 +60,14 @@ const config: Config = {
         mono: ["var(--font-geist-mono)"],
         display: ["var(--font-syne)", "var(--font-geist-sans)"],
       },
+      borderRadius: {
+        ios: "var(--radius)",
+        "ios-lg": "var(--radius-lg)",
+      },
       boxShadow: {
+        ios: "0 0 0 0.5px var(--separator), 0 1px 3px rgba(0,0,0,0.06)",
+        "ios-lg": "0 0 0 0.5px var(--separator), 0 4px 12px rgba(0,0,0,0.08)",
+        "ios-xl": "0 0 0 0.5px var(--separator), 0 8px 24px rgba(0,0,0,0.12)",
         glow: "0 0 20px rgba(59, 130, 246, 0.3)",
         "glow-purple": "0 0 20px rgba(139, 92, 246, 0.3)",
         "glow-lg": "0 0 40px rgba(59, 130, 246, 0.2)",
@@ -44,17 +75,12 @@ const config: Config = {
       },
       keyframes: {
         "fade-up": {
-          "0%": { opacity: "0", transform: "translateY(20px)" },
+          "0%": { opacity: "0", transform: "translateY(10px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
-        },
-        "glow-pulse": {
-          "0%, 100%": { opacity: "0.4" },
-          "50%": { opacity: "0.8" },
         },
       },
       animation: {
-        "fade-up": "fade-up 0.6s ease-out",
-        "glow-pulse": "glow-pulse 4s ease-in-out infinite",
+        "fade-up": "fade-up 0.3s ease-out",
       },
     },
   },

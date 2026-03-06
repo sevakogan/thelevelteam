@@ -107,7 +107,7 @@ export default function CustomerDetailPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-6 h-6 border-2 border-accent border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -124,7 +124,7 @@ export default function CustomerDetailPage() {
       {/* Back button */}
       <button
         onClick={() => router.push("/dashboard/billing")}
-        className="flex items-center gap-1 text-brand-muted hover:text-white text-sm mb-6 transition-colors"
+        className="flex items-center gap-1 text-brand-muted hover:text-foreground text-sm mb-6 transition-colors"
       >
         <svg
           className="w-4 h-4"
@@ -147,11 +147,11 @@ export default function CustomerDetailPage() {
         initial="hidden"
         animate="visible"
         variants={bentoChild}
-        className="rounded-2xl bg-brand-dark border border-brand-border p-6 mb-6"
+        className="rounded-ios-lg bg-surface border border-separator p-6 mb-6"
       >
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-white mb-1">
+            <h1 className="text-2xl font-bold text-foreground mb-1">
               {customer.company_name}
             </h1>
             {customer.description && (
@@ -172,7 +172,7 @@ export default function CustomerDetailPage() {
             <p className="text-xs text-brand-muted uppercase tracking-wider mb-1">
               Amount
             </p>
-            <p className="text-lg font-bold text-white">
+            <p className="text-lg font-bold text-foreground">
               {formatAmount(customer.amount)}
             </p>
           </div>
@@ -180,9 +180,9 @@ export default function CustomerDetailPage() {
             <p className="text-xs text-brand-muted uppercase tracking-wider mb-1">
               Type
             </p>
-            <p className="text-sm font-medium text-white">
+            <p className="text-sm font-medium text-foreground">
               {customer.recurring ? (
-                <span className="text-indigo-400">Recurring</span>
+                <span className="text-accent">Recurring</span>
               ) : (
                 "One-time"
               )}
@@ -250,19 +250,19 @@ export default function CustomerDetailPage() {
         <div className="flex gap-2">
           <button
             onClick={handleSendRequest}
-            className="px-3 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium transition-colors"
+            className="px-3 py-2 rounded-lg bg-accent hover:bg-accent-hover text-foreground text-sm font-medium transition-colors"
           >
             Send Request
           </button>
           <button
             onClick={handleShare}
-            className="px-3 py-2 rounded-lg border border-brand-border text-brand-muted hover:text-white text-sm transition-colors"
+            className="px-3 py-2 rounded-lg border border-separator text-brand-muted hover:text-foreground text-sm transition-colors"
           >
             Share Link
           </button>
           <button
             onClick={handleDownload}
-            className="px-3 py-2 rounded-lg border border-brand-border text-brand-muted hover:text-white text-sm transition-colors"
+            className="px-3 py-2 rounded-lg border border-separator text-brand-muted hover:text-foreground text-sm transition-colors"
           >
             Download PDF
           </button>
@@ -271,7 +271,7 @@ export default function CustomerDetailPage() {
 
       {/* Payment History */}
       <motion.div initial="hidden" animate="visible" variants={bentoChild}>
-        <h2 className="text-lg font-bold text-white mb-4">
+        <h2 className="text-lg font-bold text-foreground mb-4">
           Payments & Receipts
         </h2>
         <PaymentHistory payments={payments} />
@@ -279,7 +279,7 @@ export default function CustomerDetailPage() {
 
       {/* Toast */}
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-lg bg-indigo-500 text-white text-sm font-medium shadow-xl">
+        <div className="fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-lg bg-accent text-foreground text-sm font-medium shadow-ios-lg">
           {toast}
         </div>
       )}

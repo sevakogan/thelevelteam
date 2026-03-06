@@ -45,15 +45,15 @@ export function LeadsList({
   }, []);
 
   return (
-    <div className="border border-brand-border rounded-xl overflow-hidden">
-      <div className="px-4 py-3 border-b border-brand-border bg-brand-border/10 flex items-center justify-between">
+    <div className="border border-separator rounded-xl overflow-hidden">
+      <div className="px-4 py-3 border-b border-separator bg-brand-border/10 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Checkbox
             checked={leads.length > 0 && selectedIds.size === leads.length}
             indeterminate={selectedIds.size > 0 && selectedIds.size < leads.length}
             onChange={onToggleAll}
           />
-          <span className="relative text-sm text-white font-medium">
+          <span className="relative text-sm text-foreground font-medium">
             Clients
             {hasNewLeads && <NotificationDot />}
           </span>
@@ -166,7 +166,7 @@ function LeadRow({
           <div className="flex-1 min-w-0">
             {/* Row 1: Name + Status + Date */}
             <div className="flex items-center gap-2">
-              <span className="text-sm text-white font-medium truncate">
+              <span className="text-sm text-foreground font-medium truncate">
                 {lead.name}
               </span>
               {lead.company && (
@@ -302,7 +302,7 @@ function LeadDetail({
 
   return (
     <div className="px-4 pb-3 pt-0 ml-7">
-      <div className="rounded-lg border border-brand-border/50 bg-brand-border/5 px-3 py-2.5">
+      <div className="rounded-lg border border-separator/50 bg-brand-border/5 px-3 py-2.5">
         {/* Header row — title + actions */}
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-2">
@@ -338,14 +338,14 @@ function LeadDetail({
                 <button
                   type="button"
                   onClick={cancel}
-                  className="text-[10px] text-brand-muted hover:text-white transition-colors"
+                  className="text-[10px] text-brand-muted hover:text-foreground transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="button"
                   onClick={save}
-                  className="text-[10px] font-medium text-accent-blue hover:text-accent-purple transition-colors px-1.5 py-0.5 rounded border border-brand-border hover:border-accent-blue/40"
+                  className="text-[10px] font-medium text-accent-blue hover:text-accent-purple transition-colors px-1.5 py-0.5 rounded border border-separator hover:border-accent-blue/40"
                 >
                   Save
                 </button>
@@ -371,7 +371,7 @@ function LeadDetail({
                 value={draft.notes ?? ""}
                 onChange={(e) => updateField("notes", e.target.value || null)}
                 rows={1}
-                className="w-full text-[11px] text-brand-muted bg-transparent border border-brand-border rounded px-2 py-1 focus:border-accent-blue outline-none resize-none"
+                className="w-full text-[11px] text-brand-muted bg-transparent border border-separator rounded px-2 py-1 focus:border-accent-blue outline-none resize-none"
                 placeholder="Notes..."
               />
             ) : (
@@ -528,10 +528,10 @@ function CompactField({
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full text-[11px] text-white bg-transparent border border-brand-border rounded px-1.5 py-0.5 focus:border-accent-blue outline-none"
+          className="w-full text-[11px] text-foreground bg-transparent border border-separator rounded px-1.5 py-0.5 focus:border-accent-blue outline-none"
         />
       ) : (
-        <p className="text-[11px] text-white truncate">{value || "—"}</p>
+        <p className="text-[11px] text-foreground truncate">{value || "—"}</p>
       )}
     </div>
   );
@@ -560,7 +560,7 @@ function Checkbox({
       }`}
     >
       {checked && (
-        <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-3 h-3 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
         </svg>
       )}
@@ -629,7 +629,7 @@ function MessageHistory({ logs }: { readonly logs: readonly MessageLog[] }) {
   const emailCount = logs.filter((m) => m.channel === "email").length;
 
   return (
-    <div className="mt-2 pt-2 border-t border-brand-border/20">
+    <div className="mt-2 pt-2 border-t border-separator/20">
       <div className="flex items-center justify-between mb-1">
         <label className="text-[9px] text-brand-muted/70 uppercase tracking-wider">
           History
@@ -680,7 +680,7 @@ function MessageHistory({ logs }: { readonly logs: readonly MessageLog[] }) {
                   <EmailIcon className="w-2.5 h-2.5 text-accent-blue shrink-0" />
                 )}
                 {msg.subject && (
-                  <span className="text-[10px] text-white font-medium truncate">{msg.subject}</span>
+                  <span className="text-[10px] text-foreground font-medium truncate">{msg.subject}</span>
                 )}
                 {!msg.subject && (
                   <span className="text-[10px] text-brand-muted truncate">{msg.body}</span>
@@ -716,7 +716,7 @@ function HistoryFilterButton({
       ? "text-green-400 border-green-500/30 bg-green-500/10"
       : color === "blue"
       ? "text-accent-blue border-accent-blue/30 bg-accent-blue/10"
-      : "text-white border-brand-muted/40 bg-brand-border/20";
+      : "text-foreground border-brand-muted/40 bg-brand-border/20";
 
   return (
     <button
@@ -772,7 +772,7 @@ function PipelineAddDropdown({
         Pipeline
       </button>
       {open && (
-        <div className="absolute z-20 top-full left-0 mt-1 bg-[#0f1117] border border-brand-border rounded-lg shadow-xl py-1 min-w-[140px]">
+        <div className="absolute z-20 top-full left-0 mt-1 bg-[#0f1117] border border-separator rounded-lg shadow-ios-lg py-1 min-w-[140px]">
           {unassigned.map((pipeline) => (
             <button
               key={pipeline.id}
@@ -781,7 +781,7 @@ function PipelineAddDropdown({
                 onAssign(pipeline.id);
                 setOpen(false);
               }}
-              className="w-full text-left px-3 py-1.5 text-[11px] text-brand-muted hover:text-white hover:bg-brand-border/20 transition-colors"
+              className="w-full text-left px-3 py-1.5 text-[11px] text-brand-muted hover:text-foreground hover:bg-brand-border/20 transition-colors"
             >
               {pipeline.name}
             </button>

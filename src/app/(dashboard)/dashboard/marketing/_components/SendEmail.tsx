@@ -79,10 +79,10 @@ export function SendEmail({ leads, onSend }: SendEmailProps) {
   return (
     <div className="space-y-4">
       {/* Compose area */}
-      <div className="border border-brand-border rounded-xl overflow-hidden">
-        <div className="px-4 py-3 border-b border-brand-border bg-brand-border/10 flex items-center gap-2">
+      <div className="border border-separator rounded-xl overflow-hidden">
+        <div className="px-4 py-3 border-b border-separator bg-brand-border/10 flex items-center gap-2">
           <EmailIcon className="w-4 h-4 text-accent-blue" />
-          <span className="text-sm text-white font-medium">Compose Email</span>
+          <span className="text-sm text-foreground font-medium">Compose Email</span>
         </div>
 
         <div className="p-4 space-y-4">
@@ -95,7 +95,7 @@ export function SendEmail({ leads, onSend }: SendEmailProps) {
               type="text"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
-              className="w-full text-sm text-white bg-transparent border border-brand-border rounded-lg px-3 py-2 mt-1.5 focus:border-accent-blue/60 outline-none placeholder:text-brand-muted/60"
+              className="w-full text-sm text-foreground bg-transparent border border-separator rounded-lg px-3 py-2 mt-1.5 focus:border-accent-blue/60 outline-none placeholder:text-brand-muted/60"
               placeholder="Email subject line..."
             />
           </div>
@@ -109,7 +109,7 @@ export function SendEmail({ leads, onSend }: SendEmailProps) {
               value={body}
               onChange={(e) => setBody(e.target.value)}
               rows={8}
-              className="w-full text-sm text-white bg-transparent border border-brand-border rounded-lg px-3 py-2 mt-1.5 focus:border-accent-blue/60 outline-none resize-none placeholder:text-brand-muted/60 leading-relaxed"
+              className="w-full text-sm text-foreground bg-transparent border border-separator rounded-lg px-3 py-2 mt-1.5 focus:border-accent-blue/60 outline-none resize-none placeholder:text-brand-muted/60 leading-relaxed"
               placeholder="Write your email content here..."
             />
             <div className="flex items-center gap-3 mt-1">
@@ -144,7 +144,7 @@ export function SendEmail({ leads, onSend }: SendEmailProps) {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full text-xs text-white bg-transparent border border-brand-border rounded-lg px-3 py-1.5 mb-2 focus:border-accent-blue/60 outline-none placeholder:text-brand-muted/60"
+              className="w-full text-xs text-foreground bg-transparent border border-separator rounded-lg px-3 py-1.5 mb-2 focus:border-accent-blue/60 outline-none placeholder:text-brand-muted/60"
               placeholder="Search leads by name, email, or company..."
             />
 
@@ -153,7 +153,7 @@ export function SendEmail({ leads, onSend }: SendEmailProps) {
                 No leads with email consent and email address.
               </p>
             ) : (
-              <div className="max-h-[200px] overflow-y-auto space-y-1 border border-brand-border/30 rounded-lg p-1.5">
+              <div className="max-h-[200px] overflow-y-auto space-y-1 border border-separator/30 rounded-lg p-1.5">
                 {filteredLeads.map((lead) => {
                   const isSelected = selectedLeadIds.has(lead.id);
                   return (
@@ -169,7 +169,7 @@ export function SendEmail({ leads, onSend }: SendEmailProps) {
                     >
                       <RecipientCheckbox checked={isSelected} />
                       <div className="flex-1 min-w-0">
-                        <span className="text-xs text-white font-medium">{lead.name}</span>
+                        <span className="text-xs text-foreground font-medium">{lead.name}</span>
                         {lead.company && (
                           <span className="text-[10px] text-brand-muted ml-2">@ {lead.company}</span>
                         )}
@@ -183,7 +183,7 @@ export function SendEmail({ leads, onSend }: SendEmailProps) {
           </div>
 
           {/* Send */}
-          <div className="flex items-center justify-between pt-2 border-t border-brand-border/30">
+          <div className="flex items-center justify-between pt-2 border-t border-separator/30">
             <span className="text-[10px] text-brand-muted/80">
               {selectedLeadIds.size > 0 && subject.trim() && body.trim()
                 ? `Will send ${selectedLeadIds.size} email${selectedLeadIds.size !== 1 ? "s" : ""}`
@@ -203,7 +203,7 @@ export function SendEmail({ leads, onSend }: SendEmailProps) {
                 disabled={selectedLeadIds.size === 0 || !subject.trim() || !body.trim() || sending}
                 className={`flex items-center gap-2 text-xs font-medium px-4 py-2 rounded-lg transition-colors ${
                   selectedLeadIds.size > 0 && subject.trim() && body.trim() && !sending
-                    ? "text-white bg-accent-blue hover:bg-accent-blue/80"
+                    ? "text-foreground bg-accent-blue hover:bg-accent-blue/80"
                     : "text-brand-muted/60 bg-brand-border/30 cursor-not-allowed"
                 }`}
               >
@@ -226,7 +226,7 @@ function RecipientCheckbox({ checked }: { readonly checked: boolean }) {
       }`}
     >
       {checked && (
-        <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg className="w-2.5 h-2.5 text-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
         </svg>
       )}

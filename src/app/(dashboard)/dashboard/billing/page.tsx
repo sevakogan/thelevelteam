@@ -1,8 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { motion } from "framer-motion";
-import { staggerContainer, bentoChild } from "@/lib/animations";
 import type {
   BillingCustomer,
   BillingSettings,
@@ -172,7 +170,7 @@ export default function BillingPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-5 h-5 border-2 border-accent border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -180,9 +178,9 @@ export default function BillingPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white mb-1">
+          <h1 className="text-2xl font-bold text-foreground mb-0.5 tracking-tight">
             Company Billing
           </h1>
           <p className="text-brand-muted text-sm">
@@ -192,7 +190,7 @@ export default function BillingPage() {
         <div className="flex gap-2">
           <button
             onClick={() => setShowSettings(true)}
-            className="px-3 py-2 rounded-lg border border-brand-border text-brand-muted hover:text-white text-sm transition-colors"
+            className="px-3 py-2 rounded-ios border border-separator text-brand-muted hover:text-foreground text-[13px] font-medium transition-colors cursor-pointer"
           >
             Settings
           </button>
@@ -201,24 +199,19 @@ export default function BillingPage() {
               setEditingCustomer(null);
               setShowForm(true);
             }}
-            className="px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium transition-colors"
+            className="px-4 py-2 rounded-ios bg-accent hover:bg-accent-hover text-foreground text-[13px] font-medium transition-colors cursor-pointer"
           >
-            + New Customer
+            New Customer
           </button>
         </div>
       </div>
 
       {/* Content */}
       {customers.length === 0 ? (
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={bentoChild}
-          className="flex flex-col items-center justify-center py-20 rounded-2xl bg-brand-dark border border-brand-border"
-        >
-          <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-indigo-500/10 text-indigo-400 mb-6">
+        <div className="flex flex-col items-center justify-center py-20 rounded-ios-lg bg-surface">
+          <div className="flex items-center justify-center w-14 h-14 rounded-full bg-ios-fill mb-5">
             <svg
-              className="w-8 h-8"
+              className="w-7 h-7 text-brand-muted"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -231,8 +224,8 @@ export default function BillingPage() {
               />
             </svg>
           </div>
-          <h2 className="text-white font-bold text-xl mb-2">No Customers Yet</h2>
-          <p className="text-brand-muted text-sm text-center max-w-sm mb-6">
+          <h2 className="text-foreground font-semibold text-lg mb-1">No Customers Yet</h2>
+          <p className="text-brand-muted text-sm text-center max-w-sm mb-5">
             Create your first customer to start generating invoices and tracking
             payments.
           </p>
@@ -241,29 +234,21 @@ export default function BillingPage() {
               setEditingCustomer(null);
               setShowForm(true);
             }}
-            className="px-4 py-2 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium transition-colors"
+            className="px-4 py-2 rounded-ios bg-accent hover:bg-accent-hover text-foreground text-[13px] font-medium transition-colors cursor-pointer"
           >
-            + New Customer
+            New Customer
           </button>
-        </motion.div>
+        </div>
       ) : (
-        <motion.div
-          initial="hidden"
-          animate="visible"
-          variants={staggerContainer}
-        >
-          <motion.div variants={bentoChild}>
-            <CustomerTable
-              customers={customers}
-              onToggleStatus={handleToggleStatus}
-              onShare={handleShare}
-              onDownload={handleDownload}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-              onSendRequest={handleSendRequest}
-            />
-          </motion.div>
-        </motion.div>
+        <CustomerTable
+          customers={customers}
+          onToggleStatus={handleToggleStatus}
+          onShare={handleShare}
+          onDownload={handleDownload}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          onSendRequest={handleSendRequest}
+        />
       )}
 
       {/* Customer Form Slide-over */}
@@ -289,7 +274,7 @@ export default function BillingPage() {
 
       {/* Toast */}
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-lg bg-indigo-500 text-white text-sm font-medium shadow-xl">
+        <div className="fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-ios bg-surface-tertiary text-foreground text-[13px] font-medium shadow-ios-lg">
           {toast}
         </div>
       )}

@@ -50,8 +50,8 @@ export default function BillingSettingsModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative w-full max-w-md rounded-2xl bg-brand-dark border border-brand-border p-6 mx-4">
-        <h2 className="text-lg font-bold text-white mb-4">
+      <div className="relative w-full max-w-md rounded-ios-lg bg-surface border border-separator p-6 mx-4">
+        <h2 className="text-lg font-bold text-foreground mb-4">
           Company Branding
         </h2>
         <p className="text-brand-muted text-xs mb-6">
@@ -101,13 +101,13 @@ export default function BillingSettingsModal({
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex-1 px-4 py-2.5 rounded-lg bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-medium transition-colors disabled:opacity-50"
+            className="flex-1 px-4 py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-foreground text-sm font-medium transition-colors disabled:opacity-50"
           >
             {saving ? "Saving..." : "Save"}
           </button>
           <button
             onClick={onClose}
-            className="px-4 py-2.5 rounded-lg border border-brand-border text-brand-muted hover:text-white text-sm font-medium transition-colors"
+            className="px-4 py-2.5 rounded-lg border border-separator text-brand-muted hover:text-foreground text-sm font-medium transition-colors"
           >
             Cancel
           </button>
@@ -137,7 +137,7 @@ function Field({
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full px-3 py-2 rounded-lg bg-white/5 border border-brand-border text-white text-sm focus:outline-none focus:border-indigo-500"
+        className="w-full px-3 py-2 rounded-lg bg-ios-fill-tertiary border border-separator text-foreground text-sm focus:outline-none focus:border-accent"
         placeholder={placeholder}
       />
     </div>

@@ -42,7 +42,7 @@ export default function WidgetsPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-white mb-1">Widgets</h1>
+        <h1 className="text-2xl font-bold text-foreground mb-1">Widgets</h1>
         <p className="text-brand-muted text-sm">
           Browse available widgets. Installed widgets are ready to use.
         </p>
@@ -66,7 +66,7 @@ export default function WidgetsPage() {
 
 function WidgetCard({ widget }: { readonly widget: WidgetEntry }) {
   return (
-    <div className="rounded-2xl bg-brand-dark border border-brand-border p-6 flex flex-col gap-4">
+    <div className="rounded-ios-lg bg-surface border border-separator p-6 flex flex-col gap-4">
       {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
@@ -77,7 +77,7 @@ function WidgetCard({ widget }: { readonly widget: WidgetEntry }) {
             {iconMap[widget.icon]}
           </div>
           <div>
-            <h3 className="text-white font-bold text-lg">{widget.name}</h3>
+            <h3 className="text-foreground font-bold text-lg">{widget.name}</h3>
             <span
               className="inline-block text-xs font-medium px-2 py-0.5 rounded-full mt-1"
               style={{
@@ -113,7 +113,7 @@ function WidgetCard({ widget }: { readonly widget: WidgetEntry }) {
         {widget.installed ? (
           <Link
             href={widget.dashboardPath}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-white text-sm font-medium transition-opacity hover:opacity-80"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-foreground text-sm font-medium transition-opacity hover:opacity-80"
             style={{ backgroundColor: widget.color }}
           >
             Open Dashboard

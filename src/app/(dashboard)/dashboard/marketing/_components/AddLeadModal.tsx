@@ -126,14 +126,14 @@ export function AddLeadModal({ open, onClose, onAdd }: AddLeadModalProps) {
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-lg bg-[#0f1117] border border-brand-border rounded-2xl shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-lg bg-[#0f1117] border border-separator rounded-ios-lg shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-brand-border">
-          <h3 className="text-lg font-bold text-white">Add a Lead</h3>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-separator">
+          <h3 className="text-lg font-bold text-foreground">Add a Lead</h3>
           <button
             type="button"
             onClick={onClose}
-            className="text-brand-muted hover:text-white transition-colors p-1"
+            className="text-brand-muted hover:text-foreground transition-colors p-1"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
@@ -198,7 +198,7 @@ export function AddLeadModal({ open, onClose, onAdd }: AddLeadModalProps) {
               value={draft.notes}
               onChange={(e) => updateField("notes", e.target.value)}
               rows={3}
-              className="w-full text-sm text-white bg-transparent border border-brand-border rounded-lg px-3 py-2 focus:border-accent-blue outline-none resize-none placeholder:text-brand-muted/60"
+              className="w-full text-sm text-foreground bg-transparent border border-separator rounded-lg px-3 py-2 focus:border-accent-blue outline-none resize-none placeholder:text-brand-muted/60"
               placeholder="What are they looking for? Any context or details..."
             />
           </div>
@@ -221,7 +221,7 @@ export function AddLeadModal({ open, onClose, onAdd }: AddLeadModalProps) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-brand-border bg-brand-border/5">
+        <div className="flex items-center justify-between px-6 py-4 border-t border-separator bg-brand-border/5">
           {submitError && (
             <p className="text-xs text-red-400">{submitError}</p>
           )}
@@ -231,7 +231,7 @@ export function AddLeadModal({ open, onClose, onAdd }: AddLeadModalProps) {
               type="button"
               onClick={onClose}
               disabled={submitting}
-              className="text-sm text-brand-muted hover:text-white transition-colors px-4 py-2 rounded-lg border border-brand-border hover:border-brand-muted/50 disabled:opacity-50"
+              className="text-sm text-brand-muted hover:text-foreground transition-colors px-4 py-2 rounded-lg border border-separator hover:border-brand-muted/50 disabled:opacity-50"
             >
               Cancel
             </button>
@@ -239,7 +239,7 @@ export function AddLeadModal({ open, onClose, onAdd }: AddLeadModalProps) {
               type="button"
               onClick={handleSubmit}
               disabled={submitting}
-              className="text-sm font-medium text-white bg-accent-blue hover:bg-accent-blue/80 px-5 py-2 rounded-lg transition-colors disabled:opacity-50"
+              className="text-sm font-medium text-foreground bg-accent-blue hover:bg-accent-blue/80 px-5 py-2 rounded-lg transition-colors disabled:opacity-50"
             >
               {submitting ? "Saving..." : "Add Lead"}
             </button>
@@ -276,7 +276,7 @@ const Field = forwardRef<HTMLInputElement, FieldProps>(
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className={`w-full text-sm text-white bg-transparent border rounded-lg px-3 py-2 outline-none placeholder:text-brand-muted/60 transition-colors ${
+          className={`w-full text-sm text-foreground bg-transparent border rounded-lg px-3 py-2 outline-none placeholder:text-brand-muted/60 transition-colors ${
             error
               ? "border-red-500 focus:border-red-400"
               : "border-brand-border focus:border-accent-blue"

@@ -67,11 +67,11 @@ export function PipelineAutomation({
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-4">
         {/* Sidebar — rule list */}
-        <div className="border border-brand-border rounded-xl overflow-hidden">
-          <div className="px-4 py-3 border-b border-brand-border bg-brand-border/10 flex items-center justify-between">
+        <div className="border border-separator rounded-xl overflow-hidden">
+          <div className="px-4 py-3 border-b border-separator bg-brand-border/10 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <BoltIcon className="w-4 h-4 text-yellow-400" />
-              <span className="text-sm text-white font-medium">Rules</span>
+              <span className="text-sm text-foreground font-medium">Rules</span>
               <span className="text-xs text-brand-muted">{rules.length}</span>
             </div>
             <button
@@ -115,7 +115,7 @@ export function PipelineAutomation({
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-0.5">
                         <BoltIcon className={`w-3 h-3 shrink-0 ${rule.isActive ? "text-yellow-400" : "text-brand-muted/50"}`} />
-                        <span className={`text-xs font-medium truncate ${isActive ? "text-white" : "text-brand-muted"}`}>
+                        <span className={`text-xs font-medium truncate ${isActive ? "text-foreground" : "text-brand-muted"}`}>
                           {rule.name}
                         </span>
                       </div>
@@ -156,7 +156,7 @@ export function PipelineAutomation({
             onToggleActive={() => toggleActive(activeRule.id)}
           />
         ) : (
-          <div className="border border-brand-border rounded-xl flex items-center justify-center py-20">
+          <div className="border border-separator rounded-xl flex items-center justify-center py-20">
             <p className="text-brand-muted text-sm">
               Select or create an automation rule to get started
             </p>
@@ -234,14 +234,14 @@ function AutomationEditor({
   const triggerNeedsStage = rule.trigger === "enters_stage" || rule.trigger === "leaves_stage";
 
   return (
-    <div className="border border-brand-border rounded-xl overflow-hidden">
+    <div className="border border-separator rounded-xl overflow-hidden">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-brand-border bg-brand-border/10 flex items-center justify-between">
+      <div className="px-4 py-3 border-b border-separator bg-brand-border/10 flex items-center justify-between">
         <input
           type="text"
           value={rule.name}
           onChange={(e) => updateName(e.target.value)}
-          className="text-sm text-white font-medium bg-transparent outline-none border-b border-transparent hover:border-brand-muted/30 focus:border-accent-blue transition-colors flex-1 mr-3"
+          className="text-sm text-foreground font-medium bg-transparent outline-none border-b border-transparent hover:border-brand-muted/30 focus:border-accent-blue transition-colors flex-1 mr-3"
         />
         <button
           type="button"
@@ -265,7 +265,7 @@ function AutomationEditor({
           <select
             value={rule.pipelineId}
             onChange={(e) => updatePipeline(e.target.value)}
-            className="w-full text-xs text-white bg-[#0f1117] border border-brand-border rounded-lg px-3 py-2 outline-none focus:border-accent-blue transition-colors"
+            className="w-full text-xs text-foreground bg-[#0f1117] border border-separator rounded-lg px-3 py-2 outline-none focus:border-accent-blue transition-colors"
           >
             {pipelines.map((p) => (
               <option key={p.id} value={p.id}>{p.name}</option>
@@ -281,7 +281,7 @@ function AutomationEditor({
           <select
             value={rule.trigger}
             onChange={(e) => updateTrigger(e.target.value as AutomationTrigger)}
-            className="w-full text-xs text-white bg-[#0f1117] border border-brand-border rounded-lg px-3 py-2 outline-none focus:border-accent-blue transition-colors"
+            className="w-full text-xs text-foreground bg-[#0f1117] border border-separator rounded-lg px-3 py-2 outline-none focus:border-accent-blue transition-colors"
           >
             {(Object.keys(TRIGGER_LABELS) as AutomationTrigger[]).map((t) => (
               <option key={t} value={t}>{TRIGGER_LABELS[t]}</option>
@@ -298,7 +298,7 @@ function AutomationEditor({
             <select
               value={rule.triggerStage ?? ""}
               onChange={(e) => updateTriggerStage(e.target.value)}
-              className="w-full text-xs text-white bg-[#0f1117] border border-brand-border rounded-lg px-3 py-2 outline-none focus:border-accent-blue transition-colors"
+              className="w-full text-xs text-foreground bg-[#0f1117] border border-separator rounded-lg px-3 py-2 outline-none focus:border-accent-blue transition-colors"
             >
               <option value="">Select a stage...</option>
               {activePipeline.columns.map((col) => (
@@ -325,20 +325,20 @@ function AutomationEditor({
               {rule.actions.map((action, idx) => (
                 <div
                   key={action.id}
-                  className="flex items-start gap-3 border border-brand-border/40 rounded-lg px-3 py-2.5 bg-brand-border/5"
+                  className="flex items-start gap-3 border border-separator/40 rounded-lg px-3 py-2.5 bg-brand-border/5"
                 >
                   <span className="text-[10px] text-brand-muted/60 mt-1 shrink-0 w-4 text-center">
                     {idx + 1}
                   </span>
                   <div className="flex-1 min-w-0 space-y-1.5">
-                    <span className="text-xs text-white font-medium">
+                    <span className="text-xs text-foreground font-medium">
                       {ACTION_LABELS[action.type]}
                     </span>
                     {action.type === "send_campaign" && (
                       <select
                         value={action.campaignId ?? ""}
                         onChange={(e) => updateAction(action.id, { campaignId: e.target.value })}
-                        className="w-full text-[11px] text-brand-muted bg-[#0f1117] border border-brand-border/50 rounded px-2 py-1 outline-none focus:border-accent-blue"
+                        className="w-full text-[11px] text-brand-muted bg-[#0f1117] border border-separator/50 rounded px-2 py-1 outline-none focus:border-accent-blue"
                       >
                         <option value="">Select campaign...</option>
                         {campaigns.map((c) => (
@@ -350,7 +350,7 @@ function AutomationEditor({
                       <select
                         value={action.status ?? ""}
                         onChange={(e) => updateAction(action.id, { status: e.target.value as AutomationRule["actions"][number]["status"] })}
-                        className="w-full text-[11px] text-brand-muted bg-[#0f1117] border border-brand-border/50 rounded px-2 py-1 outline-none focus:border-accent-blue"
+                        className="w-full text-[11px] text-brand-muted bg-[#0f1117] border border-separator/50 rounded px-2 py-1 outline-none focus:border-accent-blue"
                       >
                         <option value="">Select status...</option>
                         {LEAD_STATUS_CONFIG.map((s) => (
@@ -364,7 +364,7 @@ function AutomationEditor({
                         value={action.message ?? ""}
                         onChange={(e) => updateAction(action.id, { message: e.target.value })}
                         placeholder="Notification message..."
-                        className="w-full text-[11px] text-brand-muted bg-[#0f1117] border border-brand-border/50 rounded px-2 py-1 outline-none focus:border-accent-blue placeholder:text-brand-muted/50"
+                        className="w-full text-[11px] text-brand-muted bg-[#0f1117] border border-separator/50 rounded px-2 py-1 outline-none focus:border-accent-blue placeholder:text-brand-muted/50"
                       />
                     )}
                     {action.type === "wait" && (
@@ -374,7 +374,7 @@ function AutomationEditor({
                           min={1}
                           value={action.days ?? 1}
                           onChange={(e) => updateAction(action.id, { days: parseInt(e.target.value) || 1 })}
-                          className="w-16 text-[11px] text-brand-muted bg-[#0f1117] border border-brand-border/50 rounded px-2 py-1 outline-none focus:border-accent-blue"
+                          className="w-16 text-[11px] text-brand-muted bg-[#0f1117] border border-separator/50 rounded px-2 py-1 outline-none focus:border-accent-blue"
                         />
                         <span className="text-[11px] text-brand-muted/80">days</span>
                       </div>
@@ -402,7 +402,7 @@ function AutomationEditor({
                 key={type}
                 type="button"
                 onClick={() => addAction(type)}
-                className="text-[10px] text-brand-muted/80 hover:text-accent-blue border border-brand-border/30 hover:border-accent-blue/30 px-2 py-1 rounded-lg transition-colors"
+                className="text-[10px] text-brand-muted/80 hover:text-accent-blue border border-separator/30 hover:border-accent-blue/30 px-2 py-1 rounded-lg transition-colors"
               >
                 + {ACTION_LABELS[type]}
               </button>

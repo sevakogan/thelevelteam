@@ -15,11 +15,11 @@ interface CustomerTableProps {
 }
 
 const STATUS_COLORS: Record<BillingStatus, string> = {
-  draft: "bg-gray-500/20 text-gray-400",
-  sent: "bg-blue-500/20 text-blue-400",
-  active: "bg-green-500/20 text-green-400",
-  cancelled: "bg-red-500/20 text-red-400",
-  paid: "bg-emerald-500/20 text-emerald-400",
+  draft: "bg-ios-fill text-brand-muted",
+  sent: "bg-blue-500/15 text-ios-blue",
+  active: "bg-green-500/15 text-ios-green",
+  cancelled: "bg-red-500/15 text-ios-red",
+  paid: "bg-green-500/15 text-ios-green",
 };
 
 function formatAmount(amount: number): string {
@@ -42,11 +42,11 @@ export default function CustomerTable({
   const [openMenu, setOpenMenu] = useState<string | null>(null);
 
   return (
-    <div className="rounded-2xl bg-brand-dark border border-brand-border overflow-hidden">
+    <div className="rounded-ios-lg bg-surface overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-brand-border">
+            <tr className="border-b border-separator">
               <th className="text-left px-4 py-3 text-xs font-medium text-brand-muted uppercase tracking-wider">
                 Customer
               </th>
@@ -75,10 +75,10 @@ export default function CustomerTable({
               <tr
                 key={c.id}
                 onClick={() => router.push(`/dashboard/billing/${c.id}`)}
-                className="border-b border-brand-border/50 hover:bg-white/[0.02] cursor-pointer transition-colors"
+                className="border-b border-separator hover:bg-ios-fill-tertiary cursor-pointer transition-colors"
               >
                 <td className="px-4 py-3">
-                  <div className="text-white text-sm font-medium">
+                  <div className="text-foreground text-sm font-medium">
                     {c.company_name}
                   </div>
                   {c.email && (
@@ -92,14 +92,14 @@ export default function CustomerTable({
                 </td>
                 <td className="px-4 py-3 text-center">
                   {c.recurring ? (
-                    <span className="text-xs font-medium text-indigo-400">
+                    <span className="text-xs font-medium text-accent">
                       Yes
                     </span>
                   ) : (
                     <span className="text-xs text-brand-muted">No</span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-right text-white text-sm font-medium">
+                <td className="px-4 py-3 text-right text-foreground text-sm font-medium">
                   {formatAmount(c.amount)}
                 </td>
                 <td className="px-4 py-3 text-center">
@@ -135,7 +135,7 @@ export default function CustomerTable({
                         e.stopPropagation();
                         setOpenMenu(openMenu === c.id ? null : c.id);
                       }}
-                      className="p-1.5 rounded-lg text-brand-muted hover:text-white hover:bg-white/5 transition-colors"
+                      className="p-1.5 rounded-lg text-brand-muted hover:text-foreground hover:bg-ios-fill-tertiary transition-colors"
                     >
                       <svg
                         className="w-4 h-4"
@@ -160,7 +160,7 @@ export default function CustomerTable({
                             setOpenMenu(null);
                           }}
                         />
-                        <div className="absolute right-0 top-8 z-20 w-44 rounded-lg bg-[#1e1f2e] border border-brand-border shadow-xl py-1">
+                        <div className="absolute right-0 top-8 z-20 w-44 rounded-lg bg-surface border border-separator shadow-ios-lg py-1">
                           <MenuItem
                             label="Send Request"
                             onClick={() => {
@@ -189,7 +189,7 @@ export default function CustomerTable({
                               onEdit(c);
                             }}
                           />
-                          <div className="h-px bg-brand-border my-1" />
+                          <div className="h-px bg-separator my-1" />
                           <MenuItem
                             label="Delete"
                             danger
@@ -230,7 +230,7 @@ function MenuItem({
       className={`w-full text-left px-3 py-2 text-sm transition-colors ${
         danger
           ? "text-red-400 hover:bg-red-500/10"
-          : "text-brand-muted hover:text-white hover:bg-white/5"
+          : "text-brand-muted hover:text-foreground hover:bg-ios-fill-tertiary"
       }`}
     >
       {label}

@@ -62,11 +62,11 @@ export function CampaignSidebar({
   }, []);
 
   return (
-    <div className="border border-brand-border rounded-xl overflow-hidden">
-      <div className="px-4 py-3 border-b border-brand-border bg-brand-border/10 flex items-center justify-between">
+    <div className="border border-separator rounded-xl overflow-hidden">
+      <div className="px-4 py-3 border-b border-separator bg-brand-border/10 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <MegaphoneIcon className="w-4 h-4 text-accent-blue" />
-          <span className="text-sm text-white font-medium">Campaigns</span>
+          <span className="text-sm text-foreground font-medium">Campaigns</span>
           <span className="text-xs text-brand-muted">{campaigns.length}</span>
         </div>
         <button
@@ -114,7 +114,7 @@ export function CampaignSidebar({
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <span className={`text-sm font-medium truncate ${isActive ? "text-white" : "text-brand-muted"}`}>
+                    <span className={`text-sm font-medium truncate ${isActive ? "text-foreground" : "text-brand-muted"}`}>
                       {campaign.name}
                     </span>
                   </div>
