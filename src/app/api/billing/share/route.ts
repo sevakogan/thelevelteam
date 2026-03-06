@@ -9,19 +9,26 @@ import {
 } from "@/lib/billing/customers";
 import { generateShareToken } from "@/lib/billing/share-token";
 
-// POST — Generate share token for a customer (auth required)
+// POST — Generate share token or handle public actions
 export async function POST(req: NextRequest) {
   try {
+    const body = await req.json();
+
+    // Public actions (from share page — no auth required)
+    if (body.token && body.action) {
+      const customer = await getCustomerByToken(body.token);
+      if (!customer) {
+        return NextResponse.json({ error: "Not found" }, { status: 404 });
+      }
+      return handlePublicAction(customer.id, body.action, { signedBy: body.signedBy });
+    }
+
+    // Admin actions (auth required)
     if (!(await isAuthorized(req))) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { customerId, action, data } = await req.json();
-
-    // Handle public actions (signed, opened) when called from public page
-    if (action) {
-      return handlePublicAction(customerId, action, data);
-    }
+    const { customerId } = body;
 
     if (!customerId) {
       return NextResponse.json({ error: "Missing customerId" }, { status: 400 });

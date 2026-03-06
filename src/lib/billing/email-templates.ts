@@ -187,6 +187,35 @@ export function adminPaymentFailedEmail(
   return { subject, html };
 }
 
+export function adminCancellationEmail(
+  customer: BillingCustomer,
+  companyName: string
+): { subject: string; html: string } {
+  const subject = `Subscription Cancelled — ${customer.company_name}`;
+  const html = wrap(`
+    <div class="card">
+      <div class="logo">${companyName}</div>
+      <h1 style="color: #f59e0b;">Subscription Cancelled</h1>
+      <p>${customer.company_name} has cancelled their subscription of ${formatAmount(customer.amount)}/month.</p>
+      <div style="margin-top: 16px;">
+        <div class="detail-row">
+          <span class="detail-label">Customer</span>
+          <span class="detail-value">${customer.company_name}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Amount</span>
+          <span class="detail-value">${formatAmount(customer.amount)}/mo</span>
+        </div>
+        <div class="detail-row" style="border: none;">
+          <span class="detail-label">Email</span>
+          <span class="detail-value">${customer.email || "—"}</span>
+        </div>
+      </div>
+    </div>
+  `);
+  return { subject, html };
+}
+
 // ─── SMS Templates ────────────────────────────────────
 
 export function paymentRequestSMS(

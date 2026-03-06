@@ -14,6 +14,7 @@ import {
   paymentFailedEmail,
   adminPaymentNotificationEmail,
   adminPaymentFailedEmail,
+  adminCancellationEmail,
   paymentRequestSMS,
   paymentReceiptSMS,
   paymentFailedSMS,
@@ -159,5 +160,20 @@ export async function notifyAdminPaymentFailed(
 
   await sendEmail(adminEmail, subject, html).catch((err) =>
     console.error("[BILLING] Failed to notify admin of failed payment:", err)
+  );
+}
+
+// ─── Admin cancellation notification ──────────────────
+
+export async function notifyAdminCancellation(
+  customer: BillingCustomer
+): Promise<void> {
+  const companyName = getCompanyName();
+  const adminEmail = getAdminEmail();
+
+  const { subject, html } = adminCancellationEmail(customer, companyName);
+
+  await sendEmail(adminEmail, subject, html).catch((err) =>
+    console.error("[BILLING] Failed to notify admin of cancellation:", err)
   );
 }

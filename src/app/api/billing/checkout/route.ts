@@ -71,6 +71,13 @@ export async function POST(req: NextRequest) {
         cancel_url: cancelUrl,
       });
 
+      if (!session.url) {
+        console.error("[BILLING CHECKOUT] Stripe returned null session URL");
+        return NextResponse.json(
+          { error: "Checkout session created but no redirect URL" },
+          { status: 502 }
+        );
+      }
       return NextResponse.json({ url: session.url });
     } else {
       // One-time payment
@@ -98,6 +105,13 @@ export async function POST(req: NextRequest) {
         cancel_url: cancelUrl,
       });
 
+      if (!session.url) {
+        console.error("[BILLING CHECKOUT] Stripe returned null session URL");
+        return NextResponse.json(
+          { error: "Checkout session created but no redirect URL" },
+          { status: 502 }
+        );
+      }
       return NextResponse.json({ url: session.url });
     }
   } catch (err) {
