@@ -36,6 +36,20 @@ export default async function DashboardLayout({
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
         {children}
       </main>
+      <footer className="max-w-6xl mx-auto px-4 sm:px-6 py-5 mt-4 border-t border-separator">
+        <p className="text-xs text-brand-muted text-center">
+          Designed and implemented by{" "}
+          <a
+            href="https://thelevelteam.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-accent hover:text-accent-hover transition-colors"
+          >
+            TheLevelTeam
+          </a>
+          {" "}·{" "}v1.0.0{" "}·{" "}Last updated March 8, 2026
+        </p>
+      </footer>
     </AuthProvider>
   );
 }
