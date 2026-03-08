@@ -24,6 +24,10 @@ export const createCustomerSchema = z.object({
     ),
   contract_enabled: z.boolean().default(false),
   contract_content: z.string().max(10000).default(""),
+  job_id: z.string().uuid().nullable().default(null),
+  tags: z.array(z.string().max(50)).max(20).default([]),
+  due_date: z.string().nullable().default(null),
+  notes: z.string().max(5000).default(""),
 });
 
 export type CreateCustomerFormData = z.infer<typeof createCustomerSchema>;
@@ -48,6 +52,10 @@ export const updateCustomerSchema = z.object({
   contract_signed: z.boolean().optional(),
   contract_signed_by: z.string().max(200).optional(),
   contract_signed_date: z.string().optional(),
+  job_id: z.string().uuid().nullable().optional(),
+  tags: z.array(z.string().max(50)).max(20).optional(),
+  due_date: z.string().nullable().optional(),
+  notes: z.string().max(5000).optional(),
 });
 
 export type UpdateCustomerFormData = z.infer<typeof updateCustomerSchema>;
@@ -73,4 +81,17 @@ export function validateUpdateCustomer(data: unknown) {
 
 export function validateBillingSettings(data: unknown) {
   return billingSettingsSchema.safeParse(data);
+}
+
+// ─── Jobs ──────────────────────────────────────
+
+export const createJobSchema = z.object({
+  name: z.string().min(1, "Job name is required").max(200, "Job name too long"),
+  description: z.string().max(1000).default(""),
+});
+
+export type CreateJobFormData = z.infer<typeof createJobSchema>;
+
+export function validateCreateJob(data: unknown) {
+  return createJobSchema.safeParse(data);
 }

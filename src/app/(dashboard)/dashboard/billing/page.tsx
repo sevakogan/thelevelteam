@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import type {
   BillingCustomer,
+  BillingJob,
   BillingSettings,
   CreateCustomerInput,
 } from "@/lib/billing/types";
@@ -13,12 +14,14 @@ import BillingSettingsModal from "./_components/BillingSettingsModal";
 
 export default function BillingPage() {
   const [customers, setCustomers] = useState<readonly BillingCustomer[]>([]);
+  const [jobs, setJobs] = useState<readonly BillingJob[]>([]);
   const [settings, setSettings] = useState<BillingSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<BillingCustomer | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const showToast = useCallback((msg: string) => {
     setToast(msg);
@@ -39,6 +42,18 @@ export default function BillingPage() {
     }
   }, []);
 
+  const fetchJobs = useCallback(async () => {
+    try {
+      const res = await fetch("/api/billing/jobs");
+      if (res.ok) {
+        const data = await res.json();
+        setJobs(data);
+      }
+    } catch (err) {
+      console.error("[BILLING] Failed to fetch jobs:", err);
+    }
+  }, []);
+
   const fetchSettings = useCallback(async () => {
     try {
       const res = await fetch("/api/billing/settings");
@@ -53,8 +68,9 @@ export default function BillingPage() {
 
   useEffect(() => {
     fetchCustomers();
+    fetchJobs();
     fetchSettings();
-  }, [fetchCustomers, fetchSettings]);
+  }, [fetchCustomers, fetchJobs, fetchSettings]);
 
   async function handleSave(data: CreateCustomerInput) {
     const url = editingCustomer
@@ -74,6 +90,23 @@ export default function BillingPage() {
     setShowForm(false);
     setEditingCustomer(null);
     showToast(editingCustomer ? "Customer updated!" : "Customer created!");
+  }
+
+  async function handleCreateJob(name: string): Promise<BillingJob> {
+    const res = await fetch("/api/billing/jobs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, description: "" }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || "Failed to create job");
+    }
+
+    const job = await res.json();
+    await fetchJobs();
+    return job;
   }
 
   async function handleToggleStatus(customer: BillingCustomer) {
@@ -206,6 +239,44 @@ export default function BillingPage() {
         </div>
       </div>
 
+      {/* Search */}
+      {customers.length > 0 && (
+        <div className="mb-4">
+          <div className="relative">
+            <svg
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-muted"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"
+              />
+            </svg>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search customers, jobs, tags, invoices..."
+              className="w-full pl-10 pr-4 py-2.5 rounded-ios bg-ios-fill-tertiary border border-separator text-foreground text-sm focus:outline-none focus:border-accent placeholder:text-brand-muted"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-brand-muted hover:text-foreground transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Content */}
       {customers.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 rounded-ios-lg bg-surface">
@@ -242,6 +313,7 @@ export default function BillingPage() {
       ) : (
         <CustomerTable
           customers={customers}
+          searchQuery={searchQuery}
           onToggleStatus={handleToggleStatus}
           onShare={handleShare}
           onDownload={handleDownload}
@@ -255,11 +327,13 @@ export default function BillingPage() {
       {showForm && (
         <CustomerForm
           customer={editingCustomer}
+          jobs={jobs}
           onSave={handleSave}
           onCancel={() => {
             setShowForm(false);
             setEditingCustomer(null);
           }}
+          onCreateJob={handleCreateJob}
         />
       )}
 

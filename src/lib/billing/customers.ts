@@ -13,27 +13,65 @@ import type {
   RecordPaymentInput,
 } from "./types";
 
+// ─── Invoice Number Generation ────────────────────────
+
+async function generateInvoiceNumber(userId: string): Promise<string> {
+  const supabase = getSupabaseAdmin();
+  const { data } = await supabase
+    .from("billing_customers")
+    .select("invoice_number")
+    .eq("user_id", userId)
+    .not("invoice_number", "is", null)
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  let nextNum = 1;
+  if (data && data.length > 0 && data[0].invoice_number) {
+    const match = (data[0].invoice_number as string).match(/INV-(\d+)/);
+    if (match) {
+      nextNum = parseInt(match[1], 10) + 1;
+    }
+  }
+  return `INV-${String(nextNum).padStart(3, "0")}`;
+}
+
+// ─── Normalize customer row (handle JOIN) ────────────
+
+interface CustomerRow {
+  readonly billing_jobs?: { readonly name: string } | null;
+  readonly [key: string]: unknown;
+}
+
+function normalizeCustomer(row: CustomerRow): BillingCustomer {
+  const { billing_jobs, ...rest } = row;
+  return {
+    ...rest,
+    job_name: billing_jobs?.name ?? null,
+    tags: (rest.tags as readonly string[]) ?? [],
+  } as BillingCustomer;
+}
+
 // ─── Customers ─────────────────────────────────────────
 
 export async function getCustomers(userId: string): Promise<readonly BillingCustomer[]> {
   const supabase = getSupabaseAdmin();
   const { data, error } = await supabase
     .from("billing_customers")
-    .select("*")
+    .select("*, billing_jobs(name)")
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
   if (error) {
     throw new Error(`Failed to fetch customers: ${error.message}`);
   }
-  return (data ?? []) as BillingCustomer[];
+  return (data ?? []).map((row) => normalizeCustomer(row as CustomerRow));
 }
 
 export async function getCustomer(id: string): Promise<BillingCustomer | null> {
   const supabase = getSupabaseAdmin();
   const { data, error } = await supabase
     .from("billing_customers")
-    .select("*")
+    .select("*, billing_jobs(name)")
     .eq("id", id)
     .single();
 
@@ -41,13 +79,14 @@ export async function getCustomer(id: string): Promise<BillingCustomer | null> {
     if (error.code === "PGRST116") return null;
     throw new Error(`Failed to fetch customer: ${error.message}`);
   }
-  return data as BillingCustomer;
+  return normalizeCustomer(data as CustomerRow);
 }
 
 export async function createCustomer(
   userId: string,
   input: CreateCustomerInput
 ): Promise<BillingCustomer> {
+  const invoiceNumber = await generateInvoiceNumber(userId);
   const supabase = getSupabaseAdmin();
   const { data, error } = await supabase
     .from("billing_customers")
@@ -61,14 +100,19 @@ export async function createCustomer(
       email: input.email,
       contract_enabled: input.contract_enabled,
       contract_content: input.contract_content,
+      job_id: input.job_id,
+      tags: input.tags,
+      due_date: input.due_date,
+      invoice_number: invoiceNumber,
+      notes: input.notes,
     })
-    .select()
+    .select("*, billing_jobs(name)")
     .single();
 
   if (error) {
     throw new Error(`Failed to create customer: ${error.message}`);
   }
-  return data as BillingCustomer;
+  return normalizeCustomer(data as CustomerRow);
 }
 
 export async function updateCustomer(
@@ -76,17 +120,21 @@ export async function updateCustomer(
   input: UpdateCustomerInput
 ): Promise<BillingCustomer> {
   const supabase = getSupabaseAdmin();
+
+  // Build update payload — exclude job_name (computed field)
+  const { ...updateData } = input;
+
   const { data, error } = await supabase
     .from("billing_customers")
-    .update({ ...input, updated_at: new Date().toISOString() })
+    .update({ ...updateData, updated_at: new Date().toISOString() })
     .eq("id", id)
-    .select()
+    .select("*, billing_jobs(name)")
     .single();
 
   if (error) {
     throw new Error(`Failed to update customer: ${error.message}`);
   }
-  return data as BillingCustomer;
+  return normalizeCustomer(data as CustomerRow);
 }
 
 export async function deleteCustomer(id: string): Promise<void> {
@@ -109,7 +157,7 @@ export async function getCustomerByToken(
   const supabase = getSupabaseAdmin();
   const { data, error } = await supabase
     .from("billing_customers")
-    .select("*")
+    .select("*, billing_jobs(name)")
     .eq("share_token", token)
     .single();
 
@@ -117,7 +165,7 @@ export async function getCustomerByToken(
     if (error.code === "PGRST116") return null;
     throw new Error(`Failed to fetch customer by token: ${error.message}`);
   }
-  return data as BillingCustomer;
+  return normalizeCustomer(data as CustomerRow);
 }
 
 // ─── Payments / Receipts ───────────────────────────────

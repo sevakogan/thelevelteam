@@ -24,8 +24,22 @@ export interface BillingCustomer {
   readonly contract_signed: boolean;
   readonly contract_signed_by: string;
   readonly contract_signed_date: string | null;
+  readonly job_id: string | null;
+  readonly job_name: string | null;
+  readonly tags: readonly string[];
+  readonly due_date: string | null;
+  readonly invoice_number: string | null;
+  readonly notes: string;
   readonly created_at: string;
   readonly updated_at: string;
+}
+
+export interface BillingJob {
+  readonly id: string;
+  readonly user_id: string;
+  readonly name: string;
+  readonly description: string;
+  readonly created_at: string;
 }
 
 export interface BillingPayment {
@@ -61,6 +75,15 @@ export interface CreateCustomerInput {
   readonly email: string;
   readonly contract_enabled: boolean;
   readonly contract_content: string;
+  readonly job_id: string | null;
+  readonly tags: readonly string[];
+  readonly due_date: string | null;
+  readonly notes: string;
+}
+
+export interface CreateJobInput {
+  readonly name: string;
+  readonly description: string;
 }
 
 export interface UpdateCustomerInput {
@@ -79,6 +102,10 @@ export interface UpdateCustomerInput {
   readonly stripe_customer_id?: string;
   readonly stripe_subscription_id?: string;
   readonly share_token?: string;
+  readonly job_id?: string | null;
+  readonly tags?: readonly string[];
+  readonly due_date?: string | null;
+  readonly notes?: string;
 }
 
 export interface RecordPaymentInput {
