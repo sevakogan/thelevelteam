@@ -2,25 +2,46 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { bentoChild } from "@/lib/animations";
-import type { BillingCustomer, BillingPayment, BillingStatus } from "@/lib/billing/types";
+import type { BillingCustomer, BillingPayment, BillingJob, BillingStatus, CreateCustomerInput } from "@/lib/billing/types";
 import { generateInvoicePDF } from "@/lib/billing/pdf";
 import PaymentHistory from "../_components/PaymentHistory";
+import CustomerForm from "../_components/CustomerForm";
 
 const STATUS_COLORS: Record<BillingStatus, string> = {
-  draft: "bg-gray-500/20 text-gray-400",
-  sent: "bg-blue-500/20 text-blue-400",
-  active: "bg-green-500/20 text-green-400",
-  cancelled: "bg-red-500/20 text-red-400",
-  paid: "bg-emerald-500/20 text-emerald-400",
+  draft: "bg-ios-fill text-brand-muted",
+  sent: "bg-blue-500/15 text-ios-blue",
+  active: "bg-green-500/15 text-ios-green",
+  cancelled: "bg-red-500/15 text-ios-red",
+  paid: "bg-green-500/15 text-ios-green",
 };
+
+const TAG_COLORS = [
+  "bg-purple-500/15 text-purple-500",
+  "bg-blue-500/15 text-ios-blue",
+  "bg-orange-500/15 text-orange-500",
+  "bg-pink-500/15 text-pink-500",
+  "bg-teal-500/15 text-teal-500",
+];
 
 function formatAmount(amount: number): string {
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
   }).format(amount);
+}
+
+function formatDate(dateStr: string | null): string {
+  if (!dateStr) return "—";
+  return new Date(dateStr).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function isOverdue(dateStr: string | null, status: BillingStatus): boolean {
+  if (!dateStr || status === "paid" || status === "cancelled") return false;
+  return new Date(dateStr) < new Date();
 }
 
 export default function CustomerDetailPage() {
@@ -32,6 +53,8 @@ export default function CustomerDetailPage() {
   const [payments, setPayments] = useState<readonly BillingPayment[]>([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
+  const [showEdit, setShowEdit] = useState(false);
+  const [jobs, setJobs] = useState<readonly BillingJob[]>([]);
 
   const showToast = useCallback((msg: string) => {
     setToast(msg);
@@ -104,6 +127,54 @@ export default function CustomerDetailPage() {
     }
   }
 
+  const fetchJobs = useCallback(async () => {
+    try {
+      const res = await fetch("/api/billing/jobs");
+      if (res.ok) {
+        const data = await res.json();
+        setJobs(data);
+      }
+    } catch {
+      /* jobs are optional for editing */
+    }
+  }, []);
+
+  async function handleOpenEdit() {
+    await fetchJobs();
+    setShowEdit(true);
+  }
+
+  async function handleSaveEdit(data: CreateCustomerInput) {
+    const res = await fetch(`/api/billing/customers/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    if (!res.ok) throw new Error("Failed to save");
+
+    await fetchData();
+    setShowEdit(false);
+    showToast("Customer updated!");
+  }
+
+  async function handleCreateJob(name: string): Promise<BillingJob> {
+    const res = await fetch("/api/billing/jobs", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, description: "" }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || "Failed to create job");
+    }
+
+    const job = await res.json();
+    await fetchJobs();
+    return job;
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -124,38 +195,35 @@ export default function CustomerDetailPage() {
       {/* Back button */}
       <button
         onClick={() => router.push("/dashboard/billing")}
-        className="flex items-center gap-1 text-brand-muted hover:text-foreground text-sm mb-6 transition-colors"
+        className="flex items-center gap-1 text-accent hover:text-accent-hover text-sm mb-6 transition-colors"
       >
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M15.75 19.5L8.25 12l7.5-7.5"
-          />
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
         </svg>
         Back to Billing
       </button>
 
       {/* Customer Header */}
-      <motion.div
-        initial="hidden"
-        animate="visible"
-        variants={bentoChild}
-        className="rounded-ios-lg bg-surface border border-separator p-6 mb-6"
-      >
+      <div className="rounded-ios-lg bg-surface border border-separator p-6 mb-6">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground mb-1">
-              {customer.company_name}
-            </h1>
+            <div className="flex items-center gap-3 mb-1">
+              <h1 className="text-2xl font-bold text-foreground">
+                {customer.company_name}
+              </h1>
+              {customer.invoice_number && (
+                <span className="text-sm font-mono text-brand-muted">
+                  {customer.invoice_number}
+                </span>
+              )}
+            </div>
             {customer.description && (
               <p className="text-brand-muted text-sm">{customer.description}</p>
+            )}
+            {customer.job_name && (
+              <p className="text-accent text-sm mt-0.5">
+                {customer.job_name}
+              </p>
             )}
           </div>
           <span
@@ -167,51 +235,61 @@ export default function CustomerDetailPage() {
           </span>
         </div>
 
+        {/* Stats Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-          <div>
-            <p className="text-xs text-brand-muted uppercase tracking-wider mb-1">
-              Amount
-            </p>
-            <p className="text-lg font-bold text-foreground">
-              {formatAmount(customer.amount)}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-brand-muted uppercase tracking-wider mb-1">
-              Type
-            </p>
-            <p className="text-sm font-medium text-foreground">
-              {customer.recurring ? (
-                <span className="text-accent">Recurring</span>
-              ) : (
-                "One-time"
-              )}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-brand-muted uppercase tracking-wider mb-1">
-              Total Paid
-            </p>
-            <p className="text-lg font-bold text-emerald-400">
-              {formatAmount(totalPaid)}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-brand-muted uppercase tracking-wider mb-1">
-              Outstanding
-            </p>
-            <p
-              className={`text-lg font-bold ${
-                outstanding > 0 ? "text-red-400" : "text-emerald-400"
-              }`}
-            >
-              {formatAmount(Math.max(0, outstanding))}
-            </p>
-          </div>
+          <StatBlock label="Amount" value={formatAmount(customer.amount)} />
+          <StatBlock
+            label="Type"
+            value={customer.recurring ? "Recurring" : "One-time"}
+            accent={customer.recurring}
+          />
+          <StatBlock
+            label="Total Paid"
+            value={formatAmount(totalPaid)}
+            className="text-ios-green"
+          />
+          <StatBlock
+            label="Outstanding"
+            value={formatAmount(Math.max(0, outstanding))}
+            className={outstanding > 0 ? "text-ios-red" : "text-ios-green"}
+          />
         </div>
 
+        {/* Due date */}
+        {customer.due_date && (
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-xs text-brand-muted uppercase tracking-wider">Due:</span>
+            <span
+              className={`text-sm font-medium ${
+                isOverdue(customer.due_date, customer.status)
+                  ? "text-ios-red"
+                  : "text-foreground"
+              }`}
+            >
+              {formatDate(customer.due_date)}
+              {isOverdue(customer.due_date, customer.status) && (
+                <span className="ml-1 text-xs text-ios-red">(Overdue)</span>
+              )}
+            </span>
+          </div>
+        )}
+
+        {/* Tags */}
+        {customer.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-4">
+            {customer.tags.map((tag, i) => (
+              <span
+                key={tag}
+                className={`px-2 py-0.5 rounded text-xs font-medium ${TAG_COLORS[i % TAG_COLORS.length]}`}
+              >
+                {tag}
+              </span>
+            ))}
+          </div>
+        )}
+
         {/* Contact info */}
-        <div className="flex gap-4 text-sm text-brand-muted mb-6">
+        <div className="flex gap-4 text-sm text-brand-muted mb-4">
           {customer.email && (
             <span className="flex items-center gap-1">
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -230,16 +308,24 @@ export default function CustomerDetailPage() {
           )}
         </div>
 
+        {/* Notes */}
+        {customer.notes && (
+          <div className="mb-4 p-3 rounded-lg bg-ios-fill-tertiary">
+            <p className="text-xs text-brand-muted uppercase tracking-wider mb-1">Notes</p>
+            <p className="text-sm text-foreground whitespace-pre-wrap">{customer.notes}</p>
+          </div>
+        )}
+
         {/* Contract status */}
         {customer.contract_enabled && (
-          <div className="flex items-center gap-2 mb-6">
+          <div className="flex items-center gap-2 mb-4">
             <span className="text-xs text-brand-muted">Contract:</span>
             {customer.contract_signed ? (
-              <span className="px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 text-xs font-medium">
+              <span className="px-2 py-0.5 rounded-full bg-green-500/15 text-ios-green text-xs font-medium">
                 Signed by {customer.contract_signed_by}
               </span>
             ) : (
-              <span className="px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400 text-xs font-medium">
+              <span className="px-2 py-0.5 rounded-full bg-yellow-500/15 text-yellow-500 text-xs font-medium">
                 Awaiting signature
               </span>
             )}
@@ -255,6 +341,17 @@ export default function CustomerDetailPage() {
             Send Request
           </button>
           <button
+            onClick={handleOpenEdit}
+            className="px-3 py-2 rounded-lg border border-separator text-brand-muted hover:text-foreground text-sm transition-colors"
+          >
+            <span className="flex items-center gap-1.5">
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
+              </svg>
+              Edit
+            </span>
+          </button>
+          <button
             onClick={handleShare}
             className="px-3 py-2 rounded-lg border border-separator text-brand-muted hover:text-foreground text-sm transition-colors"
           >
@@ -267,22 +364,62 @@ export default function CustomerDetailPage() {
             Download PDF
           </button>
         </div>
-      </motion.div>
+      </div>
 
       {/* Payment History */}
-      <motion.div initial="hidden" animate="visible" variants={bentoChild}>
+      <div>
         <h2 className="text-lg font-bold text-foreground mb-4">
           Payments & Receipts
         </h2>
         <PaymentHistory payments={payments} />
-      </motion.div>
+      </div>
+
+      {/* Edit Form Slide-over */}
+      {showEdit && (
+        <CustomerForm
+          customer={customer}
+          jobs={jobs}
+          onSave={handleSaveEdit}
+          onCancel={() => setShowEdit(false)}
+          onCreateJob={handleCreateJob}
+        />
+      )}
 
       {/* Toast */}
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-lg bg-accent text-white text-sm font-medium shadow-ios-lg">
+        <div className="fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-ios bg-surface-tertiary text-foreground text-[13px] font-medium shadow-ios-lg">
           {toast}
         </div>
       )}
+    </div>
+  );
+}
+
+// ─── Sub-components ────────────────────────────────────
+
+function StatBlock({
+  label,
+  value,
+  accent,
+  className = "",
+}: {
+  readonly label: string;
+  readonly value: string;
+  readonly accent?: boolean;
+  readonly className?: string;
+}) {
+  return (
+    <div>
+      <p className="text-xs text-brand-muted uppercase tracking-wider mb-1">
+        {label}
+      </p>
+      <p
+        className={`text-lg font-bold ${
+          accent ? "text-accent" : className || "text-foreground"
+        }`}
+      >
+        {value}
+      </p>
     </div>
   );
 }
