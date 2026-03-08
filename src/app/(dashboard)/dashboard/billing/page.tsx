@@ -111,9 +111,9 @@ export default function BillingPage() {
 
   async function handleToggleStatus(customer: BillingCustomer) {
     const newStatus =
-      customer.status === "active" || customer.status === "paid"
-        ? "cancelled"
-        : "active";
+      customer.status === "in_process" || customer.status === "done"
+        ? "lost"
+        : "in_process";
 
     const res = await fetch(`/api/billing/customers/${customer.id}`, {
       method: "PATCH",

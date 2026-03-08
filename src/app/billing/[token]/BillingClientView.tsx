@@ -502,9 +502,9 @@ function HeroSection({
   paying,
   outstanding,
 }: HeroSectionProps) {
-  const isActive = customer.status === "active";
-  const isPaid = customer.status === "paid";
-  const isCancelled = customer.status === "cancelled";
+  const isActive = customer.status === "in_process";
+  const isPaid = customer.status === "done";
+  const isCancelled = customer.status === "lost";
   const canCancel = customer.recurring && isActive;
   const canPay = outstanding > 0 || (customer.recurring && isActive);
 
@@ -959,6 +959,21 @@ export default function BillingClientView({ token }: BillingClientViewProps) {
             outstanding={outstanding}
           />
         )}
+      </div>
+
+      {/* Footer credit */}
+      <div className="text-center py-8">
+        <p className="text-xs text-gray-600">
+          Designed and Implemented by{" "}
+          <a
+            href="https://thelevelteam.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-gray-500 hover:text-gray-300 transition-colors underline underline-offset-2"
+          >
+            TheLevelTeam
+          </a>
+        </p>
       </div>
 
       {/* Toast */}

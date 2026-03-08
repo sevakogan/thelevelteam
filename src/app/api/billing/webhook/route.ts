@@ -103,7 +103,7 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   });
 
   // Update customer status
-  const newStatus = customer.recurring ? "active" : "paid";
+  const newStatus = customer.recurring ? "in_process" : "done";
   const updates: Record<string, unknown> = { status: newStatus };
 
   // Store subscription ID for recurring
@@ -209,7 +209,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
   if (!customer) return;
 
   await updateCustomer(customer.id, {
-    status: "cancelled",
+    status: "lost",
     stripe_subscription_id: "",
   });
 

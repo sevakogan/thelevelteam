@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
 
     // Update local status (webhook will also fire, but update immediately for UX)
     await updateCustomer(customer.id, {
-      status: "cancelled",
+      status: "lost",
       stripe_subscription_id: "",
     });
 

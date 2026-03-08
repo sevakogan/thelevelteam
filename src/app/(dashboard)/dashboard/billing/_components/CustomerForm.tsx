@@ -57,6 +57,15 @@ export default function CustomerForm({
     }
   }, [showNewJob]);
 
+  // Close on Escape key
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onCancel();
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onCancel]);
+
   // ─── Tag handlers ──────────────────────────────────────
   function addTag() {
     const trimmed = tagInput.trim();
@@ -136,298 +145,291 @@ export default function CustomerForm({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-end">
-      <div className="absolute inset-0 bg-black/50" onClick={onCancel} />
-      <div className="relative w-full max-w-lg h-full bg-surface border-l border-separator overflow-y-auto">
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-foreground">
-              {customer ? "Edit Customer" : "New Customer"}
-            </h2>
-            <button
-              onClick={onCancel}
-              className="text-brand-muted hover:text-foreground transition-colors cursor-pointer"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onCancel} />
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      {/* Modal */}
+      <div className="relative w-full max-w-md bg-surface border border-separator rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-separator shrink-0">
+          <h2 className="text-base font-semibold text-foreground">
+            {customer ? "Edit Customer" : "New Customer"}
+          </h2>
+          <button
+            onClick={onCancel}
+            className="text-brand-muted hover:text-foreground transition-colors cursor-pointer"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* Scrollable body */}
+        <div className="overflow-y-auto flex-1 px-5 py-4">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             {/* Company Name */}
-            <FormField label="Company / Customer Name *" error={errors.company_name}>
+            <Field label="Customer / Company *" error={errors.company_name}>
               <input
                 type="text"
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-ios-fill-tertiary border border-separator text-foreground text-sm focus:outline-none focus:border-accent"
+                className={input}
                 placeholder="Acme Corp"
+                autoFocus
               />
-            </FormField>
+            </Field>
 
-            {/* Job — Dropdown + Create New */}
-            <FormField label="Job / Service" error={errors.job}>
-              {!showNewJob ? (
-                <div className="flex gap-2">
-                  <select
-                    value={jobId ?? ""}
-                    onChange={(e) => setJobId(e.target.value || null)}
-                    className="flex-1 px-3 py-2 rounded-lg bg-ios-fill-tertiary border border-separator text-foreground text-sm focus:outline-none focus:border-accent"
-                  >
-                    <option value="">No job selected</option>
-                    {jobs.map((j) => (
-                      <option key={j.id} value={j.id}>
-                        {j.name}
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    type="button"
-                    onClick={() => setShowNewJob(true)}
-                    className="px-3 py-2 rounded-lg border border-separator text-accent hover:bg-ios-fill-tertiary text-sm font-medium transition-colors whitespace-nowrap"
-                  >
-                    + New
-                  </button>
-                </div>
-              ) : (
-                <div className="flex gap-2">
-                  <input
-                    ref={newJobRef}
-                    type="text"
-                    value={newJobName}
-                    onChange={(e) => setNewJobName(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        handleCreateJob();
-                      }
-                      if (e.key === "Escape") {
-                        setShowNewJob(false);
-                        setNewJobName("");
-                      }
-                    }}
-                    className="flex-1 px-3 py-2 rounded-lg bg-ios-fill-tertiary border border-separator text-foreground text-sm focus:outline-none focus:border-accent"
-                    placeholder="Job name (e.g. Web Development)"
-                    disabled={creatingJob}
-                  />
-                  <button
-                    type="button"
-                    onClick={handleCreateJob}
-                    disabled={creatingJob || !newJobName.trim()}
-                    className="px-3 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors disabled:opacity-50"
-                  >
-                    {creatingJob ? "..." : "Add"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowNewJob(false);
-                      setNewJobName("");
-                    }}
-                    className="px-2 py-2 rounded-lg text-brand-muted hover:text-foreground transition-colors"
-                  >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-              )}
-            </FormField>
+            {/* Job + Price row */}
+            <div className="grid grid-cols-2 gap-2">
+              <Field label="Job / Service" error={errors.job} className="col-span-1">
+                {!showNewJob ? (
+                  <div className="flex gap-1.5">
+                    <select
+                      value={jobId ?? ""}
+                      onChange={(e) => setJobId(e.target.value || null)}
+                      className={`${input} flex-1 min-w-0`}
+                    >
+                      <option value="">None</option>
+                      {jobs.map((j) => (
+                        <option key={j.id} value={j.id}>
+                          {j.name}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      type="button"
+                      onClick={() => setShowNewJob(true)}
+                      className="px-2 py-1.5 rounded-lg border border-separator text-accent hover:bg-ios-fill-tertiary text-xs font-medium transition-colors shrink-0"
+                    >
+                      +New
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-1.5">
+                    <input
+                      ref={newJobRef}
+                      type="text"
+                      value={newJobName}
+                      onChange={(e) => setNewJobName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") { e.preventDefault(); handleCreateJob(); }
+                        if (e.key === "Escape") { setShowNewJob(false); setNewJobName(""); }
+                      }}
+                      className={`${input} flex-1 min-w-0`}
+                      placeholder="Job name"
+                      disabled={creatingJob}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleCreateJob}
+                      disabled={creatingJob || !newJobName.trim()}
+                      className="px-2 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium transition-colors disabled:opacity-50 shrink-0"
+                    >
+                      {creatingJob ? "…" : "Add"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => { setShowNewJob(false); setNewJobName(""); }}
+                      className="text-brand-muted hover:text-foreground transition-colors shrink-0"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                )}
+              </Field>
+
+              <Field label="Price (USD) *" error={errors.amount} className="col-span-1">
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  className={input}
+                  placeholder="0.00"
+                />
+              </Field>
+            </div>
 
             {/* Description */}
-            <FormField label="Description">
+            <Field label="Description">
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={2}
-                className="w-full px-3 py-2 rounded-lg bg-ios-fill-tertiary border border-separator text-foreground text-sm focus:outline-none focus:border-accent resize-none"
+                className={`${input} resize-none`}
                 placeholder="Web development services"
               />
-            </FormField>
+            </Field>
 
-            {/* Amount */}
-            <FormField label="Price (USD) *" error={errors.amount}>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-ios-fill-tertiary border border-separator text-foreground text-sm focus:outline-none focus:border-accent"
-                placeholder="500.00"
-              />
-            </FormField>
-
-            {/* Recurring Toggle */}
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-brand-muted">
-                Recurring (Monthly)
-              </label>
-              <ToggleSwitch value={recurring} onChange={setRecurring} />
+            {/* Email + Phone row */}
+            <div className="grid grid-cols-2 gap-2">
+              <Field label="Email">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className={input}
+                  placeholder="client@example.com"
+                />
+              </Field>
+              <Field label="Phone">
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className={input}
+                  placeholder="(555) 123-4567"
+                />
+              </Field>
             </div>
 
-            {/* Due Date */}
-            <FormField label="Due Date">
-              <input
-                type="date"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-ios-fill-tertiary border border-separator text-foreground text-sm focus:outline-none focus:border-accent"
-              />
-            </FormField>
-
-            {/* Invoice # (read-only in edit mode) */}
-            {customer?.invoice_number && (
-              <FormField label="Invoice #">
+            {/* Due Date + Recurring row */}
+            <div className="grid grid-cols-2 gap-2">
+              <Field label="Due Date">
                 <input
-                  type="text"
-                  value={customer.invoice_number}
-                  readOnly
-                  className="w-full px-3 py-2 rounded-lg bg-ios-fill border border-separator text-brand-muted text-sm font-mono"
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  className={input}
                 />
-              </FormField>
-            )}
+              </Field>
+              <div className="flex flex-col justify-end pb-0.5">
+                <div className="flex items-center justify-between px-3 py-1.5 rounded-lg bg-ios-fill-tertiary border border-separator h-[34px]">
+                  <span className="text-xs text-brand-muted font-medium">Recurring</span>
+                  <ToggleSwitch value={recurring} onChange={setRecurring} small />
+                </div>
+              </div>
+            </div>
 
             {/* Tags */}
-            <FormField label={`Tags (${tags.length}/20)`}>
-              <div className="flex flex-wrap gap-1.5 mb-2">
-                {tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-accent/15 text-accent text-xs font-medium"
-                  >
-                    {tag}
-                    <button
-                      type="button"
-                      onClick={() => removeTag(tag)}
-                      className="hover:text-foreground transition-colors"
+            <Field label={`Tags (${tags.length}/20)`}>
+              {tags.length > 0 && (
+                <div className="flex flex-wrap gap-1 mb-1.5">
+                  {tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-accent/15 text-accent text-xs font-medium"
                     >
-                      <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </span>
-                ))}
-              </div>
+                      {tag}
+                      <button type="button" onClick={() => removeTag(tag)} className="hover:text-foreground">
+                        <svg className="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
               <input
                 type="text"
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleTagKeyDown}
                 onBlur={addTag}
-                className="w-full px-3 py-2 rounded-lg bg-ios-fill-tertiary border border-separator text-foreground text-sm focus:outline-none focus:border-accent"
+                className={input}
                 placeholder="Type tag and press Enter"
                 disabled={tags.length >= 20}
               />
-            </FormField>
-
-            {/* Email */}
-            <FormField label="Email">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-ios-fill-tertiary border border-separator text-foreground text-sm focus:outline-none focus:border-accent"
-                placeholder="client@example.com"
-              />
-            </FormField>
-
-            {/* Phone */}
-            <FormField label="Phone">
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg bg-ios-fill-tertiary border border-separator text-foreground text-sm focus:outline-none focus:border-accent"
-                placeholder="(555) 123-4567"
-              />
-            </FormField>
+            </Field>
 
             {/* Notes */}
-            <FormField label="Notes (internal)">
+            <Field label="Notes (internal)">
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                rows={3}
-                className="w-full px-3 py-2 rounded-lg bg-ios-fill-tertiary border border-separator text-foreground text-sm focus:outline-none focus:border-accent resize-none"
-                placeholder="Internal notes about this customer..."
+                rows={2}
+                className={`${input} resize-none`}
+                placeholder="Internal notes..."
               />
-            </FormField>
+            </Field>
 
-            {/* Divider */}
-            <div className="h-px bg-separator my-2" />
+            {/* Invoice # (edit mode) */}
+            {customer?.invoice_number && (
+              <Field label="Invoice #">
+                <input
+                  type="text"
+                  value={customer.invoice_number}
+                  readOnly
+                  className="w-full px-3 py-1.5 rounded-lg bg-ios-fill border border-separator text-brand-muted text-xs font-mono"
+                />
+              </Field>
+            )}
 
-            {/* Contract Toggle */}
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-brand-muted">
-                Include Contract
-              </label>
-              <ToggleSwitch
-                value={contractEnabled}
-                onChange={setContractEnabled}
-              />
+            {/* Contract */}
+            <div className="flex items-center justify-between py-1">
+              <span className="text-xs font-medium text-brand-muted">Include Contract</span>
+              <ToggleSwitch value={contractEnabled} onChange={setContractEnabled} small />
             </div>
 
-            {/* Contract Content */}
             {contractEnabled && (
-              <FormField label="Contract Content">
+              <Field label="Contract Content">
                 <textarea
                   value={contractContent}
                   onChange={(e) => setContractContent(e.target.value)}
-                  rows={6}
-                  className="w-full px-3 py-2 rounded-lg bg-ios-fill-tertiary border border-separator text-foreground text-sm focus:outline-none focus:border-accent resize-none"
+                  rows={4}
+                  className={`${input} resize-none`}
                   placeholder="Enter contract terms and conditions..."
                 />
-              </FormField>
+              </Field>
             )}
 
             {errors.form && (
-              <p className="text-red-400 text-sm">{errors.form}</p>
+              <p className="text-red-400 text-xs">{errors.form}</p>
             )}
-
-            {/* Actions */}
-            <div className="flex gap-3 mt-4">
-              <button
-                type="submit"
-                disabled={saving}
-                className="flex-1 px-4 py-2.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors disabled:opacity-50"
-              >
-                {saving ? "Saving..." : "Save"}
-              </button>
-              <button
-                type="button"
-                onClick={onCancel}
-                className="px-4 py-2.5 rounded-lg border border-separator text-brand-muted hover:text-foreground text-sm font-medium transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
           </form>
+        </div>
+
+        {/* Footer actions */}
+        <div className="px-5 py-3 border-t border-separator shrink-0 flex gap-2">
+          <button
+            onClick={handleSubmit as unknown as React.MouseEventHandler}
+            disabled={saving}
+            className="flex-1 px-4 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors disabled:opacity-50"
+          >
+            {saving ? "Saving…" : customer ? "Save Changes" : "Create Customer"}
+          </button>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="px-4 py-2 rounded-lg border border-separator text-brand-muted hover:text-foreground text-sm font-medium transition-colors"
+          >
+            Cancel
+          </button>
         </div>
       </div>
     </div>
   );
 }
 
-// ─── Shared sub-components ─────────────────────────────
+// ─── Shared input class ─────────────────────────────────
+const input =
+  "w-full px-3 py-1.5 rounded-lg bg-ios-fill-tertiary border border-separator text-foreground text-sm focus:outline-none focus:border-accent";
 
-function FormField({
+// ─── Sub-components ─────────────────────────────────────
+
+function Field({
   label,
   error,
   children,
+  className,
 }: {
   readonly label: string;
   readonly error?: string;
   readonly children: React.ReactNode;
+  readonly className?: string;
 }) {
   return (
-    <div>
-      <label className="block text-sm font-medium text-brand-muted mb-1">
+    <div className={className}>
+      <label className="block text-xs font-medium text-brand-muted mb-1">
         {label}
       </label>
       {children}
-      {error && <p className="text-red-400 text-xs mt-1">{error}</p>}
+      {error && <p className="text-red-400 text-xs mt-0.5">{error}</p>}
     </div>
   );
 }
@@ -435,22 +437,24 @@ function FormField({
 function ToggleSwitch({
   value,
   onChange,
+  small,
 }: {
   readonly value: boolean;
   readonly onChange: (v: boolean) => void;
+  readonly small?: boolean;
 }) {
+  const track = small ? "w-8 h-4" : "w-11 h-6";
+  const thumb = small ? "w-3 h-3 top-0.5 left-0.5" : "w-5 h-5 top-0.5 left-0.5";
+  const translate = small ? "translate-x-4" : "translate-x-5";
+
   return (
     <button
       type="button"
       onClick={() => onChange(!value)}
-      className={`relative w-11 h-6 rounded-full transition-colors ${
-        value ? "bg-accent" : "bg-ios-fill"
-      }`}
+      className={`relative ${track} rounded-full transition-colors ${value ? "bg-accent" : "bg-ios-fill"}`}
     >
       <span
-        className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
-          value ? "translate-x-5" : ""
-        }`}
+        className={`absolute ${thumb} bg-white rounded-full transition-transform ${value ? translate : ""}`}
       />
     </button>
   );

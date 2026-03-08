@@ -2,7 +2,7 @@
  * Company Billing — Type definitions
  */
 
-export type BillingStatus = "draft" | "sent" | "active" | "cancelled" | "paid";
+export type BillingStatus = "lead" | "in_process" | "done" | "lost";
 
 export type PaymentStatus = "completed" | "failed" | "refunded" | "pending";
 
@@ -30,6 +30,7 @@ export interface BillingCustomer {
   readonly due_date: string | null;
   readonly invoice_number: string | null;
   readonly notes: string;
+  readonly payment_count: number;
   readonly created_at: string;
   readonly updated_at: string;
 }
@@ -118,11 +119,10 @@ export interface RecordPaymentInput {
 }
 
 export const BILLING_STATUS_LABELS: Record<BillingStatus, string> = {
-  draft: "Draft",
-  sent: "Sent",
-  active: "Active",
-  cancelled: "Cancelled",
-  paid: "Paid",
+  lead: "Lead",
+  in_process: "In Process",
+  done: "Done",
+  lost: "Lost",
 } as const;
 
 export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {

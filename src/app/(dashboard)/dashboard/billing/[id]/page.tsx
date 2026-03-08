@@ -8,11 +8,10 @@ import PaymentHistory from "../_components/PaymentHistory";
 import CustomerForm from "../_components/CustomerForm";
 
 const STATUS_COLORS: Record<BillingStatus, string> = {
-  draft: "bg-ios-fill text-brand-muted",
-  sent: "bg-blue-500/15 text-ios-blue",
-  active: "bg-green-500/15 text-ios-green",
-  cancelled: "bg-red-500/15 text-ios-red",
-  paid: "bg-green-500/15 text-ios-green",
+  lead: "bg-ios-fill text-brand-muted",
+  in_process: "bg-blue-500/15 text-ios-blue",
+  done: "bg-green-500/15 text-ios-green",
+  lost: "bg-red-500/15 text-ios-red",
 };
 
 const TAG_COLORS = [
@@ -40,7 +39,7 @@ function formatDate(dateStr: string | null): string {
 }
 
 function isOverdue(dateStr: string | null, status: BillingStatus): boolean {
-  if (!dateStr || status === "paid" || status === "cancelled") return false;
+  if (!dateStr || status === "done" || status === "lost") return false;
   return new Date(dateStr) < new Date();
 }
 

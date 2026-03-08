@@ -37,8 +37,8 @@ export async function POST(req: NextRequest) {
     await sendPaymentRequest(customer);
 
     // Update status to sent
-    if (customer.status === "draft") {
-      await updateCustomer(customer.id, { status: "sent" });
+    if (customer.status === "lead") {
+      await updateCustomer(customer.id, { status: "in_process" });
     }
 
     return NextResponse.json({ success: true });
