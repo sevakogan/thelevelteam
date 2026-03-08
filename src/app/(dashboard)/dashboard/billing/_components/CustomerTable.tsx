@@ -29,7 +29,11 @@ type SortDirection = "asc" | "desc";
 
 const STATUS_COLORS: Record<BillingStatus, string> = {
   lead: "bg-ios-fill text-brand-muted",
+  sent: "bg-blue-500/15 text-blue-400",
+  viewed: "bg-purple-500/15 text-purple-400",
+  paid: "bg-green-500/15 text-ios-green",
   in_process: "bg-blue-500/15 text-ios-blue",
+  cancellation_requested: "bg-red-500/20 text-red-400",
   done: "bg-green-500/15 text-ios-green",
   lost: "bg-red-500/15 text-ios-red",
 };
@@ -60,7 +64,7 @@ function formatDate(dateStr: string | null): string {
 }
 
 function isOverdue(dateStr: string | null, status: BillingStatus): boolean {
-  if (!dateStr || status === "done" || status === "lost") return false;
+  if (!dateStr || status === "done" || status === "lost" || status === "paid") return false;
   return new Date(dateStr) < new Date();
 }
 

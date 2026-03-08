@@ -6,10 +6,17 @@ import type { BillingCustomer, BillingPayment, BillingJob, BillingStatus, Create
 import { generateInvoicePDF } from "@/lib/billing/pdf";
 import PaymentHistory from "../_components/PaymentHistory";
 import CustomerForm from "../_components/CustomerForm";
+import ReceiptsModal from "../_components/ReceiptsModal";
+import StatusHistory from "../_components/StatusHistory";
+import CancellationModal from "../_components/CancellationModal";
 
 const STATUS_COLORS: Record<BillingStatus, string> = {
   lead: "bg-ios-fill text-brand-muted",
+  sent: "bg-blue-500/15 text-blue-400",
+  viewed: "bg-purple-500/15 text-purple-400",
+  paid: "bg-green-500/15 text-ios-green",
   in_process: "bg-blue-500/15 text-ios-blue",
+  cancellation_requested: "bg-red-500/20 text-red-400",
   done: "bg-green-500/15 text-ios-green",
   lost: "bg-red-500/15 text-ios-red",
 };
@@ -38,8 +45,20 @@ function formatDate(dateStr: string | null): string {
   });
 }
 
+function formatDateTime(dateStr: string | null): string {
+  if (!dateStr) return "—";
+  return new Date(dateStr).toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+}
+
 function isOverdue(dateStr: string | null, status: BillingStatus): boolean {
-  if (!dateStr || status === "done" || status === "lost") return false;
+  if (!dateStr || status === "done" || status === "lost" || status === "paid") return false;
   return new Date(dateStr) < new Date();
 }
 
@@ -53,6 +72,9 @@ export default function CustomerDetailPage() {
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState<string | null>(null);
   const [showEdit, setShowEdit] = useState(false);
+  const [showReceipts, setShowReceipts] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [showCancellation, setShowCancellation] = useState(false);
   const [jobs, setJobs] = useState<readonly BillingJob[]>([]);
 
   const showToast = useCallback((msg: string) => {
@@ -131,6 +153,31 @@ export default function CustomerDetailPage() {
     }
   }
 
+  async function handleSendLatestReceipt() {
+    if (!customer) return;
+    const completedPayments = payments.filter((p) => p.status === "completed");
+    if (completedPayments.length === 0) {
+      showToast("No completed payments to send receipt for");
+      return;
+    }
+    const latest = completedPayments[0];
+    try {
+      const res = await fetch(`/api/billing/receipts/${customer.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentId: latest.id }),
+      });
+      if (res.ok) {
+        showToast("Receipt sent!");
+      } else {
+        const data = await res.json().catch(() => ({}));
+        showToast(data.error || "Failed to send receipt");
+      }
+    } catch {
+      showToast("Failed to send receipt");
+    }
+  }
+
   const fetchJobs = useCallback(async () => {
     try {
       const res = await fetch("/api/billing/jobs");
@@ -179,6 +226,37 @@ export default function CustomerDetailPage() {
     return job;
   }
 
+  async function handleCancellationAction(action: {
+    action: "approve" | "decline" | "discount";
+    note?: string;
+    discountType?: "percent" | "fixed";
+    discountValue?: number;
+  }) {
+    if (!customer) return;
+    const res = await fetch("/api/billing/cancellation", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customerId: customer.id,
+        ...action,
+      }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || "Failed to process cancellation");
+    }
+
+    await fetchData();
+
+    const messages: Record<string, string> = {
+      approve: "Subscription cancelled.",
+      decline: "Cancellation request declined.",
+      discount: "Discount applied and customer notified.",
+    };
+    showToast(messages[action.action] ?? "Done.");
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -206,6 +284,36 @@ export default function CustomerDetailPage() {
         </svg>
         Back to Billing
       </button>
+
+      {/* Cancellation Request Banner */}
+      {customer.status === "cancellation_requested" && (
+        <div className="rounded-ios-lg bg-red-500/10 border border-red-500/30 p-4 mb-6">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <svg className="w-4 h-4 text-red-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+                <span className="text-red-400 font-semibold text-sm">Cancellation Requested</span>
+              </div>
+              {customer.cancellation_reason && (
+                <p className="text-foreground text-sm mb-1">
+                  Reason: <span className="text-brand-muted">{customer.cancellation_reason}</span>
+                </p>
+              )}
+              <p className="text-brand-muted text-xs">
+                Requested: {formatDateTime(customer.cancellation_requested_at)}
+              </p>
+            </div>
+            <button
+              onClick={() => setShowCancellation(true)}
+              className="shrink-0 px-3 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors"
+            >
+              Handle Cancellation
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Customer Header */}
       <div className="rounded-ios-lg bg-surface border border-separator p-6 mb-6">
@@ -235,7 +343,9 @@ export default function CustomerDetailPage() {
               STATUS_COLORS[customer.status]
             }`}
           >
-            {customer.status.charAt(0).toUpperCase() + customer.status.slice(1)}
+            {customer.status === "cancellation_requested"
+              ? "Cancel Requested"
+              : customer.status.charAt(0).toUpperCase() + customer.status.slice(1)}
           </span>
         </div>
 
@@ -337,7 +447,7 @@ export default function CustomerDetailPage() {
         )}
 
         {/* Action buttons */}
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <button
             onClick={handleSendRequest}
             className="px-3 py-2 rounded-lg bg-accent hover:bg-accent-hover text-white text-sm font-medium transition-colors"
@@ -367,13 +477,38 @@ export default function CustomerDetailPage() {
           >
             Download PDF
           </button>
+          <button
+            onClick={() => setShowReceipts(true)}
+            className="px-3 py-2 rounded-lg border border-separator text-brand-muted hover:text-foreground text-sm transition-colors"
+          >
+            Receipts
+          </button>
+          {payments.filter((p) => p.status === "completed").length > 0 && (
+            <button
+              onClick={handleSendLatestReceipt}
+              className="px-3 py-2 rounded-lg border border-separator text-brand-muted hover:text-foreground text-sm transition-colors"
+            >
+              Send Receipt
+            </button>
+          )}
+          <button
+            onClick={() => setShowHistory(true)}
+            className="px-3 py-2 rounded-lg border border-separator text-brand-muted hover:text-foreground text-sm transition-colors"
+          >
+            History
+            {customer.status_history.length > 0 && (
+              <span className="ml-1.5 px-1.5 py-0.5 rounded-full bg-ios-fill text-brand-muted text-[10px]">
+                {customer.status_history.length}
+              </span>
+            )}
+          </button>
         </div>
       </div>
 
       {/* Payment History */}
       <div>
         <h2 className="text-lg font-bold text-foreground mb-4">
-          Payments & Receipts
+          Payments &amp; Receipts
         </h2>
         <PaymentHistory payments={payments} />
       </div>
@@ -386,6 +521,32 @@ export default function CustomerDetailPage() {
           onSave={handleSaveEdit}
           onCancel={() => setShowEdit(false)}
           onCreateJob={handleCreateJob}
+        />
+      )}
+
+      {/* Receipts Modal */}
+      {showReceipts && (
+        <ReceiptsModal
+          payments={payments}
+          customer={customer}
+          onClose={() => setShowReceipts(false)}
+        />
+      )}
+
+      {/* Status History Modal */}
+      {showHistory && (
+        <StatusHistory
+          history={customer.status_history}
+          onClose={() => setShowHistory(false)}
+        />
+      )}
+
+      {/* Cancellation Modal */}
+      {showCancellation && (
+        <CancellationModal
+          customer={customer}
+          onAction={handleCancellationAction}
+          onClose={() => setShowCancellation(false)}
         />
       )}
 

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { isAuthorized } from "@/lib/billing/auth";
-import { getCustomer, updateCustomer } from "@/lib/billing/customers";
+import { getCustomer, updateCustomer, appendStatusHistory } from "@/lib/billing/customers";
 import { generateShareToken } from "@/lib/billing/share-token";
 import { sendPaymentRequest } from "@/lib/billing/notifications";
 
@@ -36,10 +36,9 @@ export async function POST(req: NextRequest) {
     // Send email + SMS
     await sendPaymentRequest(customer);
 
-    // Update status to sent
-    if (customer.status === "lead") {
-      await updateCustomer(customer.id, { status: "in_process" });
-    }
+    // Update status to "sent" and record history
+    await updateCustomer(customer.id, { status: "sent" });
+    await appendStatusHistory(customer.id, "sent", "Invoice sent to customer");
 
     return NextResponse.json({ success: true });
   } catch (err) {

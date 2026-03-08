@@ -6,8 +6,10 @@ import {
   getCustomerByToken,
   getCustomerPayments,
   getBillingSettingsByCustomerToken,
+  appendStatusHistory,
 } from "@/lib/billing/customers";
 import { generateShareToken } from "@/lib/billing/share-token";
+import { notifyAdminCancellationRequest } from "@/lib/billing/notifications";
 
 // POST — Generate share token or handle public actions
 export async function POST(req: NextRequest) {
@@ -20,7 +22,11 @@ export async function POST(req: NextRequest) {
       if (!customer) {
         return NextResponse.json({ error: "Not found" }, { status: 404 });
       }
-      return handlePublicAction(customer.id, body.action, { signedBy: body.signedBy });
+      return handlePublicAction(customer.id, body.action, {
+        signedBy: body.signedBy,
+        reason: body.reason,
+        currentStatus: customer.status,
+      });
     }
 
     // Admin actions (auth required)
@@ -97,6 +103,8 @@ export async function GET(req: NextRequest) {
         contract_signed_by: customer.contract_signed_by,
         contract_signed_date: customer.contract_signed_date,
         created_at: customer.created_at,
+        cancellation_reason: customer.cancellation_reason,
+        cancellation_requested_at: customer.cancellation_requested_at,
       },
       payments: payments.map((p) => ({
         id: p.id,
@@ -127,7 +135,7 @@ export async function GET(req: NextRequest) {
 async function handlePublicAction(
   customerId: string,
   action: string,
-  data?: { signedBy?: string }
+  data?: { signedBy?: string; reason?: string; currentStatus?: string }
 ) {
   try {
     const customer = await getCustomer(customerId);
@@ -150,6 +158,40 @@ async function handlePublicAction(
         });
         return NextResponse.json({ success: true, customer: updated });
       }
+
+      case "viewed": {
+        // Only update to "viewed" if currently "sent"
+        if (data?.currentStatus === "sent") {
+          await updateCustomer(customer.id, { status: "viewed" });
+          await appendStatusHistory(customer.id, "viewed", "Customer opened the invoice");
+        }
+        return NextResponse.json({ success: true });
+      }
+
+      case "cancel_request": {
+        const reason = data?.reason?.trim() ?? "";
+        await updateCustomer(customer.id, {
+          status: "cancellation_requested",
+          cancellation_reason: reason || null,
+          cancellation_requested_at: new Date().toISOString(),
+        });
+        await appendStatusHistory(
+          customer.id,
+          "cancellation_requested",
+          reason ? `Customer reason: ${reason}` : "Customer requested cancellation"
+        );
+
+        // Notify admin
+        const refreshed = await getCustomer(customer.id);
+        if (refreshed) {
+          await notifyAdminCancellationRequest(refreshed).catch((err) =>
+            console.error("[BILLING] Failed to notify admin of cancel request:", err)
+          );
+        }
+
+        return NextResponse.json({ success: true });
+      }
+
       default:
         return NextResponse.json({ error: "Unknown action" }, { status: 400 });
     }

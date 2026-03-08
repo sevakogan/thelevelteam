@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type {
   BillingCustomer,
   BillingPayment,
@@ -130,6 +130,61 @@ function CheckCircleIcon({ className = "w-5 h-5" }: { readonly className?: strin
         d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
       />
     </svg>
+  );
+}
+
+// ─── Cancel Request Modal ────────────────────────────────
+
+interface CancelRequestModalProps {
+  readonly onConfirm: (reason: string) => void;
+  readonly onClose: () => void;
+  readonly submitting: boolean;
+}
+
+function CancelRequestModal({ onConfirm, onClose, submitting }: CancelRequestModalProps) {
+  const [reason, setReason] = useState("");
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-md rounded-2xl bg-[#13142a] border border-white/10 shadow-2xl p-6 space-y-5">
+        <div>
+          <h2 className="text-white font-bold text-lg">Request Cancellation</h2>
+          <p className="text-gray-400 text-sm mt-1">
+            Your request will be reviewed by our team. We may reach out with options to keep your subscription.
+          </p>
+        </div>
+
+        <div>
+          <label className="block text-xs text-gray-500 uppercase tracking-wider mb-2">
+            Reason (optional)
+          </label>
+          <textarea
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder="e.g. No longer need the service, budget constraints..."
+            rows={3}
+            className="w-full px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-gray-600 focus:outline-none focus:border-indigo-500 resize-none"
+          />
+        </div>
+
+        <div className="flex gap-3">
+          <button
+            onClick={onClose}
+            className="flex-1 py-2.5 rounded-xl border border-white/10 text-gray-400 text-sm hover:text-white transition-colors"
+          >
+            Never mind
+          </button>
+          <button
+            onClick={() => onConfirm(reason)}
+            disabled={submitting}
+            className="flex-1 py-2.5 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors disabled:opacity-50"
+          >
+            {submitting ? "Submitting..." : "Submit Request"}
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -486,26 +541,27 @@ function StepperFlow({
 interface HeroSectionProps {
   readonly customer: BillingCustomer;
   readonly settings: BillingSettings;
-  readonly onCancel: () => void;
-  readonly cancelling: boolean;
+  readonly onRequestCancel: () => void;
   readonly onPay: () => void;
   readonly paying: boolean;
   readonly outstanding: number;
+  readonly cancelRequested: boolean;
 }
 
 function HeroSection({
   customer,
   settings,
-  onCancel,
-  cancelling,
+  onRequestCancel,
   onPay,
   paying,
   outstanding,
+  cancelRequested,
 }: HeroSectionProps) {
-  const isActive = customer.status === "in_process";
-  const isPaid = customer.status === "done";
+  const isActive = customer.status === "in_process" || customer.status === "viewed" || customer.status === "sent";
+  const isPaid = customer.status === "done" || customer.status === "paid";
   const isCancelled = customer.status === "lost";
-  const canCancel = customer.recurring && isActive;
+  const isCancelRequested = customer.status === "cancellation_requested" || cancelRequested;
+  const canRequestCancel = customer.recurring && isActive && !isCancelRequested;
   const canPay = outstanding > 0 || (customer.recurring && isActive);
 
   return (
@@ -541,14 +597,23 @@ function HeroSection({
         </span>
       </div>
 
+      {/* Cancellation requested state */}
+      {isCancelRequested && !isCancelled && (
+        <div className="rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3 text-center">
+          <p className="text-red-400 text-sm font-medium">Cancellation Requested</p>
+          <p className="text-gray-500 text-xs mt-1">
+            Your cancellation request has been submitted. We&apos;ll be in touch soon.
+          </p>
+        </div>
+      )}
+
       {/* Actions */}
-      {canCancel && (
+      {canRequestCancel && (
         <button
-          onClick={onCancel}
-          disabled={cancelling}
-          className="mt-2 px-5 py-2 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-medium hover:bg-red-500/20 transition-colors disabled:opacity-50"
+          onClick={onRequestCancel}
+          className="mt-2 px-5 py-2 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-medium hover:bg-red-500/20 transition-colors"
         >
-          {cancelling ? "Cancelling..." : "Cancel Subscription"}
+          Request Cancellation
         </button>
       )}
 
@@ -559,7 +624,7 @@ function HeroSection({
         </div>
       )}
 
-      {canPay && !isCancelled && (
+      {canPay && !isCancelled && !isCancelRequested && (
         <button
           onClick={onPay}
           disabled={paying}
@@ -733,33 +798,33 @@ interface HeroLayoutProps {
   readonly customer: BillingCustomer;
   readonly payments: readonly BillingPayment[];
   readonly settings: BillingSettings;
-  readonly onCancel: () => void;
-  readonly cancelling: boolean;
+  readonly onRequestCancel: () => void;
   readonly onPay: () => void;
   readonly paying: boolean;
   readonly outstanding: number;
+  readonly cancelRequested: boolean;
 }
 
 function HeroLayout({
   customer,
   payments,
   settings,
-  onCancel,
-  cancelling,
+  onRequestCancel,
   onPay,
   paying,
   outstanding,
+  cancelRequested,
 }: HeroLayoutProps) {
   return (
     <div className="space-y-6">
       <HeroSection
         customer={customer}
         settings={settings}
-        onCancel={onCancel}
-        cancelling={cancelling}
+        onRequestCancel={onRequestCancel}
         onPay={onPay}
         paying={paying}
         outstanding={outstanding}
+        cancelRequested={cancelRequested}
       />
       <InvoiceDetails customer={customer} />
       <PaymentHistory payments={payments} />
@@ -779,8 +844,11 @@ export default function BillingClientView({ token }: BillingClientViewProps) {
   const [signerName, setSignerName] = useState("");
   const [signing, setSigning] = useState(false);
   const [paying, setPaying] = useState(false);
-  const [cancelling, setCancelling] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [submittingCancel, setSubmittingCancel] = useState(false);
+  const [cancelRequested, setCancelRequested] = useState(false);
+  const viewedTracked = useRef(false);
 
   const showToast = useCallback((msg: string) => {
     setToast(msg);
@@ -809,7 +877,26 @@ export default function BillingClientView({ token }: BillingClientViewProps) {
     fetchData();
   }, [fetchData]);
 
-  // Check for Stripe success/cancel query params
+  // Track "viewed" when customer opens the page (fire-and-forget)
+  useEffect(() => {
+    if (!customer || viewedTracked.current) return;
+    if (customer.status === "sent") {
+      viewedTracked.current = true;
+      fetch("/api/billing/share", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token,
+          action: "viewed",
+          currentStatus: customer.status,
+        }),
+      }).catch(() => {
+        // fire-and-forget, ignore errors
+      });
+    }
+  }, [customer, token]);
+
+  // Check for Stripe success/cancel query params and ?cancel=1
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("payment") === "success") {
@@ -817,6 +904,9 @@ export default function BillingClientView({ token }: BillingClientViewProps) {
       window.history.replaceState({}, "", window.location.pathname);
     } else if (params.get("payment") === "cancelled") {
       showToast("Payment was cancelled.");
+      window.history.replaceState({}, "", window.location.pathname);
+    } else if (params.get("cancel") === "1") {
+      setShowCancelModal(true);
       window.history.replaceState({}, "", window.location.pathname);
     }
   }, [showToast]);
@@ -871,31 +961,30 @@ export default function BillingClientView({ token }: BillingClientViewProps) {
     }
   }
 
-  async function handleCancel() {
-    if (
-      !confirm(
-        "Are you sure you want to cancel your subscription? This is immediate and cannot be undone."
-      )
-    ) {
-      return;
-    }
-    setCancelling(true);
+  async function handleCancelRequest(reason: string) {
+    setSubmittingCancel(true);
     try {
-      const res = await fetch("/api/billing/cancel", {
+      const res = await fetch("/api/billing/share", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token }),
+        body: JSON.stringify({
+          token,
+          action: "cancel_request",
+          reason,
+        }),
       });
+
       if (res.ok) {
-        await fetchData();
-        showToast("Subscription cancelled.");
+        setCancelRequested(true);
+        setShowCancelModal(false);
+        showToast("Your cancellation request has been submitted. We'll be in touch.");
       } else {
-        showToast("Failed to cancel subscription");
+        showToast("Failed to submit cancellation request");
       }
     } catch {
-      showToast("Failed to cancel subscription");
+      showToast("Failed to submit cancellation request");
     } finally {
-      setCancelling(false);
+      setSubmittingCancel(false);
     }
   }
 
@@ -952,11 +1041,11 @@ export default function BillingClientView({ token }: BillingClientViewProps) {
             customer={customer}
             payments={payments}
             settings={settings}
-            onCancel={handleCancel}
-            cancelling={cancelling}
+            onRequestCancel={() => setShowCancelModal(true)}
             onPay={handlePay}
             paying={paying}
             outstanding={outstanding}
+            cancelRequested={cancelRequested}
           />
         )}
       </div>
@@ -981,6 +1070,15 @@ export default function BillingClientView({ token }: BillingClientViewProps) {
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-lg bg-indigo-500 text-white text-sm font-medium shadow-xl">
           {toast}
         </div>
+      )}
+
+      {/* Cancel Request Modal */}
+      {showCancelModal && (
+        <CancelRequestModal
+          onConfirm={handleCancelRequest}
+          onClose={() => setShowCancelModal(false)}
+          submitting={submittingCancel}
+        />
       )}
     </div>
   );

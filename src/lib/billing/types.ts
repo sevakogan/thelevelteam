@@ -2,9 +2,23 @@
  * Company Billing — Type definitions
  */
 
-export type BillingStatus = "lead" | "in_process" | "done" | "lost";
+export type BillingStatus =
+  | "lead"
+  | "sent"
+  | "viewed"
+  | "paid"
+  | "in_process"
+  | "cancellation_requested"
+  | "done"
+  | "lost";
 
 export type PaymentStatus = "completed" | "failed" | "refunded" | "pending";
+
+export interface StatusEntry {
+  readonly status: string;
+  readonly at: string;
+  readonly note?: string;
+}
 
 export interface BillingCustomer {
   readonly id: string;
@@ -33,6 +47,12 @@ export interface BillingCustomer {
   readonly payment_count: number;
   readonly created_at: string;
   readonly updated_at: string;
+  readonly status_history: readonly StatusEntry[];
+  readonly cancellation_reason: string | null;
+  readonly cancellation_requested_at: string | null;
+  readonly cancellation_admin_response: string | null;
+  readonly cancellation_discount_type: string | null;
+  readonly cancellation_discount_value: number | null;
 }
 
 export interface BillingJob {
@@ -107,6 +127,11 @@ export interface UpdateCustomerInput {
   readonly tags?: readonly string[];
   readonly due_date?: string | null;
   readonly notes?: string;
+  readonly cancellation_reason?: string | null;
+  readonly cancellation_requested_at?: string | null;
+  readonly cancellation_admin_response?: string | null;
+  readonly cancellation_discount_type?: string | null;
+  readonly cancellation_discount_value?: number | null;
 }
 
 export interface RecordPaymentInput {
@@ -120,7 +145,11 @@ export interface RecordPaymentInput {
 
 export const BILLING_STATUS_LABELS: Record<BillingStatus, string> = {
   lead: "Lead",
+  sent: "Sent",
+  viewed: "Viewed",
+  paid: "Paid",
   in_process: "In Process",
+  cancellation_requested: "Cancellation Requested",
   done: "Done",
   lost: "Lost",
 } as const;

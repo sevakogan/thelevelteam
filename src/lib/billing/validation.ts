@@ -46,7 +46,7 @@ export const updateCustomerSchema = z.object({
       (val) => val === undefined || val === "" || z.string().email().safeParse(val).success,
       { message: "Invalid email format" }
     ),
-  status: z.enum(["lead", "in_process", "done", "lost"]).optional(),
+  status: z.enum(["lead", "sent", "viewed", "paid", "in_process", "cancellation_requested", "done", "lost"]).optional(),
   contract_enabled: z.boolean().optional(),
   contract_content: z.string().max(10000).optional(),
   contract_signed: z.boolean().optional(),

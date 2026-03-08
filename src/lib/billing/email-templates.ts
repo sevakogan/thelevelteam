@@ -133,6 +133,10 @@ export function paymentRequestEmail(
     customer.due_date && { label: "Due", value: formatDate(customer.due_date) },
   ].filter(Boolean) as { label: string; value: string; style?: string }[];
 
+  const cancelLink = customer.recurring
+    ? `<p style="margin-top:16px;font-size:12px;color:#aeaeb2;">Need to cancel? <a href="${shareUrl}?cancel=1" style="color:#6e6e73;text-decoration:underline;">Request cancellation</a></p>`
+    : "";
+
   const html = wrap(`
     ${logo(companyName, logoUrl)}
 
@@ -150,6 +154,7 @@ export function paymentRequestEmail(
       <div class="btn-wrap">
         <a href="${shareUrl}" class="btn">Review &amp; Pay Now</a>
       </div>
+      ${cancelLink}
     </div>
 
     ${detailCard("Invoice Details", invoiceRows)}
@@ -343,6 +348,151 @@ export function adminCancellationEmail(
     </div>
 
     ${detailCard("Subscription Details", rows)}
+  `);
+  return { subject, html };
+}
+
+// ─── Admin: Cancellation Request ──────────────────────
+
+export function cancellationRequestAdminEmail(
+  customer: BillingCustomer,
+  companyName: string
+): { subject: string; html: string } {
+  const subject = `Cancellation requested — ${customer.company_name} — ${formatAmount(customer.amount)}/mo`;
+
+  const rows = [
+    { label: "Customer", value: customer.company_name },
+    customer.invoice_number && { label: "Invoice #", value: `<span class="row-value-mono">${customer.invoice_number}</span>` },
+    customer.job_name && { label: "Service", value: customer.job_name },
+    { label: "Monthly Amount", value: formatAmount(customer.amount), style: "row-value-red" },
+    customer.cancellation_reason && { label: "Reason", value: customer.cancellation_reason },
+    { label: "Requested At", value: formatDate(customer.cancellation_requested_at) },
+    customer.email && { label: "Email", value: customer.email },
+    customer.phone && { label: "Phone", value: customer.phone },
+  ].filter(Boolean) as { label: string; value: string; style?: string }[];
+
+  const html = wrap(`
+    ${logo(companyName)}
+
+    <div class="card" style="text-align:center;border:2px solid #ff3b30;">
+      <p class="hero-label hero-label-red">Cancellation Request</p>
+      <h1>${customer.company_name}<br>wants to cancel.</h1>
+      <div class="amount-row">
+        <span class="amount" style="color:#ff3b30;">${formatAmount(customer.amount)}<span style="font-size:18px;color:#6e6e73;letter-spacing:0;font-weight:400;">/mo</span></span>
+      </div>
+      ${customer.cancellation_reason ? `<p class="subtitle">"${customer.cancellation_reason}"</p>` : ""}
+    </div>
+
+    ${detailCard("Cancellation Details", rows)}
+
+    <div class="footer">
+      <p>Review this request in your billing dashboard.</p>
+    </div>
+  `);
+  return { subject, html };
+}
+
+// ─── Customer: Cancellation Declined ──────────────────
+
+export function cancellationDeclinedEmail(
+  customer: BillingCustomer,
+  companyName: string
+): { subject: string; html: string } {
+  const subject = `Your cancellation request — ${companyName}`;
+
+  const rows = [
+    { label: "Customer", value: customer.company_name },
+    customer.invoice_number && { label: "Invoice #", value: `<span class="row-value-mono">${customer.invoice_number}</span>` },
+    { label: "Monthly Amount", value: formatAmount(customer.amount) },
+    customer.cancellation_admin_response && { label: "Message from us", value: customer.cancellation_admin_response },
+  ].filter(Boolean) as { label: string; value: string; style?: string }[];
+
+  const html = wrap(`
+    ${logo(companyName)}
+
+    <div class="card" style="text-align:center;">
+      <p class="hero-label hero-label-orange">Cancellation Declined</p>
+      <h1>We'd love to keep<br>working with you.</h1>
+      <p class="subtitle">Your cancellation request has been reviewed. We've decided to continue your subscription.</p>
+    </div>
+
+    ${detailCard("Subscription Details", rows)}
+
+    <div class="footer">
+      <p>Questions? Reach out to us at <a href="mailto:${companyName}">${companyName}</a></p>
+    </div>
+  `);
+  return { subject, html };
+}
+
+// ─── Customer: Cancellation Approved ──────────────────
+
+export function cancellationApprovedEmail(
+  customer: BillingCustomer,
+  companyName: string
+): { subject: string; html: string } {
+  const subject = `Subscription cancelled — ${companyName}`;
+
+  const rows = [
+    { label: "Customer", value: customer.company_name },
+    customer.invoice_number && { label: "Invoice #", value: `<span class="row-value-mono">${customer.invoice_number}</span>` },
+    { label: "Status", value: "Cancelled", style: "row-value-red" },
+    customer.cancellation_admin_response && { label: "Note", value: customer.cancellation_admin_response },
+  ].filter(Boolean) as { label: string; value: string; style?: string }[];
+
+  const html = wrap(`
+    ${logo(companyName)}
+
+    <div class="card" style="text-align:center;">
+      <p class="hero-label hero-label-red">Subscription Cancelled</p>
+      <h1>Your subscription<br>has been cancelled.</h1>
+      <p class="subtitle">We're sorry to see you go. Your cancellation request has been approved.</p>
+    </div>
+
+    ${detailCard("Cancellation Details", rows)}
+
+    <div class="footer">
+      <p>Thank you for working with ${companyName}.</p>
+    </div>
+  `);
+  return { subject, html };
+}
+
+// ─── Customer: Cancellation Discount Offer ────────────
+
+export function cancellationDiscountEmail(
+  customer: BillingCustomer,
+  newAmount: number,
+  companyName: string
+): { subject: string; html: string } {
+  const subject = `Special offer for you — ${companyName}`;
+
+  const rows = [
+    { label: "Customer", value: customer.company_name },
+    customer.invoice_number && { label: "Invoice #", value: `<span class="row-value-mono">${customer.invoice_number}</span>` },
+    { label: "Original Amount", value: `${formatAmount(customer.amount)}/mo` },
+    { label: "New Discounted Amount", value: `${formatAmount(newAmount)}/mo`, style: "row-value-green" },
+    customer.cancellation_admin_response && { label: "Message", value: customer.cancellation_admin_response },
+  ].filter(Boolean) as { label: string; value: string; style?: string }[];
+
+  const html = wrap(`
+    ${logo(companyName)}
+
+    <div class="card" style="text-align:center;">
+      <p class="hero-label hero-label-green">Special Offer</p>
+      <h1>We want to keep<br>your business.</h1>
+      <p class="subtitle">We've updated your subscription with a special discount.</p>
+      <div class="amount-row">
+        <span class="amount">${formatAmount(newAmount)}<span style="font-size:18px;color:#6e6e73;letter-spacing:0;font-weight:400;">/mo</span></span>
+        <span class="amount-sub">down from ${formatAmount(customer.amount)}/mo</span>
+      </div>
+    </div>
+
+    ${detailCard("Updated Subscription", rows)}
+
+    <div class="footer">
+      <p>Questions? Reach out to ${companyName}.</p>
+    </div>
   `);
   return { subject, html };
 }

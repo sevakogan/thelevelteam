@@ -11,6 +11,7 @@ import type {
   CreateCustomerInput,
   UpdateCustomerInput,
   RecordPaymentInput,
+  StatusEntry,
 } from "./types";
 
 // ─── Invoice Number Generation ────────────────────────
@@ -48,7 +49,59 @@ function normalizeCustomer(row: CustomerRow): BillingCustomer {
     ...rest,
     job_name: billing_jobs?.name ?? null,
     tags: (rest.tags as readonly string[]) ?? [],
+    status_history: (rest.status_history as readonly StatusEntry[]) ?? [],
+    cancellation_reason: (rest.cancellation_reason as string | null) ?? null,
+    cancellation_requested_at:
+      (rest.cancellation_requested_at as string | null) ?? null,
+    cancellation_admin_response:
+      (rest.cancellation_admin_response as string | null) ?? null,
+    cancellation_discount_type:
+      (rest.cancellation_discount_type as string | null) ?? null,
+    cancellation_discount_value:
+      (rest.cancellation_discount_value as number | null) ?? null,
   } as BillingCustomer;
+}
+
+// ─── Status History ────────────────────────────────────
+
+export async function appendStatusHistory(
+  customerId: string,
+  status: string,
+  note?: string
+): Promise<void> {
+  const supabase = getSupabaseAdmin();
+
+  // Fetch current history
+  const { data, error: fetchError } = await supabase
+    .from("billing_customers")
+    .select("status_history")
+    .eq("id", customerId)
+    .single();
+
+  if (fetchError) {
+    console.error("[BILLING] Failed to fetch status history:", fetchError);
+    return;
+  }
+
+  const currentHistory: StatusEntry[] =
+    (data?.status_history as StatusEntry[]) ?? [];
+
+  const newEntry: StatusEntry = {
+    status,
+    at: new Date().toISOString(),
+    ...(note ? { note } : {}),
+  };
+
+  const updatedHistory = [...currentHistory, newEntry];
+
+  const { error: updateError } = await supabase
+    .from("billing_customers")
+    .update({ status_history: updatedHistory, updated_at: new Date().toISOString() })
+    .eq("id", customerId);
+
+  if (updateError) {
+    console.error("[BILLING] Failed to update status history:", updateError);
+  }
 }
 
 // ─── Customers ─────────────────────────────────────────

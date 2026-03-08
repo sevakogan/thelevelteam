@@ -15,6 +15,10 @@ import {
   adminPaymentNotificationEmail,
   adminPaymentFailedEmail,
   adminCancellationEmail,
+  cancellationRequestAdminEmail,
+  cancellationDeclinedEmail,
+  cancellationApprovedEmail,
+  cancellationDiscountEmail,
   paymentRequestSMS,
   paymentReceiptSMS,
   paymentFailedSMS,
@@ -175,5 +179,57 @@ export async function notifyAdminCancellation(
 
   await sendEmail(adminEmail, subject, html).catch((err) =>
     console.error("[BILLING] Failed to notify admin of cancellation:", err)
+  );
+}
+
+// ─── Cancellation request from customer ───────────────
+
+export async function notifyAdminCancellationRequest(
+  customer: BillingCustomer
+): Promise<void> {
+  const companyName = getCompanyName();
+  const adminEmail = getAdminEmail();
+
+  const { subject, html } = cancellationRequestAdminEmail(customer, companyName);
+
+  await sendEmail(adminEmail, subject, html).catch((err) =>
+    console.error("[BILLING] Failed to notify admin of cancellation request:", err)
+  );
+}
+
+export async function notifyCancellationDeclined(
+  customer: BillingCustomer
+): Promise<void> {
+  if (!customer.email) return;
+  const companyName = getCompanyName();
+  const { subject, html } = cancellationDeclinedEmail(customer, companyName);
+
+  await sendEmail(customer.email, subject, html).catch((err) =>
+    console.error("[BILLING] Failed to send cancellation declined email:", err)
+  );
+}
+
+export async function notifyCancellationApproved(
+  customer: BillingCustomer
+): Promise<void> {
+  if (!customer.email) return;
+  const companyName = getCompanyName();
+  const { subject, html } = cancellationApprovedEmail(customer, companyName);
+
+  await sendEmail(customer.email, subject, html).catch((err) =>
+    console.error("[BILLING] Failed to send cancellation approved email:", err)
+  );
+}
+
+export async function notifyCancellationDiscount(
+  customer: BillingCustomer,
+  newAmount: number
+): Promise<void> {
+  if (!customer.email) return;
+  const companyName = getCompanyName();
+  const { subject, html } = cancellationDiscountEmail(customer, newAmount, companyName);
+
+  await sendEmail(customer.email, subject, html).catch((err) =>
+    console.error("[BILLING] Failed to send cancellation discount email:", err)
   );
 }

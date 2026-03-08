@@ -4,6 +4,7 @@ import {
   getCustomer,
   updateCustomer,
   recordPayment,
+  appendStatusHistory,
 } from "@/lib/billing/customers";
 import {
   sendPaymentReceipt,
@@ -102,8 +103,8 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     note: `Stripe Checkout — Session ${session.id}`,
   });
 
-  // Update customer status
-  const newStatus = customer.recurring ? "in_process" : "done";
+  // Update customer status: "paid" for one-time, "in_process" for recurring
+  const newStatus = customer.recurring ? "in_process" : "paid";
   const updates: Record<string, unknown> = { status: newStatus };
 
   // Store subscription ID for recurring
@@ -115,6 +116,13 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
   }
 
   await updateCustomer(customerId, updates);
+  await appendStatusHistory(
+    customerId,
+    newStatus,
+    customer.recurring
+      ? "Recurring subscription started via Stripe"
+      : "One-time payment completed via Stripe"
+  );
 
   // Send notifications (fire-and-forget)
   const refreshed = await getCustomer(customerId);
@@ -157,6 +165,12 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
     status: "completed",
     note: `Recurring payment — Invoice ${invoice.id}`,
   });
+
+  await appendStatusHistory(
+    customer.id,
+    "in_process",
+    `Recurring payment received — $${amountPaid}`
+  );
 
   await Promise.allSettled([
     sendPaymentReceipt(customer, payment),
@@ -212,6 +226,12 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     status: "lost",
     stripe_subscription_id: "",
   });
+
+  await appendStatusHistory(
+    customer.id,
+    "lost",
+    "Stripe subscription cancelled/deleted"
+  );
 
   console.log(
     `[BILLING WEBHOOK] Subscription cancelled for customer ${customer.id}`
