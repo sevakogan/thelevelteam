@@ -150,7 +150,7 @@ export default function CustomerForm({
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onCancel} />
 
       {/* Modal */}
-      <div className="relative w-full max-w-md bg-surface border border-separator rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
+      <div className="relative z-10 w-full max-w-md bg-surface border border-separator rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-separator shrink-0">
           <h2 className="text-base font-semibold text-foreground">

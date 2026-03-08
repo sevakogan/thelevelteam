@@ -48,7 +48,7 @@ export async function sendPaymentRequest(
   const results: Promise<unknown>[] = [];
 
   if (customer.email) {
-    const { subject, html } = paymentRequestEmail(customer, shareUrl, companyName);
+    const { subject, html } = paymentRequestEmail(customer, shareUrl, companyName, undefined);
     results.push(
       sendEmail(customer.email, subject, html).catch((err) =>
         console.error("[BILLING] Failed to send request email:", err)
