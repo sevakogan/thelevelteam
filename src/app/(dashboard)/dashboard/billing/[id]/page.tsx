@@ -93,6 +93,8 @@ export default function CustomerDetailPage() {
         const { url } = await res.json();
         await navigator.clipboard.writeText(url);
         showToast("Share link copied!");
+      } else {
+        showToast("Failed to generate share link");
       }
     } catch {
       showToast("Failed to generate link");
@@ -120,6 +122,9 @@ export default function CustomerDetailPage() {
       if (res.ok) {
         await fetchData();
         showToast("Payment request sent!");
+      } else {
+        const data = await res.json().catch(() => ({}));
+        showToast(data.error || "Failed to send request");
       }
     } catch {
       showToast("Failed to send request");

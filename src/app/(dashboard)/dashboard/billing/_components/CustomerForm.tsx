@@ -167,7 +167,7 @@ export default function CustomerForm({
         </div>
 
         {/* Scrollable body */}
-        <div className="overflow-y-auto flex-1 px-5 py-4">
+        <div className="overflow-y-auto flex-1 min-h-0 px-5 py-4">
           <form onSubmit={handleSubmit} className="flex flex-col gap-3">
             {/* Company Name */}
             <Field label="Customer / Company *" error={errors.company_name}>
