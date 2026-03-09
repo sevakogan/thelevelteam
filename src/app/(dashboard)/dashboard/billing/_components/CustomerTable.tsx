@@ -169,6 +169,7 @@ export default function CustomerTable({
 }: CustomerTableProps) {
   const router = useRouter();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [menuUp, setMenuUp] = useState(false);
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
 
@@ -323,6 +324,8 @@ export default function CustomerTable({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
+                        const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+                        setMenuUp(rect.bottom + 260 > window.innerHeight);
                         setOpenMenu(openMenu === c.id ? null : c.id);
                       }}
                       className="p-1.5 rounded-lg text-brand-muted hover:text-foreground hover:bg-ios-fill-tertiary transition-colors"
@@ -334,7 +337,7 @@ export default function CustomerTable({
                     {openMenu === c.id && (
                       <>
                         <div className="fixed inset-0 z-10" onClick={(e) => { e.stopPropagation(); setOpenMenu(null); }} />
-                        <div className="absolute right-0 top-8 z-20 w-52 rounded-xl bg-surface border border-separator shadow-ios-xl py-1.5">
+                        <div className={`absolute right-0 z-20 w-52 rounded-xl bg-surface border border-separator shadow-ios-xl py-1.5 ${menuUp ? "bottom-8" : "top-8"}`}>
                           <MenuItem icon="send" label="Send Request" onClick={() => { setOpenMenu(null); onSendRequest(c); }} />
                           <MenuItem icon="link" label="Share Link" onClick={() => { setOpenMenu(null); onShare(c); }} />
                           <MenuItem icon="pdf" label="Download PDF" onClick={() => { setOpenMenu(null); onDownload(c); }} />
