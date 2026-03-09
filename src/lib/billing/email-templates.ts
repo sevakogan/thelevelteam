@@ -497,9 +497,9 @@ export function cancellationDiscountEmail(
         <p style="display:inline-block;margin:10px 0 0;background:#34c759;color:#fff;font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;">Save ${savingsPct}% — ${formatAmount(savings)}/mo</p>
       </div>
 
-      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-        <a href="${acceptUrl}" style="display:inline-block;padding:14px 36px;background:#34c759;color:#ffffff;text-decoration:none;border-radius:980px;font-weight:600;font-size:15px;letter-spacing:-0.2px;">Accept Offer</a>
-        <a href="${declineUrl}" style="display:inline-block;padding:14px 36px;background:#3a3a3c;color:#aeaeb2;text-decoration:none;border-radius:980px;font-weight:500;font-size:15px;">No thanks</a>
+      <div style="text-align:center;">
+        <a href="${acceptUrl}" style="display:inline-block;margin:0 6px 10px;padding:14px 36px;background:#34c759;color:#ffffff;text-decoration:none;border-radius:980px;font-weight:600;font-size:15px;letter-spacing:-0.2px;">Accept Offer</a>
+        <a href="${declineUrl}" style="display:inline-block;margin:0 6px 10px;padding:14px 36px;background:#3a3a3c;color:#aeaeb2;text-decoration:none;border-radius:980px;font-weight:500;font-size:15px;">No thanks</a>
       </div>
     </div>
 
