@@ -25,13 +25,45 @@ export async function POST(req: NextRequest) {
 
     const stripe = getStripe();
 
-    // Resolve payment intent — stored directly or via session lookup
+    // Resolve payment intent — stored directly, via session, or via subscription invoice
     let paymentIntentId = payment.stripe_payment_intent;
     if (!paymentIntentId && payment.stripe_session_id) {
-      const session = await stripe.checkout.sessions.retrieve(payment.stripe_session_id);
-      paymentIntentId = typeof session.payment_intent === "string"
-        ? session.payment_intent
-        : (session.payment_intent as { id: string } | null)?.id ?? null;
+      const session = await stripe.checkout.sessions.retrieve(payment.stripe_session_id, {
+        expand: ["invoice"],
+      });
+
+      // One-time payment: payment_intent is directly on the session
+      if (typeof session.payment_intent === "string") {
+        paymentIntentId = session.payment_intent;
+      } else if ((session.payment_intent as { id?: string } | null)?.id) {
+        paymentIntentId = (session.payment_intent as { id: string }).id;
+      }
+
+      // Subscription checkout: payment_intent is on the invoice
+      if (!paymentIntentId && session.invoice) {
+        const inv = session.invoice as { payment_intent?: string | { id: string } | null };
+        if (typeof inv.payment_intent === "string") {
+          paymentIntentId = inv.payment_intent;
+        } else if ((inv.payment_intent as { id?: string } | null)?.id) {
+          paymentIntentId = (inv.payment_intent as { id: string }).id;
+        }
+      }
+
+      // Last resort: look up subscription's latest invoice
+      if (!paymentIntentId && session.subscription) {
+        const subId = typeof session.subscription === "string"
+          ? session.subscription
+          : (session.subscription as { id: string }).id;
+        const invoices = await stripe.invoices.list({
+          subscription: subId,
+          limit: 1,
+        });
+        const latestInv = invoices.data[0];
+        if (latestInv) {
+          const rawPi = (latestInv as unknown as Record<string, unknown>).payment_intent;
+          paymentIntentId = typeof rawPi === "string" ? rawPi : (rawPi as { id?: string } | null)?.id ?? null;
+        }
+      }
     }
 
     if (!paymentIntentId) {

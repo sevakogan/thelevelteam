@@ -12,6 +12,7 @@ import CustomerTable from "./_components/CustomerTable";
 import CustomerForm from "./_components/CustomerForm";
 import CreateInvoiceFlow from "./_components/CreateInvoiceFlow";
 import BillingSettingsModal from "./_components/BillingSettingsModal";
+import BillingStats from "./_components/BillingStats";
 
 export default function BillingPage() {
   const [customers, setCustomers] = useState<readonly BillingCustomer[]>([]);
@@ -244,6 +245,9 @@ export default function BillingPage() {
           </button>
         </div>
       </div>
+
+      {/* Stats */}
+      <BillingStats customers={customers} />
 
       {/* Search */}
       {customers.length > 0 && (
