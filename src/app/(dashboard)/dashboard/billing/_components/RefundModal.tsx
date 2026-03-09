@@ -20,7 +20,9 @@ function formatDate(dateStr: string): string {
 }
 
 export default function RefundModal({ payments, onRefund, onClose }: RefundModalProps) {
-  const refundable = payments.filter((p) => p.status === "completed" && p.stripe_payment_intent);
+  const refundable = payments.filter(
+    (p) => p.status === "completed" && (p.stripe_payment_intent || p.stripe_session_id)
+  );
   const [selectedId, setSelectedId] = useState<string>(refundable[0]?.id ?? "");
   const [amountType, setAmountType] = useState<"full" | "custom">("full");
   const [customAmount, setCustomAmount] = useState("");

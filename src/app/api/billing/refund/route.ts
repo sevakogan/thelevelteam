@@ -23,9 +23,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Payment already refunded" }, { status: 400 });
     }
 
-    if (!payment.stripe_payment_intent) {
+    const stripe = getStripe();
+
+    // Resolve payment intent — stored directly or via session lookup
+    let paymentIntentId = payment.stripe_payment_intent;
+    if (!paymentIntentId && payment.stripe_session_id) {
+      const session = await stripe.checkout.sessions.retrieve(payment.stripe_session_id);
+      paymentIntentId = typeof session.payment_intent === "string"
+        ? session.payment_intent
+        : (session.payment_intent as { id: string } | null)?.id ?? null;
+    }
+
+    if (!paymentIntentId) {
       return NextResponse.json(
-        { error: "No Stripe payment intent on record — cannot refund via Stripe" },
+        { error: "No Stripe payment intent found — cannot refund this payment automatically" },
         { status: 400 }
       );
     }
@@ -39,9 +50,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const stripe = getStripe();
     const refund = await stripe.refunds.create({
-      payment_intent: payment.stripe_payment_intent,
+      payment_intent: paymentIntentId,
       amount: Math.round(refundAmount * 100), // cents
     });
 
