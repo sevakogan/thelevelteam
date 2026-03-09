@@ -123,25 +123,32 @@ export default function ReceiptsModal({
                       {formatDate(payment.paid_at)} · {payment.method}
                     </div>
                   </div>
-                  {payment.status === "completed" && customer.email && (
-                    <button
-                      onClick={() => handleSend(payment.id)}
-                      disabled={sending === payment.id}
-                      className="ml-3 px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium transition-colors disabled:opacity-50 shrink-0"
+                  <div className="ml-3 flex items-center gap-1.5 shrink-0">
+                    <a
+                      href={`/api/billing/receipts/${customer.id}/pdf?paymentId=${payment.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1.5 rounded-lg border border-separator text-brand-muted hover:text-foreground text-xs font-medium transition-colors"
                     >
-                      {sending === payment.id ? (
-                        <span className="flex items-center gap-1.5">
-                          <span className="w-3 h-3 border border-white/30 border-t-white rounded-full animate-spin" />
-                          Sending...
-                        </span>
-                      ) : (
-                        "Send"
-                      )}
-                    </button>
-                  )}
-                  {!customer.email && (
-                    <span className="ml-3 text-brand-muted text-xs">No email</span>
-                  )}
+                      View
+                    </a>
+                    {payment.status === "completed" && customer.email && (
+                      <button
+                        onClick={() => handleSend(payment.id)}
+                        disabled={sending === payment.id}
+                        className="px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-white text-xs font-medium transition-colors disabled:opacity-50"
+                      >
+                        {sending === payment.id ? (
+                          <span className="flex items-center gap-1.5">
+                            <span className="w-3 h-3 border border-white/30 border-t-white rounded-full animate-spin" />
+                            Sending...
+                          </span>
+                        ) : (
+                          "Send"
+                        )}
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

@@ -155,31 +155,6 @@ export default function CustomerDetailPage() {
     }
   }
 
-  async function handleSendLatestReceipt() {
-    if (!customer) return;
-    const completedPayments = payments.filter((p) => p.status === "completed");
-    if (completedPayments.length === 0) {
-      showToast("No completed payments to send receipt for");
-      return;
-    }
-    const latest = completedPayments[0];
-    try {
-      const res = await fetch(`/api/billing/receipts/${customer.id}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ paymentId: latest.id }),
-      });
-      if (res.ok) {
-        showToast("Receipt sent!");
-      } else {
-        const data = await res.json().catch(() => ({}));
-        showToast(data.error || "Failed to send receipt");
-      }
-    } catch {
-      showToast("Failed to send receipt");
-    }
-  }
-
   const fetchJobs = useCallback(async () => {
     try {
       const res = await fetch("/api/billing/jobs");
@@ -501,14 +476,6 @@ export default function CustomerDetailPage() {
           >
             Receipts
           </button>
-          {payments.filter((p) => p.status === "completed").length > 0 && (
-            <button
-              onClick={handleSendLatestReceipt}
-              className="px-3 py-2 rounded-lg border border-separator text-brand-muted hover:text-foreground text-sm transition-colors"
-            >
-              Send Receipt
-            </button>
-          )}
           {payments.filter((p) => p.status === "completed" && p.stripe_payment_intent).length > 0 && (
             <button
               onClick={() => setShowRefund(true)}
