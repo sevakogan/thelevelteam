@@ -163,6 +163,7 @@ function ClientStep({
               <input
                 autoFocus
                 type="text"
+                autoComplete="off"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 placeholder="Acme Corp"
@@ -172,7 +173,9 @@ function ClientStep({
             <div>
               <label className="block text-xs text-brand-muted uppercase tracking-wider mb-1.5">Email</label>
               <input
-                type="email"
+                type="text"
+                autoComplete="off"
+                inputMode="email"
                 value={newEmail}
                 onChange={(e) => setNewEmail(e.target.value)}
                 placeholder="client@example.com"
@@ -182,7 +185,9 @@ function ClientStep({
             <div>
               <label className="block text-xs text-brand-muted uppercase tracking-wider mb-1.5">Phone</label>
               <input
-                type="tel"
+                type="text"
+                autoComplete="off"
+                inputMode="tel"
                 value={newPhone}
                 onChange={(e) => setNewPhone(e.target.value)}
                 placeholder="+1 (555) 000-0000"
