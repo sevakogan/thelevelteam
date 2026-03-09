@@ -9,6 +9,7 @@ import CustomerForm from "../_components/CustomerForm";
 import ReceiptsModal from "../_components/ReceiptsModal";
 import StatusHistory from "../_components/StatusHistory";
 import CancellationModal from "../_components/CancellationModal";
+import RefundModal from "../_components/RefundModal";
 
 const STATUS_COLORS: Record<BillingStatus, string> = {
   lead: "bg-ios-fill text-brand-muted",
@@ -75,6 +76,7 @@ export default function CustomerDetailPage() {
   const [showReceipts, setShowReceipts] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showCancellation, setShowCancellation] = useState(false);
+  const [showRefund, setShowRefund] = useState(false);
   const [jobs, setJobs] = useState<readonly BillingJob[]>([]);
 
   const showToast = useCallback((msg: string) => {
@@ -224,6 +226,22 @@ export default function CustomerDetailPage() {
     const job = await res.json();
     await fetchJobs();
     return job;
+  }
+
+  async function handleRefund(paymentId: string, amount: number) {
+    const res = await fetch("/api/billing/refund", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ paymentId, amount }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error || "Refund failed");
+    }
+
+    await fetchData();
+    showToast("Refund issued successfully.");
   }
 
   async function handleCancellationAction(action: {
@@ -491,6 +509,14 @@ export default function CustomerDetailPage() {
               Send Receipt
             </button>
           )}
+          {payments.filter((p) => p.status === "completed" && p.stripe_payment_intent).length > 0 && (
+            <button
+              onClick={() => setShowRefund(true)}
+              className="px-3 py-2 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 text-sm transition-colors"
+            >
+              Refund
+            </button>
+          )}
           <button
             onClick={() => setShowHistory(true)}
             className="px-3 py-2 rounded-lg border border-separator text-brand-muted hover:text-foreground text-sm transition-colors"
@@ -538,6 +564,15 @@ export default function CustomerDetailPage() {
         <StatusHistory
           history={customer.status_history}
           onClose={() => setShowHistory(false)}
+        />
+      )}
+
+      {/* Refund Modal */}
+      {showRefund && (
+        <RefundModal
+          payments={payments}
+          onRefund={handleRefund}
+          onClose={() => setShowRefund(false)}
         />
       )}
 

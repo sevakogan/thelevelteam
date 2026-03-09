@@ -139,6 +139,12 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 }
 
 async function handleInvoicePaid(invoice: Stripe.Invoice) {
+  // Skip the first invoice on a new subscription — already handled by checkout.session.completed
+  if (invoice.billing_reason === "subscription_create") {
+    console.log("[BILLING WEBHOOK] Skipping invoice.paid for subscription_create (handled by checkout.session.completed)");
+    return;
+  }
+
   // Look up billing customer via stripe_customer_id
   const stripeCustomerId =
     typeof invoice.customer === "string"
@@ -159,9 +165,16 @@ async function handleInvoicePaid(invoice: Stripe.Invoice) {
 
   const amountPaid = (invoice.amount_paid || 0) / 100;
 
+  // payment_intent exists at runtime but may not be typed in all SDK versions
+  const rawPi = (invoice as unknown as Record<string, unknown>).payment_intent;
+  const paymentIntentId = typeof rawPi === "string"
+    ? rawPi
+    : (rawPi as { id?: string } | null)?.id ?? undefined;
+
   const payment = await recordPayment(customer.id, {
     amount: amountPaid,
     method: "Credit Card (Stripe Subscription)",
+    stripe_payment_intent: paymentIntentId,
     status: "completed",
     note: `Recurring payment — Invoice ${invoice.id}`,
   });

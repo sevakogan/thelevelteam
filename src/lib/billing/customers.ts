@@ -264,6 +264,39 @@ export async function recordPayment(
   return data as BillingPayment;
 }
 
+export async function updatePaymentStatus(
+  paymentId: string,
+  status: "completed" | "failed" | "refunded" | "pending",
+  note?: string
+): Promise<void> {
+  const supabase = getSupabaseAdmin();
+  const update: Record<string, unknown> = { status };
+  if (note !== undefined) update.note = note;
+  const { error } = await supabase
+    .from("billing_payments")
+    .update(update)
+    .eq("id", paymentId);
+
+  if (error) {
+    throw new Error(`Failed to update payment: ${error.message}`);
+  }
+}
+
+export async function getPayment(paymentId: string): Promise<BillingPayment | null> {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("billing_payments")
+    .select("*")
+    .eq("id", paymentId)
+    .single();
+
+  if (error) {
+    if (error.code === "PGRST116") return null;
+    throw new Error(`Failed to fetch payment: ${error.message}`);
+  }
+  return data as BillingPayment;
+}
+
 // ─── Billing Settings ──────────────────────────────────
 
 export async function getBillingSettings(
