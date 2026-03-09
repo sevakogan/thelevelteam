@@ -23,7 +23,6 @@ export default function BillingStats({ customers }: BillingStatsProps) {
   let pending = 0;
   let mrr = 0;
   let activeCount = 0;
-  let lostCount = 0;
 
   for (const c of customers) {
     if (COLLECTED_STATUSES.has(c.status)) {
@@ -34,8 +33,6 @@ export default function BillingStats({ customers }: BillingStatsProps) {
       }
     } else if (PENDING_STATUSES.has(c.status)) {
       pending += c.amount;
-    } else if (c.status === "lost") {
-      lostCount++;
     }
   }
 
