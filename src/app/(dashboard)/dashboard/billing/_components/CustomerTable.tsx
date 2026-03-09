@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, type JSX } from "react";
 import { useRouter } from "next/navigation";
 import type { BillingCustomer, BillingStatus } from "@/lib/billing/types";
 
@@ -37,6 +37,10 @@ const STATUS_COLORS: Record<BillingStatus, string> = {
   done: "bg-green-500/15 text-ios-green",
   lost: "bg-red-500/15 text-ios-red",
 };
+
+function getStatusColor(status: string): string {
+  return STATUS_COLORS[status as BillingStatus] ?? "bg-ios-fill text-brand-muted";
+}
 
 const TAG_COLORS = [
   "bg-purple-500/15 text-purple-500",
@@ -308,12 +312,8 @@ export default function CustomerTable({
 
                 {/* Status */}
                 <td className="px-4 py-3 text-center">
-                  <span
-                    className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      STATUS_COLORS[c.status]
-                    }`}
-                  >
-                    {c.status.charAt(0).toUpperCase() + c.status.slice(1)}
+                  <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(c.status)}`}>
+                    {c.status.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())}
                   </span>
                 </td>
 
@@ -327,78 +327,25 @@ export default function CustomerTable({
                       }}
                       className="p-1.5 rounded-lg text-brand-muted hover:text-foreground hover:bg-ios-fill-tertiary transition-colors"
                     >
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z"
-                        />
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 12.75a.75.75 0 110-1.5.75.75 0 010 1.5zM12 18.75a.75.75 0 110-1.5.75.75 0 010 1.5z" />
                       </svg>
                     </button>
                     {openMenu === c.id && (
                       <>
-                        <div
-                          className="fixed inset-0 z-10"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setOpenMenu(null);
-                          }}
-                        />
-                        <div className="absolute right-0 top-8 z-20 w-44 rounded-lg bg-surface border border-separator shadow-ios-lg py-1">
+                        <div className="fixed inset-0 z-10" onClick={(e) => { e.stopPropagation(); setOpenMenu(null); }} />
+                        <div className="absolute right-0 top-8 z-20 w-52 rounded-xl bg-surface border border-separator shadow-ios-xl py-1.5">
+                          <MenuItem icon="send" label="Send Request" onClick={() => { setOpenMenu(null); onSendRequest(c); }} />
+                          <MenuItem icon="link" label="Share Link" onClick={() => { setOpenMenu(null); onShare(c); }} />
+                          <MenuItem icon="pdf" label="Download PDF" onClick={() => { setOpenMenu(null); onDownload(c); }} />
+                          <MenuItem icon="edit" label="Edit" onClick={() => { setOpenMenu(null); onEdit(c); }} />
                           <MenuItem
-                            label="Send Request"
-                            onClick={() => {
-                              setOpenMenu(null);
-                              onSendRequest(c);
-                            }}
+                            icon={c.status === "in_process" || c.status === "done" ? "cancel" : "activate"}
+                            label={c.status === "in_process" || c.status === "done" ? "Cancel" : "Activate"}
+                            onClick={() => { setOpenMenu(null); onToggleStatus(c); }}
                           />
-                          <MenuItem
-                            label="Share Link"
-                            onClick={() => {
-                              setOpenMenu(null);
-                              onShare(c);
-                            }}
-                          />
-                          <MenuItem
-                            label="Download PDF"
-                            onClick={() => {
-                              setOpenMenu(null);
-                              onDownload(c);
-                            }}
-                          />
-                          <MenuItem
-                            label="Edit"
-                            onClick={() => {
-                              setOpenMenu(null);
-                              onEdit(c);
-                            }}
-                          />
-                          <MenuItem
-                            label={
-                              c.status === "in_process" || c.status === "done"
-                                ? "Cancel"
-                                : "Activate"
-                            }
-                            onClick={() => {
-                              setOpenMenu(null);
-                              onToggleStatus(c);
-                            }}
-                          />
-                          <div className="h-px bg-separator my-1" />
-                          <MenuItem
-                            label="Delete"
-                            danger
-                            onClick={() => {
-                              setOpenMenu(null);
-                              onDelete(c);
-                            }}
-                          />
+                          <div className="h-px bg-separator mx-2 my-1.5" />
+                          <MenuItem icon="delete" label="Delete" danger onClick={() => { setOpenMenu(null); onDelete(c); }} />
                         </div>
                       </>
                     )}
@@ -445,27 +392,39 @@ function SortableHeader({
   );
 }
 
+const MENU_ICONS: Record<string, JSX.Element> = {
+  send: <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" /></svg>,
+  link: <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244" /></svg>,
+  pdf: <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>,
+  edit: <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" /></svg>,
+  activate: <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M5.636 5.636a9 9 0 1012.728 0M12 3v9" /></svg>,
+  cancel: <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>,
+  delete: <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}><path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>,
+};
+
 function MenuItem({
+  icon,
   label,
   danger,
   onClick,
 }: {
+  readonly icon?: string;
   readonly label: string;
   readonly danger?: boolean;
   readonly onClick: () => void;
 }) {
   return (
     <button
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick();
-      }}
-      className={`w-full text-left px-3 py-2 text-sm transition-colors ${
+      onClick={(e) => { e.stopPropagation(); onClick(); }}
+      className={`w-full text-left px-3 py-2 text-sm transition-colors flex items-center gap-2.5 ${
         danger
           ? "text-red-400 hover:bg-red-500/10"
           : "text-brand-muted hover:text-foreground hover:bg-ios-fill-tertiary"
       }`}
     >
+      {icon && MENU_ICONS[icon] && (
+        <span className="shrink-0 opacity-70">{MENU_ICONS[icon]}</span>
+      )}
       {label}
     </button>
   );
