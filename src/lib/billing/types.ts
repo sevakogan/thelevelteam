@@ -55,6 +55,29 @@ export interface BillingCustomer {
   readonly cancellation_discount_value: number | null;
 }
 
+export interface BillingClient {
+  readonly id: string;
+  readonly user_id: string;
+  readonly company_name: string;
+  readonly email: string;
+  readonly phone: string;
+  readonly contract_enabled: boolean;
+  readonly contract_content: string;
+  readonly contract_signed: boolean;
+  readonly contract_signed_by: string;
+  readonly contract_signed_date: string | null;
+  readonly created_at: string;
+  readonly updated_at: string;
+}
+
+export interface CreateClientInput {
+  readonly company_name: string;
+  readonly email: string;
+  readonly phone: string;
+  readonly contract_enabled?: boolean;
+  readonly contract_content?: string;
+}
+
 export interface BillingJob {
   readonly id: string;
   readonly user_id: string;
@@ -100,6 +123,7 @@ export interface CreateCustomerInput {
   readonly tags: readonly string[];
   readonly due_date: string | null;
   readonly notes: string;
+  readonly client_id?: string | null;
 }
 
 export interface CreateJobInput {

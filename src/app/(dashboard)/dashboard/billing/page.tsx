@@ -10,6 +10,7 @@ import type {
 import { generateInvoicePDF } from "@/lib/billing/pdf";
 import CustomerTable from "./_components/CustomerTable";
 import CustomerForm from "./_components/CustomerForm";
+import CreateInvoiceFlow from "./_components/CreateInvoiceFlow";
 import BillingSettingsModal from "./_components/BillingSettingsModal";
 
 export default function BillingPage() {
@@ -18,6 +19,7 @@ export default function BillingPage() {
   const [settings, setSettings] = useState<BillingSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [showCreateFlow, setShowCreateFlow] = useState(false);
   const [editingCustomer, setEditingCustomer] = useState<BillingCustomer | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -88,8 +90,9 @@ export default function BillingPage() {
 
     await fetchCustomers();
     setShowForm(false);
+    setShowCreateFlow(false);
     setEditingCustomer(null);
-    showToast(editingCustomer ? "Customer updated!" : "Customer created!");
+    showToast(editingCustomer ? "Invoice updated!" : "Invoice created!");
   }
 
   async function handleCreateJob(name: string): Promise<BillingJob> {
@@ -233,13 +236,11 @@ export default function BillingPage() {
             Settings
           </button>
           <button
-            onClick={() => {
-              setEditingCustomer(null);
-              setShowForm(true);
-            }}
-            className="px-4 py-2 rounded-ios bg-accent hover:bg-accent-hover text-white text-[13px] font-medium transition-colors cursor-pointer"
+            onClick={() => setShowCreateFlow(true)}
+            className="w-9 h-9 rounded-ios bg-accent hover:bg-accent-hover text-white text-xl font-light transition-colors cursor-pointer flex items-center justify-center"
+            title="New Invoice"
           >
-            New Customer
+            +
           </button>
         </div>
       </div>
@@ -306,13 +307,11 @@ export default function BillingPage() {
             payments.
           </p>
           <button
-            onClick={() => {
-              setEditingCustomer(null);
-              setShowForm(true);
-            }}
-            className="px-4 py-2 rounded-ios bg-accent hover:bg-accent-hover text-white text-[13px] font-medium transition-colors cursor-pointer"
+            onClick={() => setShowCreateFlow(true)}
+            className="w-9 h-9 rounded-ios bg-accent hover:bg-accent-hover text-white text-xl font-light transition-colors cursor-pointer flex items-center justify-center"
+            title="New Invoice"
           >
-            New Customer
+            +
           </button>
         </div>
       ) : (
@@ -328,7 +327,15 @@ export default function BillingPage() {
         />
       )}
 
-      {/* Customer Form Slide-over */}
+      {/* Create Invoice Flow (2-step) */}
+      {showCreateFlow && (
+        <CreateInvoiceFlow
+          onSave={handleSave}
+          onCancel={() => setShowCreateFlow(false)}
+        />
+      )}
+
+      {/* Edit Form (existing customer) */}
       {showForm && (
         <CustomerForm
           customer={editingCustomer}
