@@ -519,8 +519,14 @@ export default function CustomerDetailPage() {
           </button>
           <div className="h-6 w-px bg-separator mx-1" />
           <button
-            onClick={() => setShowDeleteConfirm(true)}
-            className="px-3 py-2 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 text-sm transition-colors"
+            onClick={() => payments.length === 0 && setShowDeleteConfirm(true)}
+            disabled={payments.length > 0}
+            title={payments.length > 0 ? "Cannot delete — payments exist on this invoice" : undefined}
+            className={`px-3 py-2 rounded-lg border text-sm transition-colors ${
+              payments.length > 0
+                ? "border-separator text-brand-muted/40 cursor-not-allowed opacity-50"
+                : "border-red-500/30 text-red-400 hover:bg-red-500/10 cursor-pointer"
+            }`}
           >
             Delete
           </button>
