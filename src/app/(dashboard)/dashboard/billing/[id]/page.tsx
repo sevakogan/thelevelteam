@@ -498,10 +498,10 @@ export default function CustomerDetailPage() {
           >
             Receipts
           </button>
-          {payments.filter((p) => p.status === "completed" && p.stripe_payment_intent).length > 0 && (
+          {payments.filter((p) => p.status === "completed").length > 0 && (
             <button
               onClick={() => setShowRefund(true)}
-              className="px-3 py-2 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/10 text-sm transition-colors"
+              className="px-3 py-2 rounded-lg border border-separator text-brand-muted hover:text-foreground text-sm transition-colors"
             >
               Refund
             </button>
