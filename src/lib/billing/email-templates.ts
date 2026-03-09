@@ -95,23 +95,34 @@ function formatDate(dateStr: string | null | undefined): string {
 }
 
 function detailCard(title: string, rows: { label: string; value: string; style?: string }[]): string {
-  const rowsHtml = rows
-    .map(r => `<div class="row"><span class="row-label">${r.label}</span><span class="row-value ${r.style ?? ""}">${r.value}</span></div>`)
-    .join("");
+  const rowsHtml = rows.map((r, i) => `
+    <tr style="${i > 0 ? "border-top:1px solid #f2f2f7;" : ""}">
+      <td style="padding:14px 28px;font-size:14px;color:#6e6e73;width:40%;vertical-align:middle;">${r.label}</td>
+      <td style="padding:14px 28px;font-size:14px;font-weight:500;text-align:right;vertical-align:middle;${r.style === "row-value-green" ? "color:#34c759;" : r.style === "row-value-red" ? "color:#ff3b30;" : r.style === "row-value-mono" ? "font-family:monospace;font-size:13px;color:#6e6e73;" : "color:#1d1d1f;"}">${r.value}</td>
+    </tr>`).join("");
   return `
-    <div class="card-list">
-      <div class="card-list-header"><p class="card-list-title">${title}</p></div>
-      ${rowsHtml}
+    <div style="background:#ffffff;border-radius:20px;overflow:hidden;margin-bottom:10px;">
+      <div style="padding:16px 28px 14px;border-bottom:1px solid #f2f2f7;">
+        <p style="font-size:12px;font-weight:600;color:#aeaeb2;text-transform:uppercase;letter-spacing:0.6px;margin:0;">${title}</p>
+      </div>
+      <table style="width:100%;border-collapse:collapse;">
+        ${rowsHtml}
+      </table>
     </div>`;
 }
 
 function contactBlock(email: string, phone: string): string {
   if (!email && !phone) return "";
-  const items = [
-    email ? `<span class="contact-item"><a href="mailto:${email}">${email}</a></span>` : "",
-    phone ? `<span class="contact-item">${phone}</span>` : "",
+  const cells = [
+    email ? `<td style="padding:0 16px 0 0;font-size:13px;color:#6e6e73;"><a href="mailto:${email}" style="color:#0071e3;text-decoration:none;">${email}</a></td>` : "",
+    phone ? `<td style="padding:0;font-size:13px;color:#6e6e73;">${phone}</td>` : "",
   ].filter(Boolean).join("");
-  return `<div class="contact-row">${items}</div>`;
+  return `
+    <table style="border-top:1px solid #f2f2f7;margin-top:20px;padding-top:20px;width:100%;">
+      <tr><td style="padding-top:16px;">
+        <table><tr>${cells}</tr></table>
+      </td></tr>
+    </table>`;
 }
 
 // ─── Customer-facing: Payment Request ─────────────────
