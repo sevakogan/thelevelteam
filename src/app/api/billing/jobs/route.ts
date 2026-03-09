@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
         .eq("client_id", clientId)
         .not("job_id", "is", null);
 
-      const jobIds = [...new Set((data ?? []).map((r: { job_id: string }) => r.job_id).filter(Boolean))];
+      const jobIds = Array.from(new Set((data ?? []).map((r: { job_id: string }) => r.job_id).filter(Boolean)));
       if (jobIds.length === 0) return NextResponse.json([]);
 
       const allJobs = await getJobs(userId);
