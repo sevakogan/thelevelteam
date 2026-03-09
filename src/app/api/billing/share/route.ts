@@ -192,6 +192,28 @@ async function handlePublicAction(
         return NextResponse.json({ success: true });
       }
 
+      case "accept_discount": {
+        // Customer accepts the discount offer — stay subscribed at new price
+        await updateCustomer(customer.id, { status: "in_process" });
+        await appendStatusHistory(
+          customer.id,
+          "in_process",
+          "Customer accepted discount offer"
+        );
+        return NextResponse.json({ success: true });
+      }
+
+      case "decline_discount": {
+        // Customer declines — proceed with cancellation
+        await updateCustomer(customer.id, { status: "lost" });
+        await appendStatusHistory(
+          customer.id,
+          "lost",
+          "Customer declined discount offer and cancelled"
+        );
+        return NextResponse.json({ success: true });
+      }
+
       default:
         return NextResponse.json({ error: "Unknown action" }, { status: 400 });
     }

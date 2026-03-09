@@ -227,7 +227,9 @@ export async function notifyCancellationDiscount(
 ): Promise<void> {
   if (!customer.email) return;
   const companyName = getCompanyName();
-  const { subject, html } = cancellationDiscountEmail(customer, newAmount, companyName);
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thelevelteam.com";
+  const shareUrl = customer.share_token ? `${siteUrl}/billing/${customer.share_token}` : siteUrl;
+  const { subject, html } = cancellationDiscountEmail(customer, newAmount, companyName, shareUrl);
 
   await sendEmail(customer.email, subject, html).catch((err) =>
     console.error("[BILLING] Failed to send cancellation discount email:", err)

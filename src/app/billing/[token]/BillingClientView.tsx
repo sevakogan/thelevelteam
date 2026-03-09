@@ -896,9 +896,11 @@ export default function BillingClientView({ token }: BillingClientViewProps) {
     }
   }, [customer, token]);
 
-  // Check for Stripe success/cancel query params and ?cancel=1
+  // Check for Stripe success/cancel query params, ?cancel=1, and ?discount=accept/decline
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    const discount = params.get("discount");
+
     if (params.get("payment") === "success") {
       showToast("Payment successful! Thank you.");
       window.history.replaceState({}, "", window.location.pathname);
@@ -908,8 +910,27 @@ export default function BillingClientView({ token }: BillingClientViewProps) {
     } else if (params.get("cancel") === "1") {
       setShowCancelModal(true);
       window.history.replaceState({}, "", window.location.pathname);
+    } else if (discount === "accept" || discount === "decline") {
+      window.history.replaceState({}, "", window.location.pathname);
+      const action = discount === "accept" ? "accept_discount" : "decline_discount";
+      fetch("/api/billing/share", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, action }),
+      })
+        .then(async (res) => {
+          if (res.ok) {
+            await fetchData();
+            showToast(
+              discount === "accept"
+                ? "Offer accepted! Your subscription has been updated."
+                : "You've declined the offer. Your cancellation will be processed."
+            );
+          }
+        })
+        .catch(() => showToast("Something went wrong. Please try again."));
     }
-  }, [showToast]);
+  }, [showToast, token, fetchData]);
 
   async function handleSign() {
     if (!signerName.trim()) return;

@@ -463,35 +463,50 @@ export function cancellationApprovedEmail(
 export function cancellationDiscountEmail(
   customer: BillingCustomer,
   newAmount: number,
-  companyName: string
+  companyName: string,
+  shareUrl: string
 ): { subject: string; html: string } {
-  const subject = `Special offer for you — ${companyName}`;
+  const subject = `An exclusive offer from ${companyName} — we want to keep you`;
+
+  const savings = customer.amount - newAmount;
+  const savingsPct = Math.round((savings / customer.amount) * 100);
+  const acceptUrl = `${shareUrl}?discount=accept`;
+  const declineUrl = `${shareUrl}?discount=decline`;
 
   const rows = [
-    { label: "Customer", value: customer.company_name },
     customer.invoice_number && { label: "Invoice #", value: `<span class="row-value-mono">${customer.invoice_number}</span>` },
-    { label: "Original Amount", value: `${formatAmount(customer.amount)}/mo` },
-    { label: "New Discounted Amount", value: `${formatAmount(newAmount)}/mo`, style: "row-value-green" },
-    customer.cancellation_admin_response && { label: "Message", value: customer.cancellation_admin_response },
+    customer.job_name && { label: "Service", value: customer.job_name },
+    { label: "Original Price", value: `${formatAmount(customer.amount)}/mo` },
+    { label: "Your New Price", value: `${formatAmount(newAmount)}/mo`, style: "row-value-green" },
+    { label: "Monthly Savings", value: `${formatAmount(savings)}/mo (${savingsPct}% off)`, style: "row-value-green" },
+    customer.cancellation_admin_response && { label: "Note", value: customer.cancellation_admin_response },
   ].filter(Boolean) as { label: string; value: string; style?: string }[];
 
   const html = wrap(`
     ${logo(companyName)}
 
-    <div class="card" style="text-align:center;">
-      <p class="hero-label hero-label-green">Special Offer</p>
-      <h1>We want to keep<br>your business.</h1>
-      <p class="subtitle">We've updated your subscription with a special discount.</p>
-      <div class="amount-row">
-        <span class="amount">${formatAmount(newAmount)}<span style="font-size:18px;color:#6e6e73;letter-spacing:0;font-weight:400;">/mo</span></span>
-        <span class="amount-sub">down from ${formatAmount(customer.amount)}/mo</span>
+    <div style="background:#1d1d1f;border-radius:20px;padding:40px;margin-bottom:10px;text-align:center;">
+      <p style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#f5c518;margin:0 0 18px;">Exclusive Offer</p>
+      <h1 style="color:#ffffff;font-size:30px;font-weight:700;margin:0 0 10px;letter-spacing:-0.8px;line-height:1.2;">We want to keep you.</h1>
+      <p style="color:#aeaeb2;font-size:15px;line-height:1.5;margin:0 0 28px;">${customer.cancellation_admin_response || "As a valued customer, we're offering you an exclusive discount."}</p>
+
+      <div style="background:#2c2c2e;border-radius:14px;padding:24px;margin-bottom:24px;display:inline-block;min-width:220px;">
+        <p style="font-size:13px;color:#aeaeb2;margin:0 0 6px;text-transform:uppercase;letter-spacing:0.5px;">New Monthly Price</p>
+        <p style="font-size:52px;font-weight:800;color:#34c759;letter-spacing:-3px;margin:0;line-height:1;">${formatAmount(newAmount)}<span style="font-size:20px;font-weight:500;color:#636366;letter-spacing:0;">/mo</span></p>
+        <p style="font-size:13px;color:#636366;margin:8px 0 0;text-decoration:line-through;">${formatAmount(customer.amount)}/mo</p>
+        <p style="display:inline-block;margin:10px 0 0;background:#34c759;color:#fff;font-size:12px;font-weight:700;padding:4px 12px;border-radius:20px;">Save ${savingsPct}% — ${formatAmount(savings)}/mo</p>
+      </div>
+
+      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <a href="${acceptUrl}" style="display:inline-block;padding:14px 36px;background:#34c759;color:#ffffff;text-decoration:none;border-radius:980px;font-weight:600;font-size:15px;letter-spacing:-0.2px;">Accept Offer</a>
+        <a href="${declineUrl}" style="display:inline-block;padding:14px 36px;background:#3a3a3c;color:#aeaeb2;text-decoration:none;border-radius:980px;font-weight:500;font-size:15px;">No thanks</a>
       </div>
     </div>
 
-    ${detailCard("Updated Subscription", rows)}
+    ${detailCard("Offer Summary", rows)}
 
     <div class="footer">
-      <p>Questions? Reach out to ${companyName}.</p>
+      <p>This offer is exclusive to you. Reply to this email with any questions.<br><a href="https://thelevelteam.com">TheLevelTeam</a></p>
     </div>
   `);
   return { subject, html };
