@@ -245,11 +245,11 @@ function InvoiceStep({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/billing/jobs")
+    fetch(`/api/billing/jobs?clientId=${client.id}`)
       .then((r) => r.json())
       .then((d) => setJobs(Array.isArray(d) ? d : []))
       .catch(() => {});
-  }, []);
+  }, [client.id]);
 
   function addTag(tag: string) {
     const t = tag.trim();
@@ -266,8 +266,8 @@ function InvoiceStep({
     });
     if (res.ok) {
       const job = await res.json();
-      const updated = await fetch("/api/billing/jobs").then((r) => r.json());
-      setJobs(Array.isArray(updated) ? updated : []);
+      // Add the new job to the list directly (it has no client invoices yet)
+      setJobs((prev) => [...prev, job]);
       setJobId(job.id);
       setShowNewJob(false);
       setNewJobName("");
