@@ -23,33 +23,6 @@ export default function ProjectCTA({ company }: ProjectCTAProps) {
           transition={{ duration: 0.6 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
-          {/* Primary: Visit Live Site */}
-          <a
-            href={company.live_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full text-white font-medium text-sm tracking-wide transition-all duration-300 hover:scale-105 hover:shadow-lg"
-            style={{
-              background: `linear-gradient(135deg, ${company.color_primary}, ${company.color_secondary})`,
-              boxShadow: `0 4px 20px ${company.color_primary}30`,
-            }}
-          >
-            <span>Visit Live Site</span>
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-              />
-            </svg>
-          </a>
-
           {/* Request More Info */}
           <button
             onClick={() => openModal(company.slug)}

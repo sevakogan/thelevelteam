@@ -21,8 +21,7 @@ export default async function ProductsPage() {
             Our Projects
           </h1>
           <p className="text-brand-muted text-center mb-16 max-w-lg mx-auto">
-            Every project we&apos;ve built — click to explore details or visit
-            the live site.
+            Every project we&apos;ve built — click to explore details.
           </p>
 
           <ProjectsGrid companies={companies} />
