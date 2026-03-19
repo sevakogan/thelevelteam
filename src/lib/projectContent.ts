@@ -451,9 +451,9 @@ export const projectContent: Record<string, ProjectDetail> = {
       },
     ],
     screenshots: [
-      { src: "/screenshots/sim4hire/hero.png", alt: "Sim4Hire landing", caption: "Racing simulator rental site" },
-      { src: "/screenshots/sim4hire/fleet.png", alt: "Simulator fleet", caption: "Full-motion simulator fleet" },
-      { src: "/screenshots/sim4hire/mobile.png", alt: "Mobile view", caption: "Mobile-optimized experience" },
+      { src: "/screenshots/sim4hire/hero.png", alt: "SimsForHire hero with video background", caption: "Hero section with event video background" },
+      { src: "/screenshots/sim4hire/fleet.png", alt: "Simulator gallery and specs", caption: "Rig specs and media gallery" },
+      { src: "/screenshots/sim4hire/mobile.png", alt: "Mobile view", caption: "Mobile-responsive design" },
     ],
     outcomes: [
       "Static Astro site with near-instant load times",
