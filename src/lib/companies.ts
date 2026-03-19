@@ -146,7 +146,7 @@ export const FALLBACK_COMPANIES: Company[] = [
       "Racing simulator rental and event company. Full-motion racing simulators for corporate events, parties, and activations.",
     description: "",
     image_url: "",
-    live_url: "https://simsforhire.com",
+    live_url: "https://simsforhire.com/",
     color_primary: "#0EA5E9",
     color_secondary: "#7C3AED",
     tech_stack: ["Astro", "TypeScript", "Twilio", "Resend", "Tailwind CSS"],
