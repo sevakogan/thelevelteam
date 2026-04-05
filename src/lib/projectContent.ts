@@ -464,4 +464,628 @@ export const projectContent: Record<string, ProjectDetail> = {
     usesGHL: false,
     clientIndustry: "Entertainment & Events",
   },
+
+  greystone: {
+    slug: "greystone",
+    headline: "Event Management, Synchronized",
+    longDescription:
+      "Greystone is an event management and calendar platform that keeps teams, clients, and vendors on the same page. It syncs with Google Calendar, sends email campaigns through Resend, and triggers SMS reminders via Twilio — all from a single dashboard.\n\nThe platform features NextAuth-powered authentication with Google OAuth, a drag-and-drop event scheduler, attendee management with RSVP tracking, and automated notification workflows. Organizers manage events end-to-end while attendees get a frictionless sign-up and reminder experience.",
+    features: [
+      {
+        title: "Google Calendar Sync",
+        description: "Two-way sync with Google Calendar so events stay current across every device and team member.",
+        icon: "calendar",
+      },
+      {
+        title: "Email Campaigns",
+        description: "Send event invites, reminders, and follow-ups through Resend with customizable templates.",
+        icon: "message",
+      },
+      {
+        title: "SMS Notifications",
+        description: "Twilio-powered SMS reminders ensure attendees never miss an event, even without email.",
+        icon: "notification",
+      },
+      {
+        title: "Google OAuth",
+        description: "Secure NextAuth authentication with Google sign-in for fast, passwordless onboarding.",
+        icon: "lock",
+      },
+      {
+        title: "Attendee Management",
+        description: "Track RSVPs, manage waitlists, and segment attendees for targeted communications.",
+        icon: "users",
+      },
+      {
+        title: "Event Dashboard",
+        description: "Centralized view of all upcoming and past events with analytics on attendance and engagement.",
+        icon: "analytics",
+      },
+    ],
+    screenshots: [
+      { src: "/screenshots/greystone/hero.png", alt: "Greystone dashboard", caption: "Event management dashboard" },
+      { src: "/screenshots/greystone/calendar.png", alt: "Calendar view", caption: "Calendar with Google sync" },
+      { src: "/screenshots/greystone/mobile.png", alt: "Mobile view", caption: "Mobile-responsive design" },
+    ],
+    outcomes: [
+      "Two-way Google Calendar synchronization",
+      "Multi-channel notifications via email and SMS",
+      "NextAuth with Google OAuth authentication",
+      "Attendee RSVP tracking and waitlist management",
+    ],
+    usesGHL: false,
+    clientIndustry: "Events & Scheduling",
+  },
+
+  karbonbotai: {
+    slug: "karbonbotai",
+    headline: "AI Chatbots That Close Deals",
+    longDescription:
+      "KarbonBot AI is a platform for building and deploying AI-powered chatbots across Telegram and web. Powered by Claude, each bot is trained on the client's business data to handle inquiries, qualify leads, and guide prospects through the sales funnel — 24/7.\n\nThe platform includes a bot builder with custom personality settings, Telegram SDK integration for instant deployment, Stripe billing for subscription management, and a conversation analytics dashboard. Businesses get an AI sales rep that never sleeps, while customers get instant, accurate answers.",
+    features: [
+      {
+        title: "Claude AI Engine",
+        description: "Conversations powered by Claude with custom system prompts trained on your business knowledge.",
+        icon: "message",
+      },
+      {
+        title: "Telegram Integration",
+        description: "Deploy bots directly to Telegram with full SDK integration — live in minutes, not weeks.",
+        icon: "device",
+      },
+      {
+        title: "Stripe Subscriptions",
+        description: "Built-in billing with Stripe for tiered subscription plans and usage-based pricing.",
+        icon: "card",
+      },
+      {
+        title: "Bot Builder",
+        description: "No-code bot configuration with custom personalities, response rules, and knowledge bases.",
+        icon: "grid",
+      },
+      {
+        title: "Conversation Analytics",
+        description: "Track message volume, response quality, lead qualification rates, and customer satisfaction.",
+        icon: "analytics",
+      },
+      {
+        title: "Multi-Bot Management",
+        description: "Manage multiple bots for different brands or use cases from a single dashboard.",
+        icon: "layers",
+      },
+    ],
+    screenshots: [
+      { src: "/screenshots/karbonbotai/hero.png", alt: "KarbonBot AI landing", caption: "AI chatbot platform landing" },
+      { src: "/screenshots/karbonbotai/dashboard.png", alt: "Bot management dashboard", caption: "Bot management dashboard" },
+      { src: "/screenshots/karbonbotai/mobile.png", alt: "Mobile view", caption: "Mobile-responsive design" },
+    ],
+    outcomes: [
+      "Claude-powered AI chatbots with custom training",
+      "Instant Telegram deployment via SDK",
+      "Stripe subscription billing and management",
+      "Conversation analytics and lead qualification",
+    ],
+    usesGHL: false,
+    clientIndustry: "AI & Automation",
+  },
+
+  kleanhq: {
+    slug: "kleanhq",
+    headline: "Cleaning Operations, Streamlined",
+    longDescription:
+      "KleanHQ is a cleaning service management platform that handles everything from booking to payment. Cleaners manage their schedules, clients book services online, and business owners track revenue and team performance — all in real time.\n\nThe platform features Stripe payment processing for deposits and final payments, Resend email notifications for booking confirmations and reminders, real-time job status updates via Supabase subscriptions, and a clean admin dashboard for managing teams, schedules, and client history.",
+    features: [
+      {
+        title: "Online Booking",
+        description: "Clients book cleaning services online with date/time selection, service type, and instant confirmation.",
+        icon: "calendar",
+      },
+      {
+        title: "Stripe Payments",
+        description: "Secure payment processing for deposits, full payments, and recurring service subscriptions.",
+        icon: "card",
+      },
+      {
+        title: "Real-Time Updates",
+        description: "Live job status tracking powered by Supabase real-time subscriptions — clients see progress instantly.",
+        icon: "refresh",
+      },
+      {
+        title: "Email Notifications",
+        description: "Automated booking confirmations, reminders, and receipts via Resend email integration.",
+        icon: "message",
+      },
+      {
+        title: "Team Management",
+        description: "Assign cleaners to jobs, manage availability, and track individual performance metrics.",
+        icon: "users",
+      },
+      {
+        title: "Admin Dashboard",
+        description: "Business owner dashboard with revenue tracking, team performance, and client management.",
+        icon: "analytics",
+      },
+    ],
+    screenshots: [
+      { src: "/screenshots/kleanhq/hero.png", alt: "KleanHQ landing", caption: "Service booking landing page" },
+      { src: "/screenshots/kleanhq/dashboard.png", alt: "Admin dashboard", caption: "Business management dashboard" },
+      { src: "/screenshots/kleanhq/mobile.png", alt: "Mobile view", caption: "Mobile-responsive design" },
+    ],
+    outcomes: [
+      "End-to-end booking with Stripe payment processing",
+      "Real-time job tracking via Supabase subscriptions",
+      "Automated email notifications through Resend",
+      "Team scheduling and performance management",
+    ],
+    usesGHL: false,
+    clientIndustry: "Home Services & Cleaning",
+  },
+
+  levelcrm: {
+    slug: "levelcrm",
+    headline: "The CRM Built for Closers",
+    longDescription:
+      "LevelCRM is a full-featured customer relationship management system designed for sales teams that move fast. It features pipeline management with drag-and-drop deal stages, contact and company tracking, activity logging, and advanced filtering — all wrapped in a polished dark-mode UI built with shadcn/ui.\n\nThe platform supports multiple pipelines, customizable deal stages, bulk actions, and a contact timeline that shows every interaction in one place. Built with Next.js 16 and Supabase for instant data access and real-time collaboration.",
+    features: [
+      {
+        title: "Pipeline Management",
+        description: "Visual deal pipelines with drag-and-drop stages, win/loss tracking, and revenue forecasting.",
+        icon: "funnel",
+      },
+      {
+        title: "Contact Database",
+        description: "Comprehensive contact and company records with custom fields, tags, and relationship mapping.",
+        icon: "users",
+      },
+      {
+        title: "Activity Timeline",
+        description: "Chronological view of every call, email, meeting, and note for each contact and deal.",
+        icon: "calendar",
+      },
+      {
+        title: "Advanced Filtering",
+        description: "Powerful filters across all entities — search by stage, value, date, tag, owner, and custom fields.",
+        icon: "search",
+      },
+      {
+        title: "Dark Mode UI",
+        description: "Premium dark-themed interface built with shadcn/ui and Radix primitives for a modern experience.",
+        icon: "device",
+      },
+      {
+        title: "Real-Time Sync",
+        description: "Supabase-powered real-time data so team members see updates the moment they happen.",
+        icon: "refresh",
+      },
+    ],
+    screenshots: [
+      { src: "/screenshots/levelcrm/hero.png", alt: "LevelCRM dashboard", caption: "CRM pipeline dashboard" },
+      { src: "/screenshots/levelcrm/pipeline.png", alt: "Deal pipeline", caption: "Visual deal pipeline management" },
+      { src: "/screenshots/levelcrm/mobile.png", alt: "Mobile view", caption: "Mobile-responsive design" },
+    ],
+    outcomes: [
+      "Visual pipeline management with drag-and-drop",
+      "Comprehensive contact and company database",
+      "Real-time data sync via Supabase",
+      "Polished dark-mode UI with shadcn/ui components",
+    ],
+    usesGHL: false,
+    clientIndustry: "Sales & CRM",
+  },
+
+  mailpulse: {
+    slug: "mailpulse",
+    headline: "Know When They Open, Click, and Engage",
+    longDescription:
+      "MailPulse is an email tracking and analytics platform that gives senders real-time visibility into how recipients interact with their emails. Track opens, link clicks, device info, and engagement patterns — all from a clean, intuitive dashboard.\n\nThe platform features pixel-based open tracking, link click analytics with UTM support, engagement scoring, and Stripe-powered subscription billing for tiered plans. Built for sales teams, marketers, and anyone who needs to know if their emails are actually being read.",
+    features: [
+      {
+        title: "Open Tracking",
+        description: "Pixel-based email open detection with timestamp, device, and location data.",
+        icon: "search",
+      },
+      {
+        title: "Click Analytics",
+        description: "Track which links get clicked, how many times, and by whom — with UTM parameter support.",
+        icon: "chart",
+      },
+      {
+        title: "Engagement Scoring",
+        description: "Automated scoring that ranks contacts by engagement level to prioritize follow-ups.",
+        icon: "trending",
+      },
+      {
+        title: "Stripe Billing",
+        description: "Subscription management with tiered plans, usage tracking, and automated invoicing.",
+        icon: "card",
+      },
+      {
+        title: "Real-Time Alerts",
+        description: "Instant notifications when high-priority emails are opened or links are clicked.",
+        icon: "notification",
+      },
+      {
+        title: "Dashboard Analytics",
+        description: "Visual reports on send volume, open rates, click-through rates, and engagement trends.",
+        icon: "analytics",
+      },
+    ],
+    screenshots: [
+      { src: "/screenshots/mailpulse/hero.png", alt: "MailPulse landing", caption: "Email tracking platform" },
+      { src: "/screenshots/mailpulse/dashboard.png", alt: "Analytics dashboard", caption: "Email engagement analytics" },
+      { src: "/screenshots/mailpulse/mobile.png", alt: "Mobile view", caption: "Mobile-responsive design" },
+    ],
+    outcomes: [
+      "Real-time email open and click tracking",
+      "Engagement scoring for lead prioritization",
+      "Stripe subscription billing with tiered plans",
+      "Visual analytics dashboard for email performance",
+    ],
+    usesGHL: false,
+    clientIndustry: "Email Marketing & Sales",
+  },
+
+  "s4h-admin": {
+    slug: "s4h-admin",
+    headline: "Event Operations, Automated",
+    longDescription:
+      "S4H Events Admin is the back-office operations portal for SimsForHire, handling everything from event scheduling and client invoicing to contract generation and AI-powered task automation. It's the command center that keeps the rental business running smoothly.\n\nThe platform features Claude AI for generating event proposals and descriptions, Stripe for invoicing and payment collection, PDF generation for contracts and receipts, and a calendar-based event management system. Staff manage bookings, track equipment availability, and handle client communications from a single dashboard.",
+    features: [
+      {
+        title: "AI Event Proposals",
+        description: "Claude AI generates professional event proposals, descriptions, and follow-up emails in seconds.",
+        icon: "message",
+      },
+      {
+        title: "Stripe Invoicing",
+        description: "Create and send invoices, track payments, and manage deposits directly through Stripe.",
+        icon: "card",
+      },
+      {
+        title: "PDF Contracts",
+        description: "Auto-generate branded contracts, proposals, and receipts as downloadable PDFs.",
+        icon: "document",
+      },
+      {
+        title: "Event Calendar",
+        description: "Visual calendar for scheduling events, tracking equipment availability, and avoiding conflicts.",
+        icon: "calendar",
+      },
+      {
+        title: "Client Management",
+        description: "CRM-lite client database with contact info, event history, and payment records.",
+        icon: "users",
+      },
+      {
+        title: "Equipment Tracking",
+        description: "Track simulator availability, maintenance schedules, and transport logistics per event.",
+        icon: "grid",
+      },
+    ],
+    screenshots: [
+      { src: "/screenshots/s4h-admin/hero.png", alt: "S4H Events Admin", caption: "Event administration portal" },
+      { src: "/screenshots/s4h-admin/calendar.png", alt: "Event calendar", caption: "Event scheduling calendar" },
+      { src: "/screenshots/s4h-admin/mobile.png", alt: "Mobile view", caption: "Mobile-responsive design" },
+    ],
+    outcomes: [
+      "AI-generated event proposals via Claude",
+      "Stripe invoicing with payment tracking",
+      "Automated PDF contract generation",
+      "Calendar-based event and equipment management",
+    ],
+    usesGHL: false,
+    clientIndustry: "Entertainment & Events",
+  },
+
+  "horsepower-for-heroes": {
+    slug: "horsepower-for-heroes",
+    headline: "Racing Simulators for Those Who Served",
+    longDescription:
+      "Horsepower for Heroes is a charity initiative by ShiftSociety 306 that connects military veterans with motorsport experiences through racing simulator events. The platform manages donor campaigns, veteran registrations, event coordination, and certificate generation.\n\nBuilt with heartfelt design and Framer Motion animations, the site tells the story of the program while making it easy to donate, volunteer, or register. React-PDF generates personalized participation certificates, and Resend handles thank-you emails to donors and event confirmations to participants.",
+    features: [
+      {
+        title: "Donor Campaigns",
+        description: "Fundraising pages with progress bars, donor recognition, and secure payment processing.",
+        icon: "heart",
+      },
+      {
+        title: "Veteran Registration",
+        description: "Streamlined sign-up for veterans to register for upcoming simulator events and experiences.",
+        icon: "users",
+      },
+      {
+        title: "PDF Certificates",
+        description: "Personalized participation certificates generated with React-PDF for every veteran attendee.",
+        icon: "document",
+      },
+      {
+        title: "Email Campaigns",
+        description: "Automated thank-you emails to donors and confirmation emails to participants via Resend.",
+        icon: "message",
+      },
+      {
+        title: "Event Coordination",
+        description: "Admin tools for scheduling events, managing volunteer crews, and tracking equipment logistics.",
+        icon: "calendar",
+      },
+      {
+        title: "Animated Storytelling",
+        description: "Framer Motion animations bring the program's mission to life with smooth, engaging scroll experiences.",
+        icon: "refresh",
+      },
+    ],
+    screenshots: [
+      { src: "/screenshots/horsepower-for-heroes/hero.png", alt: "Horsepower for Heroes landing", caption: "Charity program landing page" },
+      { src: "/screenshots/horsepower-for-heroes/events.png", alt: "Events page", caption: "Upcoming veteran events" },
+      { src: "/screenshots/horsepower-for-heroes/mobile.png", alt: "Mobile view", caption: "Mobile-responsive design" },
+    ],
+    outcomes: [
+      "Veteran event registration and management",
+      "Personalized PDF certificate generation",
+      "Donor tracking with automated thank-you emails",
+      "Animated storytelling with Framer Motion",
+    ],
+    usesGHL: false,
+    clientIndustry: "Charity & Motorsport",
+  },
+
+  ttmc: {
+    slug: "ttmc",
+    headline: "The Members-Only Motorsport Club",
+    longDescription:
+      "TTMC is a members-only motorsport club platform where enthusiasts join, connect, and compete. The platform handles Stripe subscriptions for membership tiers, event registration with capacity management, and a social feed for club activity — all built as a blazing-fast React SPA.\n\nPowered by Vite and TanStack Query for instant data fetching, the app features a rich component library built on shadcn/ui and Radix primitives. Members manage their profiles, browse upcoming events, register for track days, and interact with other club members through the activity feed.",
+    features: [
+      {
+        title: "Stripe Memberships",
+        description: "Tiered subscription plans with Stripe — free, premium, and VIP levels with different perks.",
+        icon: "card",
+      },
+      {
+        title: "Event Registration",
+        description: "Browse and register for track days, meetups, and club events with real-time capacity tracking.",
+        icon: "calendar",
+      },
+      {
+        title: "Member Profiles",
+        description: "Customizable profiles with car details, racing stats, event history, and achievement badges.",
+        icon: "users",
+      },
+      {
+        title: "Activity Feed",
+        description: "Club-wide social feed for event recaps, member achievements, and community updates.",
+        icon: "message",
+      },
+      {
+        title: "shadcn/ui Components",
+        description: "Rich UI built on shadcn/ui and Radix primitives for a polished, accessible experience.",
+        icon: "device",
+      },
+      {
+        title: "Instant Performance",
+        description: "Vite-powered SPA with TanStack Query for sub-second page transitions and data fetching.",
+        icon: "lightning",
+      },
+    ],
+    screenshots: [
+      { src: "/screenshots/ttmc/hero.png", alt: "TTMC landing", caption: "Motorsport club landing page" },
+      { src: "/screenshots/ttmc/dashboard.png", alt: "Member dashboard", caption: "Member dashboard and events" },
+      { src: "/screenshots/ttmc/mobile.png", alt: "Mobile view", caption: "Mobile-responsive design" },
+    ],
+    outcomes: [
+      "Stripe-powered membership subscriptions",
+      "Event registration with capacity management",
+      "Social activity feed for club engagement",
+      "Blazing-fast SPA with Vite and TanStack Query",
+    ],
+    usesGHL: false,
+    clientIndustry: "Motorsport & Community",
+  },
+
+  mylittlegeniusacademy: {
+    slug: "mylittlegeniusacademy",
+    headline: "Where Young Minds Discover Brilliance",
+    longDescription:
+      "My Little Genius Academy is an educational platform designed for young learners, featuring interactive course catalogs, engaging GSAP scroll animations, and a welcoming design that appeals to both parents and children. Built with Astro for maximum performance.\n\nThe site showcases programs, faculty, testimonials, and enrollment information with playful animations and image carousels powered by Swiper. Every page loads instantly thanks to Astro's zero-JavaScript-by-default architecture, ensuring a smooth experience on any device.",
+    features: [
+      {
+        title: "GSAP Animations",
+        description: "Playful scroll-triggered animations that make exploring programs fun and engaging for families.",
+        icon: "refresh",
+      },
+      {
+        title: "Course Catalog",
+        description: "Interactive program listings with age groups, schedules, and curriculum details.",
+        icon: "book",
+      },
+      {
+        title: "Image Carousels",
+        description: "Swiper-powered galleries showcasing classrooms, activities, and student achievements.",
+        icon: "image",
+      },
+      {
+        title: "Enrollment Info",
+        description: "Clear enrollment process with forms, requirements, and tuition information for parents.",
+        icon: "clipboard",
+      },
+      {
+        title: "Faculty Profiles",
+        description: "Teacher bios with qualifications, specialties, and a welcoming personal touch.",
+        icon: "users",
+      },
+      {
+        title: "Blazing Fast",
+        description: "Astro static site with zero client-side JavaScript by default — instant loads on any device.",
+        icon: "lightning",
+      },
+    ],
+    screenshots: [
+      { src: "/screenshots/mylittlegeniusacademy/hero.png", alt: "Academy landing", caption: "Academy landing page" },
+      { src: "/screenshots/mylittlegeniusacademy/programs.png", alt: "Programs page", caption: "Course catalog and programs" },
+      { src: "/screenshots/mylittlegeniusacademy/mobile.png", alt: "Mobile view", caption: "Mobile-responsive design" },
+    ],
+    outcomes: [
+      "Interactive GSAP scroll animations throughout",
+      "Comprehensive course catalog with enrollment info",
+      "Astro static site with near-instant load times",
+      "Image galleries powered by Swiper carousel",
+    ],
+    usesGHL: false,
+    clientIndustry: "Education & Childcare",
+  },
+
+  widgets: {
+    slug: "widgets",
+    headline: "Plug-and-Play UI Components",
+    longDescription:
+      "Widget System is a Turborepo-powered monorepo that provides embeddable, plug-and-play UI widgets for any website. Each widget is a self-contained package with its own build, styles, and versioning — managed centrally with Changesets for automated releases.\n\nThe monorepo includes shared packages for common utilities and design tokens, an examples directory for integration demos, and a widget development environment for building and testing new components in isolation. Designed for teams that need to ship consistent UI across multiple properties.",
+    features: [
+      {
+        title: "Turborepo Monorepo",
+        description: "Centralized workspace with parallel builds, shared caching, and dependency management.",
+        icon: "grid",
+      },
+      {
+        title: "Versioned Releases",
+        description: "Changesets-powered versioning with automated changelogs and npm publishing workflows.",
+        icon: "document",
+      },
+      {
+        title: "Shared Packages",
+        description: "Common utilities, design tokens, and TypeScript types shared across all widgets.",
+        icon: "layers",
+      },
+      {
+        title: "Dev Environment",
+        description: "Isolated widget development with hot reload, visual testing, and integration demos.",
+        icon: "device",
+      },
+      {
+        title: "Embeddable Widgets",
+        description: "Self-contained components that drop into any website with a single script tag or npm install.",
+        icon: "target",
+      },
+      {
+        title: "TypeScript Native",
+        description: "Full TypeScript coverage with strict types, auto-generated declarations, and IDE support.",
+        icon: "lock",
+      },
+    ],
+    screenshots: [
+      { src: "/screenshots/widgets/hero.png", alt: "Widget System", caption: "Widget development environment" },
+      { src: "/screenshots/widgets/components.png", alt: "Widget gallery", caption: "Available widget components" },
+      { src: "/screenshots/widgets/mobile.png", alt: "Mobile view", caption: "Responsive widget demos" },
+    ],
+    outcomes: [
+      "Turborepo monorepo with parallel builds",
+      "Automated versioning and releases via Changesets",
+      "Shared design tokens and utility packages",
+      "Embeddable widgets with zero-config integration",
+    ],
+    usesGHL: false,
+    clientIndustry: "Developer Tools & Infrastructure",
+  },
+
+  linkflow: {
+    slug: "linkflow",
+    headline: "SEO on Autopilot",
+    longDescription:
+      "LinkFlow is an automated SEO content syndication and backlink distribution engine delivered as a SaaS product. It replaces traditional $1,500–3,000/month SEO agency retainers with an automated system starting at $99/month. Clients onboard once — company info, media, platform credentials — and the system handles everything.\n\nThe platform generates unique SEO-optimized articles with natural backlinks on a scheduled cadence, distributing them across 50+ free and paid platforms with zero ongoing client involvement. A Voice DNA system captures each client's brand voice from multiple sources (website, recordings, social media) and applies it to every piece of content. Three distinct interfaces — public landing, client portal, and admin panel — serve different user roles from a single codebase.",
+    features: [
+      {
+        title: "AI Content Engine",
+        description: "xAI Grok generates unique articles, then a voice alignment pass makes each piece sound authentically like the client's brand.",
+        icon: "message",
+      },
+      {
+        title: "50+ Platform Distribution",
+        description: "Automated content syndication across Reddit, LinkedIn, guest post sites, and paid platforms with natural backlink placement.",
+        icon: "grid",
+      },
+      {
+        title: "Voice DNA Profiling",
+        description: "Multi-source voice capture from website scraping, voice recordings, and social media to create an authentic brand voice model.",
+        icon: "target",
+      },
+      {
+        title: "Client Review Workflow",
+        description: "Google Docs-style inline comments, approval/rejection, revision requests, and a 24-hour auto-approve window.",
+        icon: "document",
+      },
+      {
+        title: "Stripe Subscriptions",
+        description: "Four pricing tiers from $99 to $599/month with coupon support and automated billing via Stripe webhooks.",
+        icon: "card",
+      },
+      {
+        title: "Admin Command Center",
+        description: "Revenue dashboard, client health monitoring, global content queue, bulk operations, and emergency stops.",
+        icon: "analytics",
+      },
+    ],
+    screenshots: [
+      { src: "/screenshots/linkflow/hero.png", alt: "LinkFlow landing page", caption: "SaaS landing page with pricing" },
+      { src: "/screenshots/linkflow/dashboard.png", alt: "Client dashboard", caption: "Client content dashboard" },
+      { src: "/screenshots/linkflow/mobile.png", alt: "Mobile view", caption: "Mobile-responsive design" },
+    ],
+    outcomes: [
+      "AI-powered content generation with brand voice alignment",
+      "Automated distribution across 50+ SEO platforms",
+      "Three-interface SaaS: landing, client portal, admin panel",
+      "Stripe billing with four subscription tiers",
+    ],
+    usesGHL: false,
+    clientIndustry: "SEO & Content Marketing",
+  },
+
+  autoapply: {
+    slug: "autoapply",
+    headline: "Your Job Search, Automated",
+    longDescription:
+      "AutoApply is an automated job application platform that helps job seekers generate tailored resumes, write cover letters, and track applications across multiple job boards. It takes the tedious, repetitive work out of job hunting so candidates can focus on preparation and interviews.\n\nThe platform features a resume builder that adapts content to each job description, an application tracker with status updates and follow-up reminders, and a dashboard that surfaces analytics on application volume, response rates, and pipeline health.",
+    features: [
+      {
+        title: "Resume Builder",
+        description: "Generate tailored resumes that adapt skills and experience highlights to each job description.",
+        icon: "document",
+      },
+      {
+        title: "Cover Letter Generator",
+        description: "AI-assisted cover letters that match the tone and requirements of each position.",
+        icon: "message",
+      },
+      {
+        title: "Application Tracker",
+        description: "Track every application with status updates, follow-up reminders, and company notes.",
+        icon: "clipboard",
+      },
+      {
+        title: "Job Board Integration",
+        description: "Pull listings from multiple job boards into a unified search and application workflow.",
+        icon: "search",
+      },
+      {
+        title: "Analytics Dashboard",
+        description: "Visualize application volume, response rates, and pipeline progression over time.",
+        icon: "analytics",
+      },
+      {
+        title: "Follow-Up Reminders",
+        description: "Automated reminders to follow up with companies at the optimal time after applying.",
+        icon: "calendar",
+      },
+    ],
+    screenshots: [
+      { src: "/screenshots/autoapply/hero.png", alt: "AutoApply landing", caption: "Job application platform" },
+      { src: "/screenshots/autoapply/dashboard.png", alt: "Application tracker", caption: "Application tracking dashboard" },
+      { src: "/screenshots/autoapply/mobile.png", alt: "Mobile view", caption: "Mobile-responsive design" },
+    ],
+    outcomes: [
+      "Tailored resume generation per job description",
+      "Application tracking with follow-up reminders",
+      "Analytics on application volume and response rates",
+      "Unified job board search and management",
+    ],
+    usesGHL: false,
+    clientIndustry: "Career & Recruitment",
+  },
 };
