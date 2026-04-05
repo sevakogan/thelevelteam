@@ -91,7 +91,7 @@ export default function HeroSection() {
   const heroOpacity = useTransform(scrollY, [0, 500], [1, 0]);
   const heroY = useTransform(scrollY, [0, 500], [0, 120]);
 
-  const { displayText, showCursor, wordIndex } = useTypewriter(ROTATING_WORDS, 70, 35, 4000);
+  const { displayText, showCursor, wordIndex } = useTypewriter(ROTATING_WORDS, 70, 35, 2000);
   const colorClass = WORD_COLORS[wordIndex % WORD_COLORS.length];
 
   const scrollToContact = useCallback(() => {
@@ -151,7 +151,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="h-[1.2em] mt-2 flex items-center justify-center"
+          className="h-[1.2em] mt-6 md:mt-8 flex items-center justify-center"
         >
           <span
             className={`font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight bg-gradient-to-r ${colorClass} bg-clip-text text-transparent transition-all duration-500`}
