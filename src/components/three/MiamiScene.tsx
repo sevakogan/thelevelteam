@@ -125,9 +125,11 @@ export default function MiamiScene() {
     let time = 0;
 
     const draw = () => {
+      try {
       time += 0.016;
       const w = window.innerWidth;
       const h = window.innerHeight;
+      if (w === 0 || h === 0) { animId = requestAnimationFrame(draw); return; }
 
       // Smooth mouse
       smoothMouseRef.current.x += (mouseRef.current.x - smoothMouseRef.current.x) * 0.03;
@@ -176,7 +178,7 @@ export default function MiamiScene() {
         const alpha = brightness;
 
         // Draw star glow
-        if (star.size > 1) {
+        if (star.size > 1 && isFinite(sx) && isFinite(sy)) {
           const glow = ctx.createRadialGradient(sx, sy, 0, sx, sy, star.size * 3);
           glow.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${alpha * 0.3})`);
           glow.addColorStop(1, "rgba(0, 0, 0, 0)");
@@ -185,6 +187,7 @@ export default function MiamiScene() {
         }
 
         // Draw star core
+        if (!isFinite(sx) || !isFinite(sy)) continue;
         ctx.beginPath();
         ctx.arc(sx, sy, star.size * brightness, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
@@ -294,6 +297,7 @@ export default function MiamiScene() {
       ctx.fillStyle = mouseGlow;
       ctx.fillRect(0, 0, w, h);
 
+      } catch { /* skip frame on NaN */ }
       animId = requestAnimationFrame(draw);
     };
 
