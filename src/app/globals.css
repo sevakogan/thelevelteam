@@ -242,3 +242,14 @@ html.lenis, html.lenis body { height: auto; }
 .dark .snap-section#hero {
   background: transparent;
 }
+
+/* ── Gradient rotation animation ── */
+@keyframes gradient-rotate {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient-rotate {
+  animation: gradient-rotate 4s ease-in-out infinite;
+}

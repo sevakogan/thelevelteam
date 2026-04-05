@@ -6,36 +6,47 @@ export default function AuroraBackground() {
       {/* Base gradient */}
       <div className="absolute inset-0 bg-brand-dark" />
 
-      {/* Aurora blob 1 — blue */}
+      {/* Aurora blob 1 — Miami pink */}
       <div
-        className="absolute w-[600px] h-[600px] rounded-full opacity-30 blur-[120px]"
+        className="absolute w-[700px] h-[700px] rounded-full opacity-25 blur-[140px]"
         style={{
-          background: "radial-gradient(circle, #3B82F6 0%, transparent 70%)",
-          top: "-10%",
-          left: "10%",
-          animation: "aurora-shift 20s ease-in-out infinite",
+          background: "radial-gradient(circle, #FF3B6F 0%, transparent 70%)",
+          top: "-15%",
+          left: "5%",
+          animation: "aurora-shift 18s ease-in-out infinite",
         }}
       />
 
       {/* Aurora blob 2 — purple */}
       <div
-        className="absolute w-[500px] h-[500px] rounded-full opacity-25 blur-[100px]"
+        className="absolute w-[550px] h-[550px] rounded-full opacity-20 blur-[120px]"
         style={{
-          background: "radial-gradient(circle, #8B5CF6 0%, transparent 70%)",
-          top: "20%",
-          right: "5%",
-          animation: "aurora-drift 25s ease-in-out infinite",
+          background: "radial-gradient(circle, #AF52DE 0%, transparent 70%)",
+          top: "25%",
+          right: "0%",
+          animation: "aurora-drift 22s ease-in-out infinite",
         }}
       />
 
-      {/* Aurora blob 3 — cyan */}
+      {/* Aurora blob 3 — baby blue */}
       <div
-        className="absolute w-[400px] h-[400px] rounded-full opacity-20 blur-[100px]"
+        className="absolute w-[500px] h-[500px] rounded-full opacity-20 blur-[120px]"
         style={{
-          background: "radial-gradient(circle, #06B6D4 0%, transparent 70%)",
-          bottom: "10%",
-          left: "30%",
-          animation: "aurora-shift 30s ease-in-out infinite reverse",
+          background: "radial-gradient(circle, #89D4F5 0%, transparent 70%)",
+          bottom: "5%",
+          left: "25%",
+          animation: "aurora-shift 26s ease-in-out infinite reverse",
+        }}
+      />
+
+      {/* Aurora blob 4 — neon red accent */}
+      <div
+        className="absolute w-[350px] h-[350px] rounded-full opacity-15 blur-[100px]"
+        style={{
+          background: "radial-gradient(circle, #FF2D55 0%, transparent 70%)",
+          top: "50%",
+          left: "60%",
+          animation: "aurora-drift 30s ease-in-out infinite reverse",
         }}
       />
 
@@ -44,9 +55,9 @@ export default function AuroraBackground() {
         className="absolute inset-0 opacity-40"
         style={{
           backgroundImage:
-            "radial-gradient(ellipse at 20% 50%, rgba(59,130,246,0.08) 0%, transparent 50%), " +
-            "radial-gradient(ellipse at 80% 20%, rgba(139,92,246,0.06) 0%, transparent 50%), " +
-            "radial-gradient(ellipse at 50% 80%, rgba(6,182,212,0.05) 0%, transparent 50%)",
+            "radial-gradient(ellipse at 20% 50%, rgba(255,59,111,0.08) 0%, transparent 50%), " +
+            "radial-gradient(ellipse at 80% 20%, rgba(175,82,222,0.06) 0%, transparent 50%), " +
+            "radial-gradient(ellipse at 50% 80%, rgba(137,212,245,0.05) 0%, transparent 50%)",
         }}
       />
     </div>

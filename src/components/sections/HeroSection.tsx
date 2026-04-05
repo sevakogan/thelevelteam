@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import AuroraBackground from "@/components/ui/AuroraBackground";
 import MagneticButton from "@/components/ui/MagneticButton";
@@ -94,9 +94,6 @@ export default function HeroSection() {
   const { displayText, showCursor, wordIndex } = useTypewriter(ROTATING_WORDS, 70, 35, 2000);
   const colorClass = WORD_COLORS[wordIndex % WORD_COLORS.length];
 
-  const scrollToContact = useCallback(() => {
-    document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
-  }, []);
 
   return (
     <section className="relative min-h-screen overflow-hidden">
@@ -124,15 +121,28 @@ export default function HeroSection() {
         style={{ opacity: heroOpacity }}
         className="absolute top-[22%] inset-x-0 z-[15] flex flex-col items-center text-center pointer-events-none px-6"
       >
-        {/* Subtitle above */}
+        {/* Subtitle above — animated gradient pill */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
-          className="mb-4"
+          className="mb-6"
         >
-          <span className="text-xs md:text-sm tracking-[0.3em] uppercase text-miami-pink font-medium">
-            Miami&apos;s Boutique Digital Agency
+          <span className="relative inline-block px-6 py-2 rounded-md overflow-hidden">
+            {/* Rotating gradient background */}
+            <span
+              className="absolute inset-0 rounded-md animate-gradient-rotate"
+              style={{
+                background: "linear-gradient(90deg, #FF2D55, #AF52DE, #5AC8FA, #FF3B6F, #89D4F5, #FF2D55)",
+                backgroundSize: "300% 100%",
+              }}
+            />
+            {/* Inner dark fill so text is readable */}
+            <span className="absolute inset-[1.5px] rounded-[4px] bg-black/80 backdrop-blur-sm" />
+            {/* Text */}
+            <span className="relative z-10 text-xs md:text-sm tracking-[0.3em] uppercase font-semibold bg-gradient-to-r from-miami-pink via-accent-purple to-miami-baby-blue bg-clip-text text-transparent bg-[length:200%_100%] animate-gradient-rotate">
+              Miami&apos;s Boutique Digital Agency
+            </span>
           </span>
         </motion.div>
 
@@ -231,10 +241,10 @@ export default function HeroSection() {
           </MagneticButton>
 
           <button
-            onClick={scrollToContact}
+            onClick={() => document.getElementById("portfolio")?.scrollIntoView({ behavior: "smooth" })}
             className="px-8 py-4 rounded-full border border-brand-border bg-glass-bg backdrop-blur-sm text-white font-medium hover:bg-white/10 transition-all duration-300 hover:scale-105"
           >
-            Book a Call &rarr;
+            See Our Work &rarr;
           </button>
         </motion.div>
 
