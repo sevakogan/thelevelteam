@@ -1,3 +1,4 @@
+import MiamiSceneLoader from "@/components/three/MiamiSceneLoader";
 import Header from "@/components/ui/Header";
 import HeroSection from "@/components/sections/HeroSection";
 import ServicesMarketing from "@/components/sections/ServicesMarketing";
@@ -19,6 +20,7 @@ export default async function Home() {
   return (
     <main className="snap-container bg-brand-dark">
       <Header />
+      <MiamiSceneLoader />
       <section className="snap-section" id="hero">
         <HeroSection />
       </section>
