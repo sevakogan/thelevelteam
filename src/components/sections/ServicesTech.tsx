@@ -155,10 +155,11 @@ export default function ServicesTech() {
               className={`
                 group relative
                 ${gridSpans[i]}
-                border border-brand-border bg-brand-card/60
+                border border-brand-border
+                bg-surface/80 dark:bg-brand-card/60
                 p-6 md:p-8
                 transition-colors duration-300
-                hover:bg-brand-card
+                hover:bg-surface dark:hover:bg-brand-card
               `}
             >
               {/* Left accent border */}
