@@ -84,8 +84,8 @@ export default function Header() {
               whileTap={{ scale: 0.97 }}
               className="relative px-5 py-2 rounded-full text-sm font-medium text-white overflow-hidden group"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-accent-blue to-accent-purple opacity-90 group-hover:opacity-100 transition-opacity" />
-              <div className="absolute inset-0 bg-gradient-to-r from-accent-blue to-accent-purple blur-lg opacity-0 group-hover:opacity-40 transition-opacity" />
+              <div className="absolute inset-0 bg-gradient-to-r from-miami-pink to-accent-purple opacity-90 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute inset-0 bg-gradient-to-r from-miami-pink to-accent-purple blur-lg opacity-0 group-hover:opacity-40 transition-opacity" />
               <span className="relative z-10">Hire Us</span>
             </motion.button>
 
