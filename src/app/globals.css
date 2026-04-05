@@ -225,11 +225,20 @@ html.lenis, html.lenis body { height: auto; }
   display: flex;
   flex-direction: column;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.75);
+  background: var(--background);
   z-index: 2;
 }
 
-/* Hero section is transparent so 3D scene shows through */
+/* Dark mode: semi-transparent so starfield/grid show through */
+.dark .snap-section {
+  background: rgba(0, 0, 0, 0.75);
+}
+
+/* Hero section is transparent so background effects show through */
 .snap-section#hero {
+  background: transparent;
+}
+
+.dark .snap-section#hero {
   background: transparent;
 }

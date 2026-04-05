@@ -310,7 +310,7 @@ export default function MiamiScene() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 z-0"
+      className="fixed inset-0 z-0 dark:block hidden"
       aria-hidden="true"
     />
   );
