@@ -210,21 +210,13 @@ html.lenis, html.lenis body { height: auto; }
   display: none;
 }
 
-/* ── Scroll Snap ── */
+/* ── Sections ── */
 .snap-container {
-  height: 100vh;
-  overflow-y: auto;
-  scroll-snap-type: y mandatory;
   scroll-behavior: smooth;
 }
 
 .snap-section {
-  min-height: 100vh;
-  scroll-snap-align: start;
   position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
   background: var(--background);
   z-index: 2;
 }
@@ -237,6 +229,10 @@ html.lenis, html.lenis body { height: auto; }
 /* Hero section is transparent so background effects show through */
 .snap-section#hero {
   background: transparent;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .dark .snap-section#hero {
