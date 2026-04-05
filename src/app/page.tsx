@@ -12,6 +12,7 @@ import CTASection from "@/components/sections/CTASection";
 import Footer from "@/components/sections/Footer";
 import FloatingCTA from "@/components/ui/FloatingCTA";
 import GamesModal from "@/components/ui/GamesModal";
+import AnimatedGrid from "@/components/ui/AnimatedGrid";
 import { getCompanies } from "@/lib/companies";
 
 export default async function Home() {
@@ -51,6 +52,7 @@ export default async function Home() {
       <footer className="snap-section" id="footer">
         <Footer />
       </footer>
+      <AnimatedGrid />
       <FloatingCTA />
       <GamesModal />
     </main>

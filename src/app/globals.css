@@ -225,8 +225,8 @@ html.lenis, html.lenis body { height: auto; }
   display: flex;
   flex-direction: column;
   justify-content: center;
-  background: var(--brand-dark);
-  z-index: 1;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 2;
 }
 
 /* Hero section is transparent so 3D scene shows through */
