@@ -249,3 +249,9 @@ html.lenis, html.lenis body { height: auto; }
 .animate-gradient-rotate {
   animation: gradient-rotate 4s ease-in-out infinite;
 }
+
+/* ── Typewriter cursor glow pulse ── */
+@keyframes cursor-pulse {
+  0%, 100% { box-shadow: 0 0 8px #FF3B6F40; }
+  50% { box-shadow: 0 0 20px #FF3B6F80, 0 0 40px #FF3B6F30; }
+}

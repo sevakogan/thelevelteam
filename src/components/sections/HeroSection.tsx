@@ -90,7 +90,7 @@ export default function HeroSection() {
   const heroOpacity = useTransform(scrollY, [0, 500], [1, 0]);
   const heroY = useTransform(scrollY, [0, 500], [0, 120]);
 
-  const { displayText, showCursor, wordIndex } = useTypewriter(ROTATING_WORDS, 70, 35, 2000);
+  const { displayText, showCursor, wordIndex } = useTypewriter(ROTATING_WORDS, 110, 50, 2500);
   const colorClass = WORD_COLORS[wordIndex % WORD_COLORS.length];
 
 
@@ -138,22 +138,42 @@ export default function HeroSection() {
           We Build
         </motion.h1>
 
-        {/* Typewriter word */}
+        {/* Typewriter word with glow + shimmer */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
-          className="h-[1.2em] mt-6 md:mt-8 flex items-center justify-center"
+          className="h-[1.2em] mt-6 md:mt-8 flex items-center justify-center relative"
         >
-          <span
-            className={`font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight bg-gradient-to-r ${colorClass} bg-clip-text text-transparent transition-all duration-500`}
+          {/* Glow behind text that pulses with typing */}
+          <div
+            className="absolute inset-0 blur-3xl opacity-20 transition-all duration-700 pointer-events-none"
+            style={{
+              background: `radial-gradient(ellipse at center, var(--tw-gradient-from, #FF3B6F), transparent 70%)`,
+              transform: `scaleX(${0.5 + displayText.length * 0.08})`,
+            }}
+          />
+
+          {/* Main text */}
+          <motion.span
+            key={wordIndex}
+            initial={{ filter: "blur(8px)", opacity: 0.5 }}
+            animate={{ filter: "blur(0px)", opacity: 1 }}
+            transition={{ duration: 0.3 }}
+            className={`font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight bg-gradient-to-r ${colorClass} bg-clip-text text-transparent relative`}
           >
             {displayText}
-          </span>
+          </motion.span>
+
+          {/* Cursor with glow */}
           <span
-            className={`font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-miami-pink ml-[2px] ${
+            className={`font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold ml-[2px] transition-opacity duration-100 ${
               showCursor ? "opacity-100" : "opacity-0"
-            } transition-opacity duration-100`}
+            }`}
+            style={{
+              color: "#FF3B6F",
+              textShadow: showCursor ? "0 0 20px #FF3B6F, 0 0 40px #FF3B6F50" : "none",
+            }}
           >
             |
           </span>
@@ -164,19 +184,33 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
-          className="mt-6 text-lg md:text-xl text-brand-muted max-w-2xl mx-auto font-light leading-relaxed"
+          className="mt-10 md:mt-12 text-lg md:text-xl text-brand-muted max-w-2xl mx-auto font-light leading-relaxed"
         >
           Advertising, technology, and strategy that drives real growth.
           <br className="hidden md:block" />
           From paid ads to AI chatbots — we handle it all.
         </motion.p>
 
+        {/* Live indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.2 }}
+          className="mt-8 flex items-center gap-2"
+        >
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+          </span>
+          <span className="text-xs text-emerald-400/70 font-medium">Available for new projects</span>
+        </motion.div>
+
         {/* Stats row */}
         <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.9 }}
-          className="mt-8 flex items-center gap-8 md:gap-12"
+          className="mt-6 flex items-center gap-8 md:gap-12"
         >
           <div className="text-center">
             <div className="text-2xl md:text-3xl font-display font-bold bg-gradient-to-r from-miami-pink to-miami-red bg-clip-text text-transparent">
