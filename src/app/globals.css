@@ -54,6 +54,12 @@
   --purple: #AF52DE;
   --pink: #FF2D55;
 
+  /* Miami Palette */
+  --miami-red: #FF2D55;
+  --miami-pink: #FF3B6F;
+  --miami-hot-pink: #FF6B9D;
+  --miami-baby-blue: #89D4F5;
+
   /* Fill (iOS-style tinted backgrounds for inputs/controls) */
   --fill: rgba(120, 120, 128, 0.2);
   --fill-secondary: rgba(120, 120, 128, 0.16);
@@ -111,6 +117,12 @@
   --teal: #64D2FF;
   --purple: #BF5AF2;
   --pink: #FF375F;
+
+  /* Miami Palette */
+  --miami-red: #FF2D55;
+  --miami-pink: #FF3B6F;
+  --miami-hot-pink: #FF6B9D;
+  --miami-baby-blue: #89D4F5;
 
   /* Fill */
   --fill: rgba(120, 120, 128, 0.36);

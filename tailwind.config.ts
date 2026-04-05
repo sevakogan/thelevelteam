@@ -54,6 +54,12 @@ const config: Config = {
           bg: "var(--glass-bg)",
           border: "var(--glass-border)",
         },
+        miami: {
+          red: "var(--miami-red)",
+          pink: "var(--miami-pink)",
+          "hot-pink": "var(--miami-hot-pink)",
+          "baby-blue": "var(--miami-baby-blue)",
+        },
       },
       fontFamily: {
         sans: ["var(--font-geist-sans)"],
