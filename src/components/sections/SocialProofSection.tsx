@@ -81,6 +81,16 @@ export default function SocialProofSection() {
           ))}
         </motion.div>
 
+        {/* CTA */}
+        <div className="flex justify-center mt-14">
+          <button
+            onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
+            className="px-8 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-400 font-semibold text-white shadow-lg hover:shadow-xl transition-all hover:scale-105"
+          >
+            Get These Results &rarr;
+          </button>
+        </div>
+
         {/* Bottom divider */}
         <div className="h-px w-full bg-gradient-to-r from-transparent via-brand-border to-transparent mt-16 md:mt-24" />
       </div>

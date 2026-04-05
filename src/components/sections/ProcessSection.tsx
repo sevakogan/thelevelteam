@@ -175,6 +175,16 @@ export default function ProcessSection() {
             </motion.div>
           ))}
         </motion.div>
+
+        {/* CTA */}
+        <div className="flex justify-center mt-16">
+          <button
+            onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
+            className="px-8 py-3 rounded-xl bg-gradient-to-r from-miami-pink to-accent-purple font-semibold text-white shadow-lg shadow-miami-pink/20 hover:shadow-xl hover:shadow-miami-pink/30 transition-all hover:scale-105"
+          >
+            Let&apos;s Talk Strategy &rarr;
+          </button>
+        </div>
       </div>
     </section>
   );

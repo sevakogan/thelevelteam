@@ -143,6 +143,16 @@ export default function AboutSection() {
             </motion.div>
           ))}
         </motion.div>
+
+        {/* CTA */}
+        <div className="flex justify-center mt-16">
+          <button
+            onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
+            className="px-8 py-3 rounded-xl bg-gradient-to-r from-accent-cyan to-miami-baby-blue font-semibold text-white shadow-lg hover:shadow-xl transition-all hover:scale-105"
+          >
+            Work With Us &rarr;
+          </button>
+        </div>
       </div>
     </section>
   );

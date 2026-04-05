@@ -94,6 +94,16 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* CTA */}
+        <div className="flex justify-center mt-12">
+          <button
+            onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
+            className="px-8 py-3 rounded-xl bg-gradient-to-r from-miami-pink to-miami-red font-semibold text-white shadow-lg hover:shadow-xl transition-all hover:scale-105"
+          >
+            Schedule a Call &rarr;
+          </button>
+        </div>
+
         {/* Bottom bar */}
         <div className="border-t border-glass-border mt-12 pt-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-brand-muted">

@@ -69,6 +69,13 @@ export default function Header() {
               Admin
             </Link>
 
+            <button
+              onClick={() => { const w = window as unknown as { __openGamesModal?: () => void }; w.__openGamesModal?.(); }}
+              className="px-3 py-1.5 rounded-lg bg-miami-pink/10 border border-miami-pink/20 text-miami-pink text-sm hover:border-miami-pink/40 transition-all"
+            >
+              🎮 Games
+            </button>
+
             <ThemeToggle />
 
             <motion.button

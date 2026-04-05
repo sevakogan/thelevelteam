@@ -163,6 +163,16 @@ export default function PlatformsBar() {
         ))}
       </Marquee>
 
+      {/* CTA */}
+      <div className="flex justify-center mt-10">
+        <button
+          onClick={() => document.getElementById("portfolio")?.scrollIntoView({ behavior: "smooth" })}
+          className="px-8 py-3 rounded-xl bg-gradient-to-r from-accent-blue to-accent-cyan font-semibold text-white shadow-lg hover:shadow-xl transition-all hover:scale-105"
+        >
+          See Our Results &rarr;
+        </button>
+      </div>
+
       {/* Bottom divider */}
       <div className="h-px w-full bg-gradient-to-r from-transparent via-white/[0.08] to-transparent mt-12" />
     </section>

@@ -56,6 +56,16 @@ export default function PortfolioSection({ companies }: PortfolioSectionProps) {
             />
           ))}
         </motion.div>
+
+        {/* CTA */}
+        <div className="flex justify-center mt-12">
+          <button
+            onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
+            className="px-8 py-3 rounded-xl bg-gradient-to-r from-miami-baby-blue to-accent-cyan font-semibold text-white shadow-lg hover:shadow-xl transition-all hover:scale-105"
+          >
+            Start Your Build &rarr;
+          </button>
+        </div>
       </div>
     </section>
   );
