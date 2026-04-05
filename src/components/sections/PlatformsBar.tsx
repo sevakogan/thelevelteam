@@ -5,14 +5,14 @@ import { motion } from "framer-motion";
 import { blurIn } from "@/lib/animations";
 
 const platforms = [
-  { name: "Meta Ads", color: "#3B82F6", char: "M" },
-  { name: "Instagram", color: "#EC4899", char: "IG" },
-  { name: "TikTok", color: "#10B981", char: "TT" },
-  { name: "Google Ads", color: "#FBBC04", char: "G" },
-  { name: "Facebook", color: "#1877F2", char: "FB" },
-  { name: "YouTube", color: "#FF0000", char: "YT" },
-  { name: "LinkedIn", color: "#0A66C2", char: "IN" },
-  { name: "X / Twitter", color: "#8888a0", char: "X" },
+  { name: "Meta Ads", color: "#3B82F6" },
+  { name: "Instagram", color: "#EC4899" },
+  { name: "TikTok", color: "#10B981" },
+  { name: "Google Ads", color: "#FBBC04" },
+  { name: "Facebook", color: "#1877F2" },
+  { name: "YouTube", color: "#FF0000" },
+  { name: "LinkedIn", color: "#0A66C2" },
+  { name: "X / Twitter", color: "#8888a0" },
 ] as const;
 
 interface Ball {
@@ -24,7 +24,6 @@ interface Ball {
   mass: number;
   name: string;
   color: string;
-  char: string;
   glowIntensity: number;
 }
 
@@ -61,17 +60,17 @@ export default function PlatformsBar() {
     const copies = 3;
     for (let c = 0; c < copies; c++) {
       for (const p of platforms) {
-        const radius = 22 + Math.random() * 18;
+        // Size based on name length — longer names get bigger bubbles
+        const baseRadius = 28 + p.name.length * 3.5 + Math.random() * 8;
         balls.push({
           x: 80 + Math.random() * 1000,
           y: 80 + Math.random() * 600,
           vx: (Math.random() - 0.5) * 2,
           vy: (Math.random() - 0.5) * 2,
-          radius,
-          mass: radius * radius,
+          radius: baseRadius,
+          mass: baseRadius * baseRadius,
           name: p.name,
           color: p.color,
-          char: p.char,
           glowIntensity: 0,
         });
       }
@@ -349,20 +348,14 @@ export default function PlatformsBar() {
         ctx.lineWidth = 1.5;
         ctx.stroke();
 
-        // Text
+        // Full name text inside the ball
         const textAlpha = 0.6 + finalGlow * 0.4;
-        ctx.font = `bold ${Math.round(b.radius * 0.38)}px system-ui, -apple-system, sans-serif`;
+        const fontSize = Math.round(b.radius * 0.28);
+        ctx.font = `700 ${fontSize}px system-ui, -apple-system, sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillStyle = `rgba(255,255,255,${textAlpha})`;
-        ctx.fillText(b.char, b.x, b.y);
-
-        // Show name on hover or collision glow
-        if (finalGlow > 0.4) {
-          ctx.font = "600 11px system-ui, -apple-system, sans-serif";
-          ctx.fillStyle = `rgba(255,255,255,${(finalGlow - 0.4) * 1.6})`;
-          ctx.fillText(b.name, b.x, b.y + b.radius + 14);
-        }
+        ctx.fillText(b.name, b.x, b.y);
       }
 
       animId = requestAnimationFrame(draw);
