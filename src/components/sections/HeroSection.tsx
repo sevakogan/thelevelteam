@@ -4,7 +4,6 @@ import { useEffect, useState, useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import AuroraBackground from "@/components/ui/AuroraBackground";
 import MagneticButton from "@/components/ui/MagneticButton";
-import Logo from "@/components/ui/Logo";
 import { useLeadModal } from "@/lib/marketing/useLeadModal";
 
 const ROTATING_WORDS = [
@@ -98,23 +97,6 @@ export default function HeroSection() {
   return (
     <section className="relative min-h-screen overflow-hidden">
       <AuroraBackground />
-
-      {/* Logo badge */}
-      <motion.div
-        style={{ opacity: heroOpacity }}
-        className="absolute top-[8%] inset-x-0 z-20 flex justify-center pointer-events-none"
-      >
-        <motion.div
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.1 }}
-        >
-          <div className="flex items-center gap-3 px-5 py-2.5 rounded-full bg-glass-bg backdrop-blur-xl border border-glass-border">
-            <Logo size={28} />
-            <span className="text-sm font-medium text-white">TheLevelTeam</span>
-          </div>
-        </motion.div>
-      </motion.div>
 
       {/* Hero title area */}
       <motion.div
