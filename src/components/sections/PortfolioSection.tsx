@@ -63,14 +63,22 @@ export default function PortfolioSection({ companies }: PortfolioSectionProps) {
           </motion.p>
         </div>
 
-        {/* Masonry grid */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true, margin: "-50px" }}
-          transition={{ duration: 0.6 }}
-          className="grid grid-cols-2 md:grid-cols-4 auto-rows-[120px] md:auto-rows-[140px] gap-2.5 md:gap-3"
-        >
+        {/* Masonry grid with glass container */}
+        <div className="relative rounded-2xl p-4 md:p-6 border border-white/[0.06] bg-white/[0.02] dark:bg-white/[0.02] backdrop-blur-sm">
+          {/* Subtle gradient glow behind grid */}
+          <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
+            <div className="absolute -top-20 -left-20 w-60 h-60 bg-miami-pink/5 rounded-full blur-3xl" />
+            <div className="absolute -bottom-20 -right-20 w-60 h-60 bg-accent-blue/5 rounded-full blur-3xl" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-accent-purple/3 rounded-full blur-3xl" />
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.6 }}
+            className="relative z-10 grid grid-cols-2 md:grid-cols-4 auto-rows-[120px] md:auto-rows-[140px] gap-2.5 md:gap-3"
+          >
           {companies.map((company, i) => {
             const span = getSpan(i);
             const isHovered = hoveredId === company.id;
@@ -178,7 +186,8 @@ export default function PortfolioSection({ companies }: PortfolioSectionProps) {
               </motion.div>
             );
           })}
-        </motion.div>
+          </motion.div>
+        </div>
 
         {/* CTA */}
         <div className="flex justify-center mt-12">
