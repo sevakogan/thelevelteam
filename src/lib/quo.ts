@@ -42,10 +42,13 @@ export async function pushLeadToQuo(data: QuoLeadData): Promise<void> {
 
   const clientPhone = normalizePhone(data.phone);
 
-  // 1. Auto-reply to client
+  // 1. Save contact as "LevelTeam: Name" in Quo
+  await saveContact(apiKey, clientPhone, data.name, data.email);
+
+  // 2. Auto-reply to client
   await sendSms(apiKey, clientPhone, buildAutoReply(data.source));
 
-  // 2. Lead details (also visible in your Quo inbox)
+  // 3. Lead details (also visible in your Quo inbox)
   await sendSms(apiKey, clientPhone, buildLeadDetails(data));
 }
 
@@ -69,7 +72,8 @@ function buildAutoReply(source: string): string {
  */
 function buildLeadDetails(data: QuoLeadData): string {
   const lines: (string | null)[] = [
-    `— New Lead (${data.source}) —`,
+    "TheLevelTeam Lead",
+    `Location: ${data.source}`,
     "",
     `Name: ${data.name}`,
     data.email ? `Email: ${data.email}` : null,
@@ -80,6 +84,41 @@ function buildLeadDetails(data: QuoLeadData): string {
       : null,
   ];
   return lines.filter((l) => l !== null).join("\n");
+}
+
+/**
+ * Create or update contact in Quo with "LevelTeam: Name" format.
+ */
+async function saveContact(
+  apiKey: string,
+  phone: string,
+  name: string,
+  email?: string
+): Promise<void> {
+  const contactName = `LevelTeam: ${name}`;
+
+  const body: Record<string, unknown> = {
+    firstName: contactName,
+    phoneNumbers: [{ value: phone }],
+  };
+
+  if (email) {
+    body.emails = [{ value: email }];
+  }
+
+  const res = await fetch(`${QUO_API}/contacts`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: apiKey,
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const respBody = await res.json().catch(() => ({}));
+    console.error("[Quo] Save contact error:", res.status, respBody);
+  }
 }
 
 async function sendSms(

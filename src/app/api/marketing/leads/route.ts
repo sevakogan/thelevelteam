@@ -79,22 +79,10 @@ export async function POST(req: NextRequest) {
     );
 
     // Wait for all welcome messages but don't fail the request
-    const results = await Promise.allSettled(welcomePromises);
-
-    const debug = {
-      quoKeySet: !!process.env.QUO_API_KEY,
-      smsConsent: lead.sms_consent,
-      phone: lead.phone ? "yes" : "no",
-      promiseCount: welcomePromises.length,
-      results: results.map((r, i) => ({
-        index: i,
-        status: r.status,
-        reason: r.status === "rejected" ? String(r.reason) : undefined,
-      })),
-    };
+    await Promise.allSettled(welcomePromises);
 
     return NextResponse.json(
-      { success: true, leadId: lead.id, _debug: debug },
+      { success: true, leadId: lead.id },
       { status: 201 }
     );
   } catch (err) {
