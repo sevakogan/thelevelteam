@@ -34,14 +34,21 @@ export default function PortfolioSection({ companies }: PortfolioSectionProps) {
   const prev = useCallback(() => setActiveIndex((prev) => (prev - 1 + total) % total), [total]);
 
   const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    isDragging.current = false;
-    if (Math.abs(info.offset.x) > 50 || Math.abs(info.velocity.x) > 300) {
+    setTimeout(() => { isDragging.current = false; }, 50);
+    if (Math.abs(info.offset.x) > 40 || Math.abs(info.velocity.x) > 200) {
       if (info.offset.x > 0) {
         prev();
       } else {
         next();
       }
     }
+  };
+
+  const goToOffset = (offset: number) => {
+    if (isDragging.current) return;
+    if (offset === 0) return; // center card — let link handle it
+    // Jump by the offset amount
+    setActiveIndex((prev) => ((prev + offset) % total + total) % total);
   };
 
   return (
@@ -75,11 +82,11 @@ export default function PortfolioSection({ companies }: PortfolioSectionProps) {
 
         {/* 3D Carousel */}
         <motion.div
-          className="relative h-[420px] md:h-[460px] flex items-center justify-center cursor-grab active:cursor-grabbing select-none"
+          className="relative h-[420px] md:h-[460px] flex items-center justify-center cursor-grab active:cursor-grabbing select-none overflow-hidden"
           style={{ perspective: "1200px" }}
           drag="x"
           dragConstraints={{ left: 0, right: 0 }}
-          dragElastic={0.3}
+          dragElastic={0.15}
           onDragStart={() => { isDragging.current = true; }}
           onDragEnd={handleDragEnd}
         >
@@ -103,11 +110,7 @@ export default function PortfolioSection({ companies }: PortfolioSectionProps) {
                   transformStyle: "preserve-3d",
                   zIndex: 10 - Math.abs(pos.offset),
                 }}
-                onClick={() => {
-                  if (isDragging.current) return;
-                  if (pos.offset < 0) prev();
-                  else if (pos.offset > 0) next();
-                }}
+                onClick={() => goToOffset(pos.offset)}
               >
                 <div
                   className={`w-[260px] md:w-[300px] h-[340px] md:h-[380px] rounded-2xl overflow-hidden transition-all duration-300 ${
