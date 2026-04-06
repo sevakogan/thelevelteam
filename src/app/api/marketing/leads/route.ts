@@ -1,22 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateLeadForm } from "@/lib/marketing/validation";
 import { createLead, getLeads, updateLead, deleteLead } from "@/lib/marketing/leads";
-import { sendSMS } from "@/lib/marketing/twilio";
 import { sendEmail } from "@/lib/marketing/sendgrid";
-import { getWelcomeSMS, getWelcomeEmail } from "@/lib/marketing/templates";
+import { getWelcomeEmail } from "@/lib/marketing/templates";
 import { enrollLeadInCampaigns } from "@/lib/marketing/drip";
-import { notifySlack } from "@/lib/marketing/slack";
 import { createSupabaseServer } from "@/lib/supabase-auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
-
-function formatNewLeadSlack(lead: { name: string; email?: string | null; phone?: string | null; message?: string | null; source?: string | null }): string {
-  const lines = [`:rotating_light: *New Lead: ${lead.name}*`];
-  if (lead.email) lines.push(`>:email: ${lead.email}`);
-  if (lead.phone) lines.push(`>:phone: ${lead.phone}`);
-  if (lead.message) lines.push(`>:pencil: "${lead.message}"`);
-  if (lead.source) lines.push(`>:link: Source: ${lead.source}`);
-  return lines.join("\n");
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -44,35 +33,10 @@ export async function POST(req: NextRequest) {
     // Send immediate welcome messages (fire-and-forget, don't block response)
     const welcomePromises: Promise<unknown>[] = [];
 
-    // Slack notification
-    welcomePromises.push(
-      notifySlack(formatNewLeadSlack(lead)).catch((err) =>
-        console.error("Slack notification failed:", err)
-      )
-    );
-
     const supabase = getSupabaseAdmin();
 
-    if (lead.sms_consent) {
-      const smsBody = getWelcomeSMS(lead);
-      welcomePromises.push(
-        sendSMS(lead.phone, smsBody)
-          .then((result) => {
-            // Store outbound welcome SMS
-            supabase.from("sms_messages").insert({
-              lead_id: lead.id,
-              phone: lead.phone,
-              direction: "outbound",
-              body: smsBody,
-              twilio_sid: result.sid,
-              status: result.status,
-            }).then(({ error: insertErr }) => {
-              if (insertErr) console.warn("Could not store welcome SMS:", insertErr.message);
-            });
-          })
-          .catch((err) => console.error("Welcome SMS failed:", err))
-      );
-    }
+    // TODO: GHL (GoHighLevel) campaign integration — will be connected next
+    // Placeholder for GHL webhook/API call to enroll lead in GHL campaign
 
     if (lead.email_consent) {
       const { subject, html } = getWelcomeEmail(lead);
