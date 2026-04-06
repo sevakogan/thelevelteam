@@ -62,6 +62,34 @@ export default function RootLayout({
         <noscript>
           <style>{`[style*="opacity: 0"],[style*="opacity:0"]{opacity:1!important}[style*="transform"]{transform:none!important}[style*="filter: blur"]{filter:none!important}`}</style>
         </noscript>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "ProfessionalService",
+              name: "TheLevelTeam",
+              description:
+                "Boutique digital agency — advertising, technology, and strategy for businesses across the US.",
+              url: "https://thelevelteam.com",
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: "Miami",
+                addressRegion: "FL",
+                addressCountry: "US",
+              },
+              serviceType: [
+                "Digital Marketing",
+                "Web Development",
+                "SEO",
+                "Social Media Management",
+                "AI & Chatbots",
+                "CRM Automation",
+              ],
+              areaServed: "United States",
+            }),
+          }}
+        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${syne.variable} antialiased bg-brand-dark`}

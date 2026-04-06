@@ -11,7 +11,7 @@ export default function Logo({ size = 32, className = "" }: LogoProps) {
   return (
     <Image
       src="/logo.png"
-      alt="TheLevelTeam Logo"
+      alt="TheLevelTeam - Home"
       width={size}
       height={size}
       className={className}

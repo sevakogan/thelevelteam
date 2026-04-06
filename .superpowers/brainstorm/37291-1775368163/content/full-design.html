@@ -1,0 +1,319 @@
+<h2>Full Design — 3D Miami Landing Page</h2>
+<p class="subtitle">Review each section. This is what we're building.</p>
+
+<!-- TECH STACK -->
+<div style="margin-bottom:40px;">
+  <div style="font-size:11px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,59,111,0.7);margin-bottom:8px;">New Dependencies</div>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;">
+    <span style="padding:6px 14px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);font-size:13px;color:rgba(255,255,255,0.8);">three.js</span>
+    <span style="padding:6px 14px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);font-size:13px;color:rgba(255,255,255,0.8);">@react-three/fiber</span>
+    <span style="padding:6px 14px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);font-size:13px;color:rgba(255,255,255,0.8);">@react-three/drei</span>
+    <span style="padding:6px 14px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);font-size:13px;color:rgba(255,255,255,0.8);">@react-three/postprocessing</span>
+    <span style="padding:6px 14px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);font-size:13px;color:rgba(255,255,255,0.8);">leva <span style="color:rgba(255,255,255,0.3);">(dev debug)</span></span>
+  </div>
+</div>
+
+<!-- COLOR PALETTE -->
+<div style="margin-bottom:40px;">
+  <div style="font-size:11px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,59,111,0.7);margin-bottom:12px;">Miami Color Palette</div>
+  <div style="display:flex;height:48px;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.08);">
+    <div style="flex:1;background:#FF2D55;" title="Neon Red"></div>
+    <div style="flex:1;background:#FF3B6F;" title="Miami Pink"></div>
+    <div style="flex:1;background:#FF6B9D;" title="Hot Pink"></div>
+    <div style="flex:1;background:#AF52DE;" title="Purple (existing)"></div>
+    <div style="flex:1;background:#007AFF;" title="Blue (existing)"></div>
+    <div style="flex:1;background:#5AC8FA;" title="Cyan (existing)"></div>
+    <div style="flex:1;background:#89D4F5;" title="Baby Blue"></div>
+  </div>
+  <div style="display:flex;padding:6px 0;gap:4px;">
+    <span style="flex:1;text-align:center;font-size:10px;color:rgba(255,255,255,0.35);">Neon Red</span>
+    <span style="flex:1;text-align:center;font-size:10px;color:rgba(255,255,255,0.35);">Miami Pink</span>
+    <span style="flex:1;text-align:center;font-size:10px;color:rgba(255,255,255,0.35);">Hot Pink</span>
+    <span style="flex:1;text-align:center;font-size:10px;color:rgba(255,255,255,0.35);">Purple</span>
+    <span style="flex:1;text-align:center;font-size:10px;color:rgba(255,255,255,0.35);">Blue</span>
+    <span style="flex:1;text-align:center;font-size:10px;color:rgba(255,255,255,0.35);">Cyan</span>
+    <span style="flex:1;text-align:center;font-size:10px;color:rgba(255,255,255,0.35);">Baby Blue</span>
+  </div>
+</div>
+
+<!-- HEADER -->
+<div style="margin-bottom:40px;">
+  <div style="font-size:11px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,59,111,0.7);margin-bottom:12px;">Header Changes</div>
+  <div class="mockup">
+    <div class="mockup-header">Header — Glassmorphic overlay on 3D scene</div>
+    <div class="mockup-body" style="padding:0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:rgba(10,10,26,0.6);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="width:24px;height:24px;background:linear-gradient(135deg,#007AFF,#5AC8FA);border-radius:6px;"></div>
+          <span style="font-size:15px;font-weight:700;color:white;">TheLevelTeam</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:20px;">
+          <span style="font-size:13px;color:rgba(255,255,255,0.5);">Services</span>
+          <span style="font-size:13px;color:rgba(255,255,255,0.5);">Work</span>
+          <span style="font-size:13px;color:rgba(255,255,255,0.5);">About</span>
+          <span style="font-size:13px;color:rgba(255,255,255,0.5);">Admin</span>
+          <span style="padding:6px 14px;border-radius:8px;background:rgba(255,59,111,0.15);border:1px solid rgba(255,59,111,0.3);font-size:12px;color:#FF3B6F;cursor:pointer;">🎮 Games</span>
+          <span style="font-size:13px;color:rgba(255,255,255,0.3);">☀</span>
+          <span style="padding:6px 16px;border-radius:8px;background:linear-gradient(135deg,#FF3B6F,#AF52DE);font-size:13px;color:white;font-weight:600;">Hire Us</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <p style="font-size:12px;color:rgba(255,255,255,0.4);margin-top:8px;">New: <strong style="color:rgba(255,59,111,0.8);">Games button</strong> opens a centered modal with Angry Birds + Breakout game selector. Hire Us gradient updated to Miami palette.</p>
+</div>
+
+<!-- SCROLL JOURNEY -->
+<div style="margin-bottom:40px;">
+  <div style="font-size:11px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,59,111,0.7);margin-bottom:12px;">Scroll Journey — Full-Page Snap Sections</div>
+
+  <!-- Section 1: Hero -->
+  <div style="border:1px solid rgba(255,255,255,0.06);border-radius:16px;overflow:hidden;margin-bottom:12px;">
+    <div style="padding:16px 20px;background:rgba(255,59,111,0.06);display:flex;align-items:center;gap:12px;">
+      <span style="font-size:11px;font-weight:700;color:#FF3B6F;min-width:70px;">SECTION 1</span>
+      <span style="font-size:15px;font-weight:600;color:white;">Hero — Aerial Sunset</span>
+    </div>
+    <div style="padding:20px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:6px;">3D Scene</div>
+          <ul style="margin:0;padding-left:16px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;">
+            <li>Aerial camera over Biscayne Bay looking at Miami skyline</li>
+            <li>Sunset sky gradient (pink → purple → dark blue)</li>
+            <li>Low-poly buildings with glowing neon windows</li>
+            <li>Reflective ocean with wave shader + skyline mirror</li>
+            <li>Volumetric fog drifting between buildings</li>
+            <li>Firefly particles catching sunset light</li>
+            <li>God rays through gaps in skyline</li>
+            <li>Mouse moves camera angle (gyroscope on mobile)</li>
+          </ul>
+        </div>
+        <div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:6px;">UI Overlay</div>
+          <ul style="margin:0;padding-left:16px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;">
+            <li>"TheLevelTeam" title zooms toward you in 3D space</li>
+            <li>"Boutique Digital Agency" subtitle fades in with blur</li>
+            <li>"Miami, FL" with baby blue glow</li>
+            <li>"Start a Project" CTA button (Miami gradient)</li>
+            <li>Scroll indicator arrow pulses at bottom</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: Services -->
+  <div style="border:1px solid rgba(255,255,255,0.06);border-radius:16px;overflow:hidden;margin-bottom:12px;">
+    <div style="padding:16px 20px;background:rgba(255,107,157,0.06);display:flex;align-items:center;gap:12px;">
+      <span style="font-size:11px;font-weight:700;color:#FF6B9D;min-width:70px;">SECTION 2</span>
+      <span style="font-size:15px;font-weight:600;color:white;">Services — Diving Into the City</span>
+    </div>
+    <div style="padding:20px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:6px;">3D Transition</div>
+          <ul style="margin:0;padding-left:16px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;">
+            <li>Camera swoops down from aerial into street level</li>
+            <li>Buildings rush past on both sides (zoom & scale)</li>
+            <li>Buildings flatten and morph into bento card frames</li>
+            <li>Neon signs start flickering on</li>
+          </ul>
+        </div>
+        <div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:6px;">UI Content</div>
+          <ul style="margin:0;padding-left:16px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;">
+            <li>6 service cards in bento grid (existing layout)</li>
+            <li>Cards float in 3D with depth + shadow on scene</li>
+            <li>Neon-colored left borders (pink, blue, cyan etc.)</li>
+            <li>Platforms marquee below</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 3: Portfolio -->
+  <div style="border:1px solid rgba(255,255,255,0.06);border-radius:16px;overflow:hidden;margin-bottom:12px;">
+    <div style="padding:16px 20px;background:rgba(175,82,222,0.06);display:flex;align-items:center;gap:12px;">
+      <span style="font-size:11px;font-weight:700;color:#AF52DE;min-width:70px;">SECTION 3</span>
+      <span style="font-size:15px;font-weight:600;color:white;">Portfolio — Flying Over the Ocean</span>
+    </div>
+    <div style="padding:20px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:6px;">3D Transition</div>
+          <ul style="margin:0;padding-left:16px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;">
+            <li>Camera rises back up, flies out over the ocean</li>
+            <li>Skyline recedes into background</li>
+            <li>Project cards orbit in 3D space above the water</li>
+            <li>Cards dock into grid as section locks in</li>
+          </ul>
+        </div>
+        <div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:6px;">UI Content</div>
+          <ul style="margin:0;padding-left:16px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;">
+            <li>21 project BentoCards with existing tilt + drag</li>
+            <li>Cards cast reflections on the water below</li>
+            <li>Company colors create glow on water surface</li>
+            <li>"Selected Projects" title with word stagger</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 4: Process -->
+  <div style="border:1px solid rgba(255,255,255,0.06);border-radius:16px;overflow:hidden;margin-bottom:12px;">
+    <div style="padding:16px 20px;background:rgba(0,122,255,0.06);display:flex;align-items:center;gap:12px;">
+      <span style="font-size:11px;font-weight:700;color:#007AFF;min-width:70px;">SECTION 4</span>
+      <span style="font-size:15px;font-weight:600;color:white;">Process — Neon Night</span>
+    </div>
+    <div style="padding:20px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:6px;">3D Transition</div>
+          <ul style="margin:0;padding-left:16px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;">
+            <li>Sky darkens to full night</li>
+            <li>Buildings explode with neon — pink, red, baby blue</li>
+            <li>Volumetric light beams shoot from rooftops</li>
+            <li>Camera back at street level, looking up</li>
+          </ul>
+        </div>
+        <div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:6px;">UI Content</div>
+          <ul style="margin:0;padding-left:16px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;">
+            <li>4 process steps zoom in from distance</li>
+            <li>Discovery → Strategy → Execute → Optimize</li>
+            <li>Connecting line pulses with neon glow</li>
+            <li>Step numbers glow like neon signs</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 5: About + Stats -->
+  <div style="border:1px solid rgba(255,255,255,0.06);border-radius:16px;overflow:hidden;margin-bottom:12px;">
+    <div style="padding:16px 20px;background:rgba(137,212,245,0.06);display:flex;align-items:center;gap:12px;">
+      <span style="font-size:11px;font-weight:700;color:#89D4F5;min-width:70px;">SECTION 5</span>
+      <span style="font-size:15px;font-weight:600;color:white;">About + Stats — Moonlit Ocean</span>
+    </div>
+    <div style="padding:20px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:6px;">3D Transition</div>
+          <ul style="margin:0;padding-left:16px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;">
+            <li>Camera rises high, looking down at moonlit ocean</li>
+            <li>Neon fades, calm moonlight takes over</li>
+            <li>Gentle waves, soft reflections</li>
+            <li>Stars visible overhead with particle field</li>
+          </ul>
+        </div>
+        <div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:6px;">UI Content</div>
+          <ul style="margin:0;padding-left:16px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;">
+            <li>"We're not a factory" statement</li>
+            <li>Stats counters zoom from far to near</li>
+            <li>Numbers reflect in water surface below</li>
+            <li>Values list with color-coded numbers</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 6: CTA + Footer -->
+  <div style="border:1px solid rgba(255,255,255,0.06);border-radius:16px;overflow:hidden;margin-bottom:12px;">
+    <div style="padding:16px 20px;background:rgba(90,200,250,0.06);display:flex;align-items:center;gap:12px;">
+      <span style="font-size:11px;font-weight:700;color:#5AC8FA;min-width:70px;">SECTION 6</span>
+      <span style="font-size:15px;font-weight:600;color:white;">CTA + Footer — Dawn Breaking</span>
+    </div>
+    <div style="padding:20px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+        <div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:6px;">3D Transition</div>
+          <ul style="margin:0;padding-left:16px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;">
+            <li>Sky warms — dawn breaking on the horizon</li>
+            <li>Golden/pink light across the water</li>
+            <li>Skyline silhouette against sunrise</li>
+            <li>Fog lifts, particles become warm golden</li>
+          </ul>
+        </div>
+        <div>
+          <div style="font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:6px;">UI Content</div>
+          <ul style="margin:0;padding-left:16px;font-size:13px;color:rgba(255,255,255,0.7);line-height:1.8;">
+            <li>Contact form with glass panel</li>
+            <li>"Start Your Project" with warm gradient</li>
+            <li>Footer fades in below</li>
+            <li>New day = new project energy</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GAMES MODAL -->
+<div style="margin-bottom:40px;">
+  <div style="font-size:11px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,59,111,0.7);margin-bottom:12px;">Games Modal</div>
+  <div class="mockup">
+    <div class="mockup-header">Games Modal — triggered from header button</div>
+    <div class="mockup-body" style="padding:0;position:relative;height:300px;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;">
+      <div style="position:absolute;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(12px);"></div>
+      <div style="position:relative;width:80%;max-width:500px;background:rgba(28,28,30,0.95);border-radius:20px;border:1px solid rgba(255,255,255,0.08);padding:24px;text-align:center;box-shadow:0 25px 50px rgba(0,0,0,0.5);">
+        <div style="position:absolute;top:12px;right:16px;font-size:18px;color:rgba(255,255,255,0.3);cursor:pointer;">✕</div>
+        <div style="font-size:18px;font-weight:700;color:white;margin-bottom:16px;">Pick Your Game</div>
+        <div style="display:flex;gap:12px;">
+          <div style="flex:1;padding:20px;border-radius:14px;background:rgba(255,59,111,0.08);border:1px solid rgba(255,59,111,0.2);cursor:pointer;">
+            <div style="font-size:32px;margin-bottom:8px;">🐦</div>
+            <div style="font-size:14px;font-weight:600;color:white;">Angry Birds</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px;">Slingshot physics</div>
+          </div>
+          <div style="flex:1;padding:20px;border-radius:14px;background:rgba(137,212,245,0.08);border:1px solid rgba(137,212,245,0.2);cursor:pointer;">
+            <div style="font-size:32px;margin-bottom:8px;">🧱</div>
+            <div style="font-size:14px;font-weight:600;color:white;">Breakout</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:4px;">Classic brick breaker</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MOBILE -->
+<div style="margin-bottom:40px;">
+  <div style="font-size:11px;text-transform:uppercase;letter-spacing:2px;color:rgba(255,59,111,0.7);margin-bottom:12px;">Mobile Experience</div>
+  <div style="padding:20px;border-radius:16px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:white;margin-bottom:8px;">Desktop (Full 3D)</div>
+        <ul style="margin:0;padding-left:16px;font-size:12px;color:rgba(255,255,255,0.5);line-height:1.8;">
+          <li>React Three Fiber scene</li>
+          <li>Water shader with reflections</li>
+          <li>10K+ particles</li>
+          <li>Volumetric fog + god rays</li>
+          <li>Post-processing bloom</li>
+          <li>Mouse-driven camera</li>
+          <li>Full camera flythrough</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:white;margin-bottom:8px;">Mobile (Simplified 3D)</div>
+        <ul style="margin:0;padding-left:16px;font-size:12px;color:rgba(255,255,255,0.5);line-height:1.8;">
+          <li>CSS parallax layers (5 depths)</li>
+          <li>Static skyline silhouette SVG</li>
+          <li>CSS gradient ocean with shimmer</li>
+          <li>Reduced particles (CSS)</li>
+          <li>Gradient fog (no volumetric)</li>
+          <li>Device gyroscope tilt</li>
+          <li>Scroll-triggered CSS transitions</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SUMMARY -->
+<div style="padding:20px;border-radius:16px;background:linear-gradient(135deg,rgba(255,59,111,0.08),rgba(175,82,222,0.06),rgba(137,212,245,0.04));border:1px solid rgba(255,59,111,0.12);">
+  <div style="font-size:15px;font-weight:700;color:white;margin-bottom:8px;">Does this design look good to you?</div>
+  <p style="font-size:13px;color:rgba(255,255,255,0.6);margin:0;">If approved, I'll write the full spec document and create an implementation plan. The build will be phased: (1) 3D scene foundation, (2) scroll system + camera path, (3) section-by-section content, (4) effects + polish, (5) mobile fallback.</p>
+</div>

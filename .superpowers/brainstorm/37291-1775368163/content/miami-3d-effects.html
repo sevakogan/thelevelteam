@@ -1,0 +1,90 @@
+<h2>Maxing Out the 3D — Which scroll effects do you want?</h2>
+<p class="subtitle">Select ALL that you want included. These layer on top of the Miami skyline scene.</p>
+
+<div class="options" data-multiselect>
+
+  <div class="option" data-choice="parallax-layers" onclick="toggleSelect(this)">
+    <div class="letter" style="background:linear-gradient(135deg,#FF3B6F,#FF6B9D);">1</div>
+    <div class="content">
+      <h3>Parallax Depth Layers (5+ layers)</h3>
+      <p>Sky, clouds, far buildings, near buildings, ocean, foreground — all moving at different speeds as you scroll. Creates massive depth. Buildings slide past each other like you're flying through the city.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="camera-fly" onclick="toggleSelect(this)">
+    <div class="letter" style="background:linear-gradient(135deg,#FF2D55,#FF3B6F);">2</div>
+    <div class="content">
+      <h3>Camera Flythrough</h3>
+      <p>Scroll controls a cinematic camera path through the 3D scene. Start aerial over the ocean → swoop down to street level → rise back up over rooftops → dive into the water reflection. Each section is a camera "stop" on the path.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="morph-sections" onclick="toggleSelect(this)">
+    <div class="letter" style="background:linear-gradient(135deg,#AF52DE,#BF5AF2);">3</div>
+    <div class="content">
+      <h3>Section Morphing Transitions</h3>
+      <p>Sections don't just scroll in — they <strong>transform from the 3D scene</strong>. Buildings flatten into bento cards. Ocean waves become gradient dividers. Clouds dissolve into glass panels. The UI emerges FROM the world.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="floating-elements" onclick="toggleSelect(this)">
+    <div class="letter" style="background:linear-gradient(135deg,#007AFF,#5AC8FA);">4</div>
+    <div class="content">
+      <h3>Floating 3D UI Elements</h3>
+      <p>Portfolio cards, service icons, and stats float in 3D space with real depth. Tilt on mouse move with perspective. Cast soft shadows onto the ocean/ground below. Cards orbit and dock into grid when you reach their section.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="scroll-zoom" onclick="toggleSelect(this)">
+    <div class="letter" style="background:linear-gradient(135deg,#89D4F5,#5AC8FA);">5</div>
+    <div class="content">
+      <h3>Scroll-Driven Zoom & Scale</h3>
+      <p>Content starts tiny and far away, then RUSHES toward you as you scroll. Text flies at you in 3D space. Numbers count up as they zoom in. The whole page feels like you're moving THROUGH it at speed.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="water-shader" onclick="toggleSelect(this)">
+    <div class="letter" style="background:linear-gradient(135deg,#0a1a2a,#007AFF);">6</div>
+    <div class="content">
+      <h3>Realistic Water Shader</h3>
+      <p>Full shader-based ocean with real wave simulation, Fresnel reflections of the skyline, light caustics on the buildings from the water, and foam particles at the shoreline. The water reacts to mouse movement (ripples).</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="neon-glow" onclick="toggleSelect(this)">
+    <div class="letter" style="background:linear-gradient(135deg,#FF3B6F,#AF52DE);">7</div>
+    <div class="content">
+      <h3>Neon Building Lights</h3>
+      <p>Buildings light up with animated neon signs, glowing window grids, and pulsing accent lights in pink/red/baby blue. Volumetric light beams shoot up from rooftops. Reflection trails dance on the water below.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="particle-fog" onclick="toggleSelect(this)">
+    <div class="letter" style="background:linear-gradient(135deg,#1a0520,#FF6B9D);">8</div>
+    <div class="content">
+      <h3>Atmospheric Particles & Fog</h3>
+      <p>Volumetric fog drifts between buildings. Firefly-like particles float in the air catching light. Lens flares from the sun/moon. God rays pierce through gaps in the skyline. Heat haze shimmer near the water.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="scroll-snap" onclick="toggleSelect(this)">
+    <div class="letter" style="background:linear-gradient(135deg,#FF9500,#FF2D55);">9</div>
+    <div class="content">
+      <h3>Full-Page Scroll Snap</h3>
+      <p>Each section is a full viewport. Scroll snaps between them with cinematic transitions — wipe, zoom, dissolve, 3D rotate. No free-scrolling. Every transition is a dramatic reveal. Like flipping through a premium pitch deck.</p>
+    </div>
+  </div>
+
+  <div class="option" data-choice="mouse-3d" onclick="toggleSelect(this)">
+    <div class="letter" style="background:linear-gradient(135deg,#34C759,#5AC8FA);">10</div>
+    <div class="content">
+      <h3>Mouse-Driven 3D Camera</h3>
+      <p>Moving your mouse tilts the entire 3D world. Look left — see more of the skyline. Look up — see more sky. Combined with scroll, it's like holding a camera in the scene. On mobile, uses device gyroscope instead.</p>
+    </div>
+  </div>
+
+</div>
+
+<div style="margin-top:24px;padding:16px;border-radius:12px;background:rgba(255,59,111,0.08);border:1px solid rgba(255,59,111,0.15);">
+  <p style="margin:0;font-size:14px;color:rgba(255,255,255,0.7);"><strong style="color:rgba(255,59,111,0.9);">Go wild:</strong> Select everything you want. I'll figure out how to make them all work together. The more effects layered, the more immersive the experience. Performance will be managed with LOD (level of detail) — full effects on desktop, simplified on mobile.</p>
+</div>

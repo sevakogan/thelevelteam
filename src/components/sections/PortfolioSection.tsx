@@ -65,7 +65,7 @@ export default function PortfolioSection({ companies }: PortfolioSectionProps) {
 
   return (
     <section id="portfolio" className="relative py-16 md:py-24">
-      <div className="max-w-6xl mx-auto px-6">
+      <div className="max-w-6xl mx-auto px-6" role="region" aria-label="Project carousel">
         {/* Section header */}
         <div className="mb-14 text-center">
           <motion.div
@@ -199,6 +199,7 @@ export default function PortfolioSection({ companies }: PortfolioSectionProps) {
         <div className="flex justify-center items-center gap-4 mt-6">
           <button
             onClick={prev}
+            aria-label="Previous project"
             className="w-11 h-11 rounded-full border border-white/10 flex items-center justify-center text-white hover:bg-white/5 transition-colors cursor-pointer text-lg"
           >
             ←
@@ -209,6 +210,7 @@ export default function PortfolioSection({ companies }: PortfolioSectionProps) {
               <button
                 key={i}
                 onClick={() => setActiveIndex(i)}
+                aria-label={`Go to project ${i + 1}`}
                 className="transition-all cursor-pointer rounded-full"
                 style={{
                   width: i === activeIndex % 12 ? 20 : 7,
@@ -228,6 +230,7 @@ export default function PortfolioSection({ companies }: PortfolioSectionProps) {
 
           <button
             onClick={next}
+            aria-label="Next project"
             className="w-11 h-11 rounded-full border border-white/10 flex items-center justify-center text-white hover:bg-white/5 transition-colors cursor-pointer text-lg"
           >
             →

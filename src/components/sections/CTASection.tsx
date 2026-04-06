@@ -218,8 +218,9 @@ export default function CTASection() {
                     Communication Preferences
                   </p>
 
-                  <label className="flex items-start gap-3 text-sm text-brand-muted cursor-pointer">
+                  <label htmlFor="smsConsent" className="flex items-start gap-3 text-sm text-brand-muted cursor-pointer">
                     <input
+                      id="smsConsent"
                       type="checkbox"
                       checked={form.smsConsent}
                       onChange={(e) => updateField("smsConsent", e.target.checked)}
@@ -230,8 +231,9 @@ export default function CTASection() {
                     </span>
                   </label>
 
-                  <label className="flex items-start gap-3 text-sm text-brand-muted cursor-pointer">
+                  <label htmlFor="emailConsent" className="flex items-start gap-3 text-sm text-brand-muted cursor-pointer">
                     <input
+                      id="emailConsent"
                       type="checkbox"
                       checked={form.emailConsent}
                       onChange={(e) => updateField("emailConsent", e.target.checked)}

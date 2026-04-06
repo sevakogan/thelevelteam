@@ -377,7 +377,7 @@ export default function PlatformsBar() {
   }, []);
 
   return (
-    <section className="relative h-screen flex flex-col items-center justify-center overflow-hidden">
+    <section role="region" aria-label="Interactive platform showcase" className="relative h-screen flex flex-col items-center justify-center overflow-hidden">
       <canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full"
