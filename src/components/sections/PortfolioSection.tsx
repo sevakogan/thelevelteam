@@ -11,13 +11,13 @@ interface PortfolioSectionProps {
 }
 
 const POSITIONS = [
-  { offset: -3, x: -560, rotateY: 40, opacity: 0.15, scale: 0.55 },
-  { offset: -2, x: -380, rotateY: 28, opacity: 0.35, scale: 0.68 },
-  { offset: -1, x: -210, rotateY: 16, opacity: 0.7, scale: 0.85 },
+  { offset: -3, x: -560, rotateY: 40, opacity: 0.3, scale: 0.55 },
+  { offset: -2, x: -380, rotateY: 28, opacity: 0.5, scale: 0.68 },
+  { offset: -1, x: -210, rotateY: 16, opacity: 0.8, scale: 0.85 },
   { offset: 0, x: 0, rotateY: 0, opacity: 1, scale: 1 },
-  { offset: 1, x: 210, rotateY: -16, opacity: 0.7, scale: 0.85 },
-  { offset: 2, x: 380, rotateY: -28, opacity: 0.35, scale: 0.68 },
-  { offset: 3, x: 560, rotateY: -40, opacity: 0.15, scale: 0.55 },
+  { offset: 1, x: 210, rotateY: -16, opacity: 0.8, scale: 0.85 },
+  { offset: 2, x: 380, rotateY: -28, opacity: 0.5, scale: 0.68 },
+  { offset: 3, x: 560, rotateY: -40, opacity: 0.3, scale: 0.55 },
 ];
 
 export default function PortfolioSection({ companies }: PortfolioSectionProps) {
@@ -117,14 +117,14 @@ export default function PortfolioSection({ companies }: PortfolioSectionProps) {
                   }`}
                   style={{
                     border: isCurrent
-                      ? `1px solid ${company.color_primary}50`
-                      : "1px solid rgba(255,255,255,0.06)",
+                      ? `1px solid ${company.color_primary}60`
+                      : "1px solid rgba(255,255,255,0.12)",
                     boxShadow: isCurrent
                       ? `0 25px 60px ${company.color_primary}15`
                       : "none",
                     background: isCurrent
-                      ? `linear-gradient(135deg, ${company.color_primary}12, ${company.color_secondary}08, rgba(15,15,20,0.95))`
-                      : "rgba(18,18,24,0.85)",
+                      ? `linear-gradient(135deg, ${company.color_primary}20, ${company.color_secondary}12, rgba(12,12,18,1))`
+                      : "rgba(16,16,22,0.97)",
                   }}
                 >
                   {/* Color accent bar */}
