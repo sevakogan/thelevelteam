@@ -1,4 +1,4 @@
-import MiamiSceneLoader from "@/components/three/MiamiSceneLoader";
+import dynamic from "next/dynamic";
 import Header from "@/components/ui/Header";
 import HeroSection from "@/components/sections/HeroSection";
 import ServicesMarketing from "@/components/sections/ServicesMarketing";
@@ -12,8 +12,15 @@ import CTASection from "@/components/sections/CTASection";
 import Footer from "@/components/sections/Footer";
 import FloatingCTA from "@/components/ui/FloatingCTA";
 import GamesModal from "@/components/ui/GamesModal";
-import AnimatedGrid from "@/components/ui/AnimatedGrid";
 import { getCompanies } from "@/lib/companies";
+
+const MiamiSceneLoader = dynamic(
+  () => import("@/components/three/MiamiSceneLoader"),
+  { ssr: false },
+);
+const AnimatedGrid = dynamic(() => import("@/components/ui/AnimatedGrid"), {
+  ssr: false,
+});
 
 export default async function Home() {
   const companies = await getCompanies();
