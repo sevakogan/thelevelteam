@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useCallback, useRef } from "react";
+import { motion, AnimatePresence, PanInfo } from "framer-motion";
 import Link from "next/link";
 import ScrollTextReveal from "@/components/ui/ScrollTextReveal";
 import type { Company } from "@/lib/types";
@@ -10,41 +10,51 @@ interface PortfolioSectionProps {
   companies: Company[];
 }
 
-interface SpanConfig {
-  colSpan: number;
-  rowSpan: number;
-}
-
-function getSpan(i: number): SpanConfig {
-  const patterns: SpanConfig[] = [
-    { colSpan: 2, rowSpan: 2 }, // 0 — large featured
-    { colSpan: 1, rowSpan: 1 }, // 1
-    { colSpan: 1, rowSpan: 2 }, // 2 — tall
-    { colSpan: 1, rowSpan: 1 }, // 3
-    { colSpan: 2, rowSpan: 1 }, // 4 — wide
-    { colSpan: 1, rowSpan: 1 }, // 5
-    { colSpan: 1, rowSpan: 1 }, // 6
-    { colSpan: 1, rowSpan: 2 }, // 7 — tall
-    { colSpan: 2, rowSpan: 1 }, // 8 — wide
-    { colSpan: 1, rowSpan: 1 }, // 9
-  ];
-  return patterns[i % patterns.length];
-}
+const POSITIONS = [
+  { offset: -3, x: -560, rotateY: 40, opacity: 0.15, scale: 0.55 },
+  { offset: -2, x: -380, rotateY: 28, opacity: 0.35, scale: 0.68 },
+  { offset: -1, x: -210, rotateY: 16, opacity: 0.7, scale: 0.85 },
+  { offset: 0, x: 0, rotateY: 0, opacity: 1, scale: 1 },
+  { offset: 1, x: 210, rotateY: -16, opacity: 0.7, scale: 0.85 },
+  { offset: 2, x: 380, rotateY: -28, opacity: 0.35, scale: 0.68 },
+  { offset: 3, x: 560, rotateY: -40, opacity: 0.15, scale: 0.55 },
+];
 
 export default function PortfolioSection({ companies }: PortfolioSectionProps) {
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const total = companies.length;
+  const isDragging = useRef(false);
+
+  const getIndex = useCallback(
+    (offset: number) => ((activeIndex + offset) % total + total) % total,
+    [activeIndex, total]
+  );
+
+  const next = useCallback(() => setActiveIndex((prev) => (prev + 1) % total), [total]);
+  const prev = useCallback(() => setActiveIndex((prev) => (prev - 1 + total) % total), [total]);
+
+  const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    isDragging.current = false;
+    if (Math.abs(info.offset.x) > 50 || Math.abs(info.velocity.x) > 300) {
+      if (info.offset.x > 0) {
+        prev();
+      } else {
+        next();
+      }
+    }
+  };
 
   return (
     <section id="portfolio" className="relative py-16 md:py-24">
       <div className="max-w-6xl mx-auto px-6">
         {/* Section header */}
-        <div className="mb-14">
+        <div className="mb-14 text-center">
           <motion.div
             initial={{ width: 0 }}
             whileInView={{ width: 48 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="h-[1px] bg-gradient-to-r from-miami-pink to-transparent mb-4"
+            className="h-[1px] bg-gradient-to-r from-miami-pink to-transparent mb-4 mx-auto"
           />
           <ScrollTextReveal
             text="Selected Projects"
@@ -59,138 +69,176 @@ export default function PortfolioSection({ companies }: PortfolioSectionProps) {
             transition={{ delay: 0.5 }}
             className="text-sm text-brand-muted mt-3"
           >
-            Hover for details · Click to explore
+            Drag left or right · Click sides to browse · Click center to explore
           </motion.p>
         </div>
 
-        {/* Masonry grid with glass container */}
-        <div className="relative rounded-2xl p-4 md:p-6 border border-white/[0.06] bg-white/[0.02] dark:bg-white/[0.02] backdrop-blur-sm">
-          {/* Subtle gradient glow behind grid */}
-          <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
-            <div className="absolute -top-20 -left-20 w-60 h-60 bg-miami-pink/5 rounded-full blur-3xl" />
-            <div className="absolute -bottom-20 -right-20 w-60 h-60 bg-accent-blue/5 rounded-full blur-3xl" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-accent-purple/3 rounded-full blur-3xl" />
-          </div>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true, margin: "-50px" }}
-            transition={{ duration: 0.6 }}
-            className="relative z-10 grid grid-cols-2 md:grid-cols-4 auto-rows-[120px] md:auto-rows-[140px] gap-2.5 md:gap-3"
-          >
-          {companies.map((company, i) => {
-            const span = getSpan(i);
-            const isHovered = hoveredId === company.id;
-            const isLarge = span.colSpan === 2 && span.rowSpan === 2;
+        {/* 3D Carousel */}
+        <motion.div
+          className="relative h-[420px] md:h-[460px] flex items-center justify-center cursor-grab active:cursor-grabbing select-none"
+          style={{ perspective: "1200px" }}
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.3}
+          onDragStart={() => { isDragging.current = true; }}
+          onDragEnd={handleDragEnd}
+        >
+          {POSITIONS.map((pos) => {
+            const idx = getIndex(pos.offset);
+            const company = companies[idx];
+            const isCurrent = pos.offset === 0;
 
             return (
               <motion.div
-                key={company.id}
-                className="relative rounded-xl overflow-hidden cursor-pointer"
-                style={{
-                  gridColumn: `span ${span.colSpan}`,
-                  gridRow: `span ${span.rowSpan}`,
-                  border: isHovered
-                    ? `1px solid ${company.color_primary}60`
-                    : "1px solid rgba(255,255,255,0.06)",
-                  background: isHovered
-                    ? `linear-gradient(145deg, ${company.color_primary}18, ${company.color_secondary}10, rgba(15,15,20,0.92))`
-                    : `linear-gradient(145deg, ${company.color_primary}08, rgba(15,15,20,0.95))`,
+                key={`${company.slug}-${pos.offset}`}
+                className="absolute"
+                animate={{
+                  x: pos.x,
+                  rotateY: pos.rotateY,
+                  opacity: pos.opacity,
+                  scale: pos.scale,
                 }}
-                onMouseEnter={() => setHoveredId(company.id)}
-                onMouseLeave={() => setHoveredId(null)}
-                animate={{ scale: isHovered ? 1.03 : 1 }}
-                transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                initial={{ opacity: 0, y: 20 }}
-                viewport={{ once: true }}
+                transition={{ type: "spring", stiffness: 180, damping: 26 }}
+                style={{
+                  transformStyle: "preserve-3d",
+                  zIndex: 10 - Math.abs(pos.offset),
+                }}
+                onClick={() => {
+                  if (isDragging.current) return;
+                  if (pos.offset < 0) prev();
+                  else if (pos.offset > 0) next();
+                }}
               >
-                {/* Accent top bar */}
                 <div
-                  className="absolute top-0 left-0 right-0 h-[2px] transition-opacity duration-300"
+                  className={`w-[260px] md:w-[300px] h-[340px] md:h-[380px] rounded-2xl overflow-hidden transition-all duration-300 ${
+                    isCurrent
+                      ? "shadow-2xl"
+                      : ""
+                  }`}
                   style={{
-                    background: `linear-gradient(90deg, ${company.color_primary}, ${company.color_secondary})`,
-                    opacity: isHovered ? 1 : 0.25,
+                    border: isCurrent
+                      ? `1px solid ${company.color_primary}50`
+                      : "1px solid rgba(255,255,255,0.06)",
+                    boxShadow: isCurrent
+                      ? `0 25px 60px ${company.color_primary}15`
+                      : "none",
+                    background: isCurrent
+                      ? `linear-gradient(135deg, ${company.color_primary}12, ${company.color_secondary}08, rgba(15,15,20,0.95))`
+                      : "rgba(18,18,24,0.85)",
                   }}
-                />
-
-                <div className="p-3 md:p-4 h-full flex flex-col relative z-10">
-                  {/* Name */}
-                  <h3
-                    className={`font-display font-bold text-white ${
-                      isLarge ? "text-base md:text-lg" : "text-sm md:text-base"
-                    }`}
-                  >
-                    {company.name}
-                  </h3>
-
-                  {/* Tagline — visible on large cards or hover */}
-                  {(isLarge || isHovered) && (
-                    <motion.p
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="text-[11px] md:text-xs text-brand-muted mt-1.5 leading-relaxed line-clamp-2"
-                    >
-                      {company.tagline}
-                    </motion.p>
-                  )}
-
-                  {/* Expanded hover content */}
-                  <AnimatePresence>
-                    {isHovered && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 8 }}
-                        transition={{ duration: 0.2 }}
-                        className="mt-auto"
-                      >
-                        {/* Tech stack pills */}
-                        <div className="flex flex-wrap gap-1 mb-2.5">
-                          {company.tech_stack.slice(0, isLarge ? 5 : 3).map((tech) => (
-                            <span
-                              key={tech}
-                              className="px-1.5 py-0.5 text-[9px] rounded-full text-brand-muted"
-                              style={{
-                                border: `1px solid ${company.color_primary}25`,
-                                backgroundColor: `${company.color_primary}08`,
-                              }}
-                            >
-                              {tech}
-                            </span>
-                          ))}
-                        </div>
-
-                        <Link
-                          href={`/projects/${company.slug}`}
-                          className="text-xs font-medium transition-colors hover:underline"
-                          style={{ color: company.color_primary }}
-                        >
-                          View Project →
-                        </Link>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-
-                {/* Glow on hover */}
-                {isHovered && (
+                >
+                  {/* Color accent bar */}
                   <div
-                    className="absolute inset-0 pointer-events-none"
+                    className="h-1 w-full"
                     style={{
-                      background: `radial-gradient(ellipse at 50% 0%, ${company.color_primary}12, transparent 70%)`,
+                      background: `linear-gradient(90deg, ${company.color_primary}, ${company.color_secondary})`,
                     }}
                   />
-                )}
+
+                  <div className="p-5 md:p-6 flex flex-col h-full">
+                    {/* Name */}
+                    <h3 className="font-display text-lg md:text-xl font-bold text-white mb-1.5">
+                      {company.name}
+                    </h3>
+
+                    {/* Tagline */}
+                    <p className="text-xs md:text-sm text-brand-muted leading-relaxed mb-4 line-clamp-3">
+                      {company.tagline}
+                    </p>
+
+                    {/* Tech stack */}
+                    <div className="flex flex-wrap gap-1.5 mb-auto">
+                      {company.tech_stack.slice(0, 4).map((tech) => (
+                        <span
+                          key={tech}
+                          className="px-2 py-0.5 text-[10px] rounded-full text-brand-muted"
+                          style={{
+                            border: `1px solid ${isCurrent ? company.color_primary + "25" : "rgba(255,255,255,0.08)"}`,
+                            backgroundColor: isCurrent ? `${company.color_primary}08` : "transparent",
+                          }}
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+
+                    {/* View link — only on center card */}
+                    {isCurrent && (
+                      <Link
+                        href={`/projects/${company.slug}`}
+                        className="mt-4 inline-flex items-center gap-2 text-sm font-semibold transition-colors hover:underline"
+                        style={{ color: company.color_primary }}
+                        onClick={(e) => { if (isDragging.current) e.preventDefault(); }}
+                      >
+                        View Project →
+                      </Link>
+                    )}
+                  </div>
+                </div>
               </motion.div>
             );
           })}
-          </motion.div>
+        </motion.div>
+
+        {/* Navigation */}
+        <div className="flex justify-center items-center gap-4 mt-6">
+          <button
+            onClick={prev}
+            className="w-11 h-11 rounded-full border border-white/10 flex items-center justify-center text-white hover:bg-white/5 transition-colors cursor-pointer text-lg"
+          >
+            ←
+          </button>
+
+          <div className="flex items-center gap-1.5">
+            {Array.from({ length: Math.min(total, 12) }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setActiveIndex(i)}
+                className="transition-all cursor-pointer rounded-full"
+                style={{
+                  width: i === activeIndex % 12 ? 20 : 7,
+                  height: 7,
+                  background: i === activeIndex % 12
+                    ? companies[activeIndex]?.color_primary || "#FF3B6F"
+                    : "rgba(255,255,255,0.15)",
+                  border: "none",
+                  padding: 0,
+                }}
+              />
+            ))}
+            {total > 12 && (
+              <span className="text-[10px] text-brand-muted ml-1">+{total - 12}</span>
+            )}
+          </div>
+
+          <button
+            onClick={next}
+            className="w-11 h-11 rounded-full border border-white/10 flex items-center justify-center text-white hover:bg-white/5 transition-colors cursor-pointer text-lg"
+          >
+            →
+          </button>
         </div>
 
+        {/* Current project info */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeIndex}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="text-center mt-5"
+          >
+            <p className="text-base font-display font-bold text-white">
+              {companies[activeIndex]?.name}
+            </p>
+            <p className="text-sm text-brand-muted mt-1 max-w-md mx-auto">
+              {companies[activeIndex]?.tagline?.slice(0, 90)}...
+            </p>
+          </motion.div>
+        </AnimatePresence>
+
         {/* CTA */}
-        <div className="flex justify-center mt-12">
+        <div className="flex justify-center mt-10">
           <button
             onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
             className="px-8 py-3 rounded-xl bg-gradient-to-r from-miami-baby-blue to-accent-cyan font-semibold text-white shadow-lg hover:shadow-xl transition-all hover:scale-105 cursor-pointer"
