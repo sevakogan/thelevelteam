@@ -17,13 +17,9 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const from = formData.get("From") as string | null;
     const body = formData.get("Body") as string | null;
-    const messageStatus = formData.get("MessageStatus") as string | null;
 
     if (!from || !body) {
-      // Status callback only (no message body) — just log
-      if (messageStatus) {
-        console.log(`Twilio status: ${messageStatus} from ${from ?? "unknown"}`);
-      }
+      // Status callback only (no message body)
       return twiml();
     }
 

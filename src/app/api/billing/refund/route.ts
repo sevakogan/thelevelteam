@@ -103,8 +103,6 @@ export async function POST(req: NextRequest) {
       note
     );
 
-    console.log(`[BILLING] Refund processed: ${paymentId} — $${refundAmount}`);
-
     return NextResponse.json({ success: true, refundId: refund.id });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Refund failed";

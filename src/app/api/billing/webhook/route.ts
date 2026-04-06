@@ -133,15 +133,11 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     ]);
   }
 
-  console.log(
-    `[BILLING WEBHOOK] Customer ${customerId} marked as ${newStatus} — $${amountPaid}`
-  );
 }
 
 async function handleInvoicePaid(invoice: Stripe.Invoice) {
   // Skip the first invoice on a new subscription — already handled by checkout.session.completed
   if (invoice.billing_reason === "subscription_create") {
-    console.log("[BILLING WEBHOOK] Skipping invoice.paid for subscription_create (handled by checkout.session.completed)");
     return;
   }
 
@@ -244,9 +240,5 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     customer.id,
     "lost",
     "Stripe subscription cancelled/deleted"
-  );
-
-  console.log(
-    `[BILLING WEBHOOK] Subscription cancelled for customer ${customer.id}`
   );
 }

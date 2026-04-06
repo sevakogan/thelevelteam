@@ -32,10 +32,6 @@ export async function POST(req: NextRequest) {
           await unsubscribeLead(lead.id, "email");
           await pauseCampaignsForLead(lead.id, "email");
         }
-
-        console.log(
-          `SendGrid ${event.event}: ${event.email}${event.reason ? ` (${event.reason})` : ""}`
-        );
       }
     }
 

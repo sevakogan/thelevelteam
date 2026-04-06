@@ -97,7 +97,6 @@ export async function POST(req: NextRequest) {
 
     try {
       await sendEmail(FORWARD_TO, forwardSubject, forwardHtml);
-      console.log(`Email forwarded to ${FORWARD_TO}`);
     } catch (err) {
       console.error("Failed to forward email to", FORWARD_TO, ":", err);
     }

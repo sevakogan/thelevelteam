@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { isAuthorized } from "@/lib/billing/auth";
 import { getCustomer, getCustomerPayments } from "@/lib/billing/customers";
 import { sendPaymentReceipt } from "@/lib/billing/notifications";
-import { MARKETING_CONFIG } from "@/lib/marketing/config";
 
 export async function POST(
   req: NextRequest,
@@ -41,10 +40,6 @@ export async function POST(
     }
 
     await sendPaymentReceipt(customer, payment);
-
-    console.log(
-      `[BILLING] Receipt sent for payment ${paymentId} to ${customer.email} (${MARKETING_CONFIG.company.name})`
-    );
 
     return NextResponse.json({ success: true });
   } catch (err) {
