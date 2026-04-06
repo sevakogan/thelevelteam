@@ -4,6 +4,7 @@ import { createLead, getLeads, updateLead, deleteLead } from "@/lib/marketing/le
 import { sendEmail } from "@/lib/marketing/sendgrid";
 import { getWelcomeEmail } from "@/lib/marketing/templates";
 import { enrollLeadInCampaigns } from "@/lib/marketing/drip";
+import { pushLeadToQuo } from "@/lib/quo";
 import { createSupabaseServer } from "@/lib/supabase-auth-server";
 import { getSupabaseAdmin } from "@/lib/supabase-server";
 
@@ -35,8 +36,19 @@ export async function POST(req: NextRequest) {
 
     const supabase = getSupabaseAdmin();
 
-    // TODO: GHL (GoHighLevel) campaign integration — will be connected next
-    // Placeholder for GHL webhook/API call to enroll lead in GHL campaign
+    // Quo SMS auto-reply (if lead has phone + SMS consent)
+    if (lead.sms_consent && lead.phone) {
+      welcomePromises.push(
+        pushLeadToQuo({
+          name: lead.name,
+          email: lead.email ?? undefined,
+          phone: lead.phone ?? undefined,
+          source: result.data.source || "website",
+          message: lead.message ?? undefined,
+          projectInterest: lead.project_interest ?? undefined,
+        }).catch((err) => console.error("Quo SMS failed:", err))
+      );
+    }
 
     if (lead.email_consent) {
       const { subject, html } = getWelcomeEmail(lead);
