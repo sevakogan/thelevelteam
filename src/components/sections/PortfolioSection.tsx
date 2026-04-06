@@ -11,13 +11,13 @@ interface PortfolioSectionProps {
 }
 
 const POSITIONS = [
-  { offset: -3, x: -560, rotateY: 40, opacity: 0.3, scale: 0.55 },
-  { offset: -2, x: -380, rotateY: 28, opacity: 0.5, scale: 0.68 },
-  { offset: -1, x: -210, rotateY: 16, opacity: 0.8, scale: 0.85 },
+  { offset: -3, x: -620, rotateY: 45, opacity: 0.2, scale: 0.5 },
+  { offset: -2, x: -420, rotateY: 30, opacity: 0.4, scale: 0.65 },
+  { offset: -1, x: -230, rotateY: 14, opacity: 0.75, scale: 0.85 },
   { offset: 0, x: 0, rotateY: 0, opacity: 1, scale: 1 },
-  { offset: 1, x: 210, rotateY: -16, opacity: 0.8, scale: 0.85 },
-  { offset: 2, x: 380, rotateY: -28, opacity: 0.5, scale: 0.68 },
-  { offset: 3, x: 560, rotateY: -40, opacity: 0.3, scale: 0.55 },
+  { offset: 1, x: 230, rotateY: -14, opacity: 0.75, scale: 0.85 },
+  { offset: 2, x: 420, rotateY: -30, opacity: 0.4, scale: 0.65 },
+  { offset: 3, x: 620, rotateY: -45, opacity: 0.2, scale: 0.5 },
 ];
 
 export default function PortfolioSection({ companies }: PortfolioSectionProps) {
@@ -59,7 +59,7 @@ export default function PortfolioSection({ companies }: PortfolioSectionProps) {
         if (i === steps - 1) {
           animatingRef.current = false;
         }
-      }, i * 250);
+      }, i * 350);
     }
   };
 
@@ -94,7 +94,7 @@ export default function PortfolioSection({ companies }: PortfolioSectionProps) {
 
         {/* 3D Carousel */}
         <motion.div
-          className="relative h-[420px] md:h-[460px] flex items-center justify-center cursor-grab active:cursor-grabbing select-none overflow-hidden"
+          className="relative h-[480px] md:h-[540px] flex items-center justify-center cursor-grab active:cursor-grabbing select-none overflow-hidden"
           style={{ perspective: "1200px" }}
           drag="x"
           dragConstraints={{ left: 0, right: 0 }}
@@ -117,7 +117,7 @@ export default function PortfolioSection({ companies }: PortfolioSectionProps) {
                   opacity: pos.opacity,
                   scale: pos.scale,
                 }}
-                transition={{ type: "spring", stiffness: 180, damping: 26 }}
+                transition={{ type: "spring", stiffness: 120, damping: 22, mass: 0.8 }}
                 style={{
                   transformStyle: "preserve-3d",
                   zIndex: 10 - Math.abs(pos.offset),
@@ -125,26 +125,26 @@ export default function PortfolioSection({ companies }: PortfolioSectionProps) {
                 onClick={() => goToOffset(pos.offset)}
               >
                 <div
-                  className={`w-[260px] md:w-[300px] h-[340px] md:h-[380px] rounded-2xl overflow-hidden transition-all duration-300 ${
+                  className={`w-[300px] md:w-[360px] h-[380px] md:h-[460px] rounded-2xl overflow-hidden transition-all duration-300 ${
                     isCurrent
                       ? "shadow-2xl"
                       : ""
                   }`}
                   style={{
                     border: isCurrent
-                      ? `1px solid ${company.color_primary}60`
-                      : "1px solid rgba(255,255,255,0.12)",
+                      ? `2px solid ${company.color_primary}70`
+                      : "1px solid rgba(255,255,255,0.1)",
                     boxShadow: isCurrent
                       ? `0 25px 60px ${company.color_primary}15`
                       : "none",
                     background: isCurrent
-                      ? `linear-gradient(135deg, ${company.color_primary}25, ${company.color_secondary}15, #0c0c12)`
-                      : "#101016",
+                      ? `linear-gradient(145deg, ${company.color_primary}30, ${company.color_secondary}18, #0e0e14 50%, #0a0a10)`
+                      : "#111118",
                   }}
                 >
                   {/* Color accent bar */}
                   <div
-                    className="h-1 w-full"
+                    className="h-1.5 w-full"
                     style={{
                       background: `linear-gradient(90deg, ${company.color_primary}, ${company.color_secondary})`,
                     }}
