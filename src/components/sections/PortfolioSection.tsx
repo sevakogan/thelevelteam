@@ -24,6 +24,7 @@ export default function PortfolioSection({ companies }: PortfolioSectionProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const total = companies.length;
   const isDragging = useRef(false);
+  const animatingRef = useRef(false);
 
   const getIndex = useCallback(
     (offset: number) => ((activeIndex + offset) % total + total) % total,
@@ -45,10 +46,21 @@ export default function PortfolioSection({ companies }: PortfolioSectionProps) {
   };
 
   const goToOffset = (offset: number) => {
-    if (isDragging.current) return;
-    if (offset === 0) return; // center card — let link handle it
-    // Jump by the offset amount
-    setActiveIndex((prev) => ((prev + offset) % total + total) % total);
+    if (isDragging.current || animatingRef.current) return;
+    if (offset === 0) return;
+
+    const steps = Math.abs(offset);
+    const direction = offset > 0 ? 1 : -1;
+    animatingRef.current = true;
+
+    for (let i = 0; i < steps; i++) {
+      setTimeout(() => {
+        setActiveIndex((prev) => ((prev + direction) % total + total) % total);
+        if (i === steps - 1) {
+          animatingRef.current = false;
+        }
+      }, i * 250);
+    }
   };
 
   return (
@@ -126,8 +138,8 @@ export default function PortfolioSection({ companies }: PortfolioSectionProps) {
                       ? `0 25px 60px ${company.color_primary}15`
                       : "none",
                     background: isCurrent
-                      ? `linear-gradient(135deg, ${company.color_primary}20, ${company.color_secondary}12, rgba(12,12,18,1))`
-                      : "rgba(16,16,22,0.97)",
+                      ? `linear-gradient(135deg, ${company.color_primary}25, ${company.color_secondary}15, #0c0c12)`
+                      : "#101016",
                   }}
                 >
                   {/* Color accent bar */}
