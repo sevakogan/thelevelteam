@@ -96,35 +96,43 @@ export default function HeroSection() {
           </span>
         </motion.div>
 
-        {/* Layout Text Flip heading */}
+        {/* Layout Text Flip heading — Aceternity style */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="flex flex-col items-center gap-2 md:gap-3"
         >
-          <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white tracking-tight">
+          {/* Line 1: "We Build" */}
+          <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white tracking-tight text-center">
             We Build
           </h1>
 
-          {/* Flipping word — second line */}
-          <div className="relative min-h-[60px] sm:min-h-[72px] md:min-h-[84px] lg:min-h-[100px]">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentWord}
-                initial={{ y: 30, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: -30, opacity: 0 }}
-                transition={{ duration: 0.35 }}
-                className="flex items-center justify-center"
-              >
-                <span
+          {/* Line 2: Flipping word with layout width animation */}
+          <div className="flex justify-center mt-3 md:mt-4">
+            <motion.div
+              layout
+              className="relative inline-flex items-center justify-center overflow-hidden rounded-xl px-4 py-1 md:px-6 md:py-2"
+              style={{
+                background: "rgba(255,255,255,0.03)",
+                border: "1px solid rgba(255,255,255,0.06)",
+              }}
+              transition={{
+                layout: { type: "spring", stiffness: 200, damping: 25, mass: 0.5 },
+              }}
+            >
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={currentWord}
+                  initial={{ opacity: 0, y: 20, filter: "blur(6px)" }}
+                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, y: -20, filter: "blur(6px)" }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
                   className={`font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight bg-gradient-to-r ${colorClass} bg-clip-text text-transparent whitespace-nowrap`}
                 >
                   {currentWord}
-                </span>
-              </motion.div>
-            </AnimatePresence>
+                </motion.span>
+              </AnimatePresence>
+            </motion.div>
           </div>
         </motion.div>
 
