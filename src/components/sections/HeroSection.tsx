@@ -101,13 +101,13 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="flex flex-wrap items-center justify-center gap-x-4 md:gap-x-5"
+          className="flex flex-col items-center gap-2 md:gap-3"
         >
           <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white tracking-tight">
             We Build
           </h1>
 
-          {/* Flipping word with layout animation */}
+          {/* Flipping word with layout animation — second line */}
           <motion.div
             layout
             className="relative h-[1.1em] overflow-hidden"
