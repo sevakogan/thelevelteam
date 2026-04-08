@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import ScrollTextReveal from "@/components/ui/ScrollTextReveal";
+import { Highlight } from "@/components/ui/HeroHighlight";
 import HoverCards from "@/components/ui/HoverCards";
 
 const services = [
@@ -81,12 +81,16 @@ export default function ServicesMarketing() {
             className="h-[2px] bg-miami-pink mb-5"
           />
 
-          <ScrollTextReveal
-            text="What We Do — Marketing & Ads"
-            as="h2"
-            mode="word"
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, ease: [0.4, 0.0, 0.2, 1.0] }}
             className="font-display text-4xl md:text-6xl lg:text-7xl font-bold text-white tracking-tight"
-          />
+          >
+            What We Do —{" "}
+            <Highlight color="#FF3B6F">Marketing & Ads</Highlight>
+          </motion.h2>
         </div>
 
         {/* Hover cards grid */}
