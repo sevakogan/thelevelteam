@@ -107,19 +107,23 @@ export default function HeroSection() {
             We Build
           </h1>
 
-          {/* Flipping word with layout animation — second line */}
-          <div className="relative h-[80px] sm:h-[90px] md:h-[100px] lg:h-[120px] overflow-hidden flex items-center justify-center">
+          {/* Flipping word — second line */}
+          <div className="relative min-h-[60px] sm:min-h-[72px] md:min-h-[84px] lg:min-h-[100px]">
             <AnimatePresence mode="wait">
-              <motion.span
+              <motion.div
                 key={currentWord}
-                initial={{ y: 60, opacity: 0, filter: "blur(8px)" }}
-                animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-                exit={{ y: -60, opacity: 0, filter: "blur(8px)" }}
-                transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-                className={`absolute font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight bg-gradient-to-r ${colorClass} bg-clip-text text-transparent whitespace-nowrap`}
+                initial={{ y: 30, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: -30, opacity: 0 }}
+                transition={{ duration: 0.35 }}
+                className="flex items-center justify-center"
               >
-                {currentWord}
-              </motion.span>
+                <span
+                  className={`font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight bg-gradient-to-r ${colorClass} bg-clip-text text-transparent whitespace-nowrap`}
+                >
+                  {currentWord}
+                </span>
+              </motion.div>
             </AnimatePresence>
           </div>
         </motion.div>
