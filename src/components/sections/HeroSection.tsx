@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import AuroraBackground from "@/components/ui/AuroraBackground";
 import MagneticButton from "@/components/ui/MagneticButton";
 import { useLeadModal } from "@/lib/marketing/useLeadModal";
@@ -42,46 +42,17 @@ const WORD_COLORS = [
   "from-miami-baby-blue to-miami-pink",
 ];
 
-function useTypewriter(words: string[], typingSpeed = 80, deletingSpeed = 40, pauseTime = 3000) {
-  const [displayText, setDisplayText] = useState("");
-  const [wordIndex, setWordIndex] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [showCursor, setShowCursor] = useState(true);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+function useLayoutTextFlip(words: string[], duration = 3000) {
+  const [index, setIndex] = useState(0);
 
-  // Blinking cursor
   useEffect(() => {
-    const interval = setInterval(() => setShowCursor((prev) => !prev), 530);
+    const interval = setInterval(() => {
+      setIndex((prev) => (prev + 1) % words.length);
+    }, duration);
     return () => clearInterval(interval);
-  }, []);
+  }, [words.length, duration]);
 
-  useEffect(() => {
-    const currentWord = words[wordIndex];
-
-    if (!isDeleting && displayText === currentWord) {
-      // Pause before deleting
-      timeoutRef.current = setTimeout(() => setIsDeleting(true), pauseTime);
-    } else if (isDeleting && displayText === "") {
-      // Move to next word
-      setIsDeleting(false);
-      setWordIndex((prev) => (prev + 1) % words.length);
-    } else {
-      const speed = isDeleting ? deletingSpeed : typingSpeed;
-      timeoutRef.current = setTimeout(() => {
-        setDisplayText(
-          isDeleting
-            ? currentWord.substring(0, displayText.length - 1)
-            : currentWord.substring(0, displayText.length + 1)
-        );
-      }, speed);
-    }
-
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, [displayText, isDeleting, wordIndex, words, typingSpeed, deletingSpeed, pauseTime]);
-
-  return { displayText, showCursor, wordIndex };
+  return index;
 }
 
 export default function HeroSection() {
@@ -90,9 +61,9 @@ export default function HeroSection() {
   const heroOpacity = useTransform(scrollY, [0, 500], [1, 0]);
   const heroY = useTransform(scrollY, [0, 500], [0, 120]);
 
-  const { displayText, showCursor, wordIndex } = useTypewriter(ROTATING_WORDS, 110, 50, 2500);
+  const wordIndex = useLayoutTextFlip(ROTATING_WORDS, 2800);
   const colorClass = WORD_COLORS[wordIndex % WORD_COLORS.length];
-
+  const currentWord = ROTATING_WORDS[wordIndex];
 
   return (
     <section className="relative min-h-screen overflow-hidden">
@@ -103,7 +74,7 @@ export default function HeroSection() {
         style={{ opacity: heroOpacity }}
         className="absolute top-[22%] inset-x-0 z-[15] flex flex-col items-center text-center pointer-events-none px-6"
       >
-        {/* Subtitle above — animated gradient pill */}
+        {/* Subtitle — animated gradient pill */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -111,7 +82,6 @@ export default function HeroSection() {
           className="mb-6"
         >
           <span className="relative inline-block px-6 py-2 rounded-md overflow-hidden">
-            {/* Rotating gradient background */}
             <span
               className="absolute inset-0 rounded-md animate-gradient-rotate"
               style={{
@@ -119,64 +89,43 @@ export default function HeroSection() {
                 backgroundSize: "300% 100%",
               }}
             />
-            {/* Inner dark fill so text is readable */}
             <span className="absolute inset-[1.5px] rounded-[4px] bg-black/80 backdrop-blur-sm" />
-            {/* Text */}
             <span className="relative z-10 text-xs md:text-sm tracking-[0.3em] uppercase font-semibold bg-gradient-to-r from-miami-pink via-accent-purple to-miami-baby-blue bg-clip-text text-transparent bg-[length:200%_100%] animate-gradient-rotate">
               Miami&apos;s Boutique Digital Agency
             </span>
           </span>
         </motion.div>
 
-        {/* Main heading with typewriter */}
-        <motion.h1
+        {/* Layout Text Flip heading */}
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white tracking-tight leading-[1.05]"
+          className="flex flex-wrap items-center justify-center gap-x-4 md:gap-x-5"
         >
-          We Build
-        </motion.h1>
+          <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold text-white tracking-tight">
+            We Build
+          </h1>
 
-        {/* Typewriter word with glow + shimmer */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="h-[1.2em] mt-6 md:mt-8 flex items-center justify-center relative"
-        >
-          {/* Glow behind text that pulses with typing */}
-          <div
-            className="absolute inset-0 blur-3xl opacity-20 transition-all duration-700 pointer-events-none"
-            style={{
-              background: `radial-gradient(ellipse at center, var(--tw-gradient-from, #FF3B6F), transparent 70%)`,
-              transform: `scaleX(${0.5 + displayText.length * 0.08})`,
-            }}
-          />
-
-          {/* Main text */}
-          <motion.span
-            key={wordIndex}
-            initial={{ filter: "blur(8px)", opacity: 0.5 }}
-            animate={{ filter: "blur(0px)", opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className={`font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight bg-gradient-to-r ${colorClass} bg-clip-text text-transparent relative`}
+          {/* Flipping word with layout animation */}
+          <motion.div
+            layout
+            className="relative h-[1.1em] overflow-hidden"
+            transition={{ type: "spring", stiffness: 150, damping: 20, mass: 0.8 }}
           >
-            {displayText}
-          </motion.span>
-
-          {/* Cursor with glow */}
-          <span
-            className={`font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold ml-[2px] transition-opacity duration-100 ${
-              showCursor ? "opacity-100" : "opacity-0"
-            }`}
-            style={{
-              color: "#FF3B6F",
-              textShadow: showCursor ? "0 0 20px #FF3B6F, 0 0 40px #FF3B6F50" : "none",
-            }}
-          >
-            |
-          </span>
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={currentWord}
+                initial={{ y: 40, opacity: 0, filter: "blur(8px)" }}
+                animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
+                exit={{ y: -40, opacity: 0, filter: "blur(8px)" }}
+                transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+                className={`inline-block font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight bg-gradient-to-r ${colorClass} bg-clip-text text-transparent whitespace-nowrap`}
+              >
+                {currentWord}
+              </motion.span>
+            </AnimatePresence>
+          </motion.div>
         </motion.div>
 
         {/* Description */}

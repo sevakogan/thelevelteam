@@ -12,6 +12,7 @@ import CTASection from "@/components/sections/CTASection";
 import Footer from "@/components/sections/Footer";
 import FloatingCTA from "@/components/ui/FloatingCTA";
 import GamesModal from "@/components/ui/GamesModal";
+import TracingBeam from "@/components/ui/TracingBeam";
 import { getCompanies } from "@/lib/companies";
 
 const MiamiSceneLoader = dynamic(
@@ -32,33 +33,35 @@ export default async function Home() {
       <section className="snap-section" id="hero">
         <HeroSection />
       </section>
-      <section className="snap-section" id="services-marketing">
-        <ServicesMarketing />
-      </section>
-      <section className="snap-section" id="services-tech">
-        <ServicesTech />
-      </section>
-      <section className="snap-section" id="platforms">
-        <PlatformsBar />
-      </section>
-      <section className="snap-section" id="portfolio">
-        <PortfolioSection companies={companies} />
-      </section>
-      <section className="snap-section" id="process">
-        <ProcessSection />
-      </section>
-      <section className="snap-section" id="results">
-        <SocialProofSection />
-      </section>
-      <section className="snap-section" id="about">
-        <AboutSection />
-      </section>
-      <section className="snap-section" id="contact">
-        <CTASection />
-      </section>
-      <footer className="snap-section" id="footer">
-        <Footer />
-      </footer>
+      <TracingBeam>
+        <section className="snap-section" id="services-marketing">
+          <ServicesMarketing />
+        </section>
+        <section className="snap-section" id="services-tech">
+          <ServicesTech />
+        </section>
+        <section className="snap-section" id="platforms">
+          <PlatformsBar />
+        </section>
+        <section className="snap-section" id="portfolio">
+          <PortfolioSection companies={companies} />
+        </section>
+        <section className="snap-section" id="process">
+          <ProcessSection />
+        </section>
+        <section className="snap-section" id="results">
+          <SocialProofSection />
+        </section>
+        <section className="snap-section" id="about">
+          <AboutSection />
+        </section>
+        <section className="snap-section" id="contact">
+          <CTASection />
+        </section>
+        <footer className="snap-section" id="footer">
+          <Footer />
+        </footer>
+      </TracingBeam>
       <AnimatedGrid />
       <FloatingCTA />
       <GamesModal />
