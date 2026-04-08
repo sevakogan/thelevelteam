@@ -108,24 +108,20 @@ export default function HeroSection() {
           </h1>
 
           {/* Flipping word with layout animation — second line */}
-          <motion.div
-            layout
-            className="relative h-[1.1em] overflow-hidden"
-            transition={{ type: "spring", stiffness: 150, damping: 20, mass: 0.8 }}
-          >
+          <div className="relative h-[80px] sm:h-[90px] md:h-[100px] lg:h-[120px] overflow-hidden flex items-center justify-center">
             <AnimatePresence mode="wait">
               <motion.span
                 key={currentWord}
-                initial={{ y: 40, opacity: 0, filter: "blur(8px)" }}
+                initial={{ y: 60, opacity: 0, filter: "blur(8px)" }}
                 animate={{ y: 0, opacity: 1, filter: "blur(0px)" }}
-                exit={{ y: -40, opacity: 0, filter: "blur(8px)" }}
+                exit={{ y: -60, opacity: 0, filter: "blur(8px)" }}
                 transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-                className={`inline-block font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight bg-gradient-to-r ${colorClass} bg-clip-text text-transparent whitespace-nowrap`}
+                className={`absolute font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight bg-gradient-to-r ${colorClass} bg-clip-text text-transparent whitespace-nowrap`}
               >
                 {currentWord}
               </motion.span>
             </AnimatePresence>
-          </motion.div>
+          </div>
         </motion.div>
 
         {/* Description */}

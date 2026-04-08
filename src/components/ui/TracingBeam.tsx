@@ -42,7 +42,7 @@ export default function TracingBeam({ children }: TracingBeamProps) {
   // y2 reserved for future secondary beam animation
 
   return (
-    <motion.div ref={ref} className="relative w-full max-w-5xl mx-auto">
+    <motion.div ref={ref} className="relative w-full">
       {/* Beam SVG — left side */}
       <div className="absolute left-4 md:left-8 top-0 hidden md:block" style={{ height: svgHeight }}>
         <svg
@@ -114,7 +114,7 @@ export default function TracingBeam({ children }: TracingBeamProps) {
       </div>
 
       {/* Content */}
-      <div ref={contentRef} className="md:pl-16 lg:pl-20">
+      <div ref={contentRef}>
         {children}
       </div>
     </motion.div>

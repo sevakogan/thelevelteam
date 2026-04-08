@@ -221,9 +221,9 @@ html.lenis, html.lenis body { height: auto; }
   z-index: 2;
 }
 
-/* Dark mode: semi-transparent so starfield/grid show through */
+/* Dark mode: solid dark background with subtle gradient for flow */
 .dark .snap-section {
-  background: rgba(0, 0, 0, 0.75);
+  background: #000000;
 }
 
 /* Hero section is transparent so background effects show through */
@@ -237,6 +237,12 @@ html.lenis, html.lenis body { height: auto; }
 
 .dark .snap-section#hero {
   background: transparent;
+}
+
+/* Smooth fade from hero into content */
+.dark .snap-section#hero + .snap-section,
+.dark .snap-section#hero + div > .snap-section:first-child {
+  background: linear-gradient(180deg, transparent 0%, #000000 15%);
 }
 
 /* ── Gradient rotation animation ── */
