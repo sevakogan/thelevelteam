@@ -116,6 +116,7 @@ export default function Footer() {
               <a href="/#portfolio" className="hover:text-white transition-colors">Portfolio</a>
               <a href="/#about" className="hover:text-white transition-colors">About</a>
               <a href="/#contact" className="hover:text-white transition-colors">Contact</a>
+              <a href="https://crm.thelevelteam.com/display" className="hover:text-white transition-colors">Hire Us</a>
               <span className="w-px h-3 bg-brand-border" />
               <a href="/privacy" className="hover:text-white transition-colors">Privacy</a>
               <a href="/terms" className="hover:text-white transition-colors">Terms</a>
